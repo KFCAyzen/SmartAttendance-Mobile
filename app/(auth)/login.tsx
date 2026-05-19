@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -21,7 +21,6 @@ type FormValues = z.infer<typeof schema>;
 
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const router = useRouter();
   const { login } = useAuth();
 
   const {
@@ -36,7 +35,7 @@ export default function LoginScreen() {
   const onSubmit = handleSubmit(async (values) => {
     try {
       await login.mutateAsync(values);
-      router.replace('/(tabs)');
+      // Navigation is handled by the auth gate based on device verification result.
     } catch (error) {
       Toast.show({
         type: 'error',

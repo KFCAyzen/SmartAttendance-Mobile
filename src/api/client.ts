@@ -1,6 +1,6 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios';
 
-import { clearAuth, getItem, StorageKeys } from '../lib/secure-storage';
+import { getItem, StorageKeys } from '../lib/secure-storage';
 import type { ApiError } from './types';
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3001';
@@ -27,9 +27,10 @@ export function setUnauthorizedHandler(handler: () => void): void {
 
 api.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError<ApiError>) => {
-    if (error.response?.status === 401) {
-      await clearAuth();
+  (error: AxiosError<ApiError>) => {
+    const url = error.config?.url ?? '';
+    // Don't trigger global logout on login endpoint — it has its own error handling.
+    if (error.response?.status === 401 && !url.includes('/auth/login')) {
       onUnauthorized?.();
     }
     return Promise.reject(error);

@@ -25,15 +25,19 @@ function RootLayoutNav() {
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
+      void useAuthStore.getState().clearSession();
       router.replace('/(auth)/login');
     });
   }, [router]);
 
   useEffect(() => {
-    if (status === 'idle' || status === 'loading') return;
+    if (status === 'idle' || status === 'loading' || status === 'verifying_device') return;
     const inAuthGroup = segments[0] === '(auth)';
+    const currentRoute = segments.join('/');
     if (status === 'unauthenticated' && !inAuthGroup) {
       router.replace('/(auth)/login');
+    } else if (status === 'device_pending' && currentRoute !== '(auth)/device-pending') {
+      router.replace('/(auth)/device-pending');
     } else if (status === 'authenticated' && inAuthGroup) {
       router.replace('/(tabs)');
     }
