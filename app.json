@@ -58,7 +58,8 @@
         {
           "photosPermission": "Accédez à la galerie pour choisir une photo de référence."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,
