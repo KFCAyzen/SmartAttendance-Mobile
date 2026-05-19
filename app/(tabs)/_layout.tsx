@@ -29,6 +29,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="pointage"
+        options={{
+          title: t('tabs.checkin'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="scan-circle" size={size + 4} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: t('tabs.profile'),

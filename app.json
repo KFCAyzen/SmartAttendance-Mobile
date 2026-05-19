@@ -40,7 +40,19 @@
         }
       ],
       "expo-secure-store",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Accédez à la caméra pour pointer par reconnaissance faciale."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Votre position permet de valider votre site de pointage."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
