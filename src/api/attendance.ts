@@ -17,17 +17,25 @@ export interface AttendanceHistoryItem {
   id: string;
   type: 'CHECK_IN' | 'CHECK_OUT';
   timestamp: string;
-  location?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  wifiSSID?: string | null;
+  location?: { id: string; name: string } | null;
   photoUrl?: string | null;
   faceMatch?: boolean;
-  faceConfidence?: number;
+  faceConfidence?: number | null;
+  hoursWorked?: number | null;
 }
 
 export interface AttendanceHistoryResponse {
-  items: AttendanceHistoryItem[];
-  total: number;
-  page: number;
-  limit: number;
+  data: AttendanceHistoryItem[];
+  attendances?: AttendanceHistoryItem[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
 
 export async function checkOut(payload: CheckOutPayload): Promise<{ success: boolean; message?: string }> {

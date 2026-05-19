@@ -1,24 +1,68 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
-import { Alert, Text, View } from 'react-native';
+import { ActionSheetIOS, Alert, Platform, Pressable, Text, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 
+import { humanizeApiError } from '~/api/client';
+import { buildPhotoUrl } from '~/api/users';
 import { Button } from '~/components/ui/Button';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { useAuth } from '~/hooks/useAuth';
+import { useReferencePhoto } from '~/hooks/useReferencePhoto';
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
+  const { photo, isLoading, upload, pickAndUpload, pickFromLibraryAndUpload } = useReferencePhoto();
+
+  const mode: 'set' | 'request' = photo?.photoUrl ? 'request' : 'set';
+  const photoUrl = buildPhotoUrl(photo?.photoUrl);
+  const isPending = Boolean(photo?.photoChangeRequested);
+
+  const run = async (action: () => Promise<unknown>) => {
+    try {
+      const result = await action();
+      if (!result) return; // user cancelled
+      Toast.show({
+        type: 'success',
+        text1: 'Photo enregistrée',
+        text2:
+          mode === 'request' && !(result as { autoApproved?: boolean }).autoApproved
+            ? 'En attente de validation par un administrateur.'
+            : 'Vous pouvez désormais pointer.',
+      });
+    } catch (error) {
+      Toast.show({ type: 'error', text1: humanizeApiError(error) });
+    }
+  };
+
+  const showPicker = () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Annuler', 'Prendre une photo', 'Choisir dans la galerie'],
+          cancelButtonIndex: 0,
+        },
+        (i) => {
+          if (i === 1) void run(() => pickAndUpload(mode));
+          if (i === 2) void run(() => pickFromLibraryAndUpload(mode));
+        },
+      );
+    } else {
+      Alert.alert('Photo de référence', 'Choisissez une source', [
+        { text: 'Caméra', onPress: () => void run(() => pickAndUpload(mode)) },
+        { text: 'Galerie', onPress: () => void run(() => pickFromLibraryAndUpload(mode)) },
+        { text: 'Annuler', style: 'cancel' },
+      ]);
+    }
+  };
 
   const confirmLogout = () => {
-    Alert.alert(
-      t('common.logout'),
-      'Vous serez déconnecté de votre compte sur cet appareil.',
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        { text: t('common.logout'), style: 'destructive', onPress: () => void logout() },
-      ],
-    );
+    Alert.alert(t('common.logout'), 'Vous serez déconnecté de votre compte sur cet appareil.', [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.logout'), style: 'destructive', onPress: () => void logout() },
+    ]);
   };
 
   return (
@@ -47,6 +91,59 @@ export default function ProfileScreen() {
         <View className="h-px bg-slate-200 dark:bg-slate-800" />
         <Row label="Rôle" value={user?.role ?? '—'} />
         <Row label="Département" value={user?.department ?? '—'} />
+      </View>
+
+      <View className="rounded-3xl bg-white dark:bg-slate-900 p-6 gap-4 shadow-sm">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Photo de référence
+          </Text>
+          {photo?.photoUrl ? (
+            <View className={`rounded-full px-3 py-1 ${isPending ? 'bg-warning/10' : 'bg-success/10'}`}>
+              <Text className={`text-xs font-semibold ${isPending ? 'text-warning' : 'text-success'}`}>
+                {isPending ? 'En attente' : 'Validée'}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+
+        <View className="items-center gap-3">
+          {photoUrl ? (
+            <Image
+              source={{ uri: photoUrl }}
+              style={{ width: 140, height: 140, borderRadius: 70 }}
+              contentFit="cover"
+              transition={200}
+            />
+          ) : (
+            <View className="h-36 w-36 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center">
+              <Ionicons name="person-outline" size={56} color="#94A3B8" />
+            </View>
+          )}
+          <Text className="text-sm text-center text-slate-500 dark:text-slate-400 px-4">
+            {photo?.photoUrl
+              ? 'Cette photo est utilisée pour vous identifier lors du pointage facial.'
+              : 'Ajoutez votre photo pour activer le pointage facial.'}
+          </Text>
+        </View>
+
+        <Pressable
+          accessibilityRole="button"
+          onPress={showPicker}
+          disabled={upload.isPending || isLoading}
+          className={`h-12 rounded-2xl items-center justify-center flex-row gap-2 ${
+            upload.isPending ? 'bg-primary/60' : 'bg-primary-50 dark:bg-primary-900/40'
+          }`}
+        >
+          <Ionicons name="camera" size={18} color="#1E40AF" />
+          <Text className="text-primary-800 dark:text-primary-100 font-semibold">
+            {upload.isPending
+              ? 'Envoi…'
+              : photo?.photoUrl
+                ? 'Changer la photo'
+                : 'Ajouter une photo'}
+          </Text>
+        </Pressable>
       </View>
 
       <Button variant="danger" label={t('common.logout')} onPress={confirmLogout} />

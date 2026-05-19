@@ -52,6 +52,12 @@
         {
           "locationWhenInUsePermission": "Votre position permet de valider votre site de pointage."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Accédez à la galerie pour choisir une photo de référence."
+        }
       ]
     ],
     "experiments": {
