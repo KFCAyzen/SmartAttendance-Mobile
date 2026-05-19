@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { QueryClient } from '@tanstack/react-query';
+import { focusManager, QueryClient } from '@tanstack/react-query';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useEffect, type ReactNode } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 
 import '../i18n';
 import { useAuthStore } from '../stores/auth.store';
@@ -29,6 +30,12 @@ export function Providers({ children }: { children: ReactNode }) {
   useEffect(() => {
     void hydrate();
   }, [hydrate]);
+
+  useEffect(() => {
+    const onChange = (state: AppStateStatus) => focusManager.setFocused(state === 'active');
+    const sub = AppState.addEventListener('change', onChange);
+    return () => sub.remove();
+  }, []);
 
   return (
     <PersistQueryClientProvider

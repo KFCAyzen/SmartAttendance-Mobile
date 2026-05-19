@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
+import { NotificationBell } from '~/components/NotificationBell';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { useAuth } from '~/hooks/useAuth';
 
@@ -15,16 +16,19 @@ export default function HomeScreen() {
 
   return (
     <ScreenContainer>
-      <View className="gap-1 mt-2">
-        <Text className="text-xs uppercase tracking-widest text-primary-700 dark:text-primary-100">
-          {t('common.appName')}
-        </Text>
-        <Text className="text-3xl font-bold text-slate-900 dark:text-white">
-          {firstName ? `Bonjour, ${firstName}` : 'Bonjour'}
-        </Text>
-        <Text className="text-base text-slate-500 dark:text-slate-400">
-          Prêt à pointer ? Lancez la reconnaissance faciale en un tap.
-        </Text>
+      <View className="flex-row items-start justify-between mt-2 gap-3">
+        <View className="flex-1 gap-1">
+          <Text className="text-xs uppercase tracking-widest text-primary-700 dark:text-primary-100">
+            {t('common.appName')}
+          </Text>
+          <Text className="text-3xl font-bold text-slate-900 dark:text-white">
+            {firstName ? `Bonjour, ${firstName}` : 'Bonjour'}
+          </Text>
+          <Text className="text-base text-slate-500 dark:text-slate-400">
+            Prêt à pointer ? Lancez la reconnaissance faciale en un tap.
+          </Text>
+        </View>
+        <NotificationBell />
       </View>
 
       <Pressable
