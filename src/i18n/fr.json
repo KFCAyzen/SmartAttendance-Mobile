@@ -1,0 +1,35 @@
+{
+  "common": {
+    "appName": "SmartAttendance",
+    "loading": "Chargement…",
+    "retry": "Réessayer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "logout": "Se déconnecter"
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?"
+    },
+    "errors": {
+      "invalidCredentials": "Email ou mot de passe incorrect.",
+      "networkError": "Connexion réseau indisponible."
+    }
+  },
+  "tabs": {
+    "home": "Accueil",
+    "checkin": "Pointage",
+    "history": "Historique",
+    "profile": "Profil"
+  },
+  "checkin": {
+    "title": "Pointage",
+    "tapToCapture": "Centrez votre visage et appuyez sur Pointer.",
+    "capture": "Pointer",
+    "success": "Pointage enregistré"
+  }
+}
