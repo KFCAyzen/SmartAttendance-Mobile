@@ -6,6 +6,7 @@ import { useEffect, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import '../i18n';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useAuthStore } from '../stores/auth.store';
 
@@ -40,11 +41,13 @@ export function Providers({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }}
-    >
-      {children}
-    </PersistQueryClientProvider>
+    <ErrorBoundary>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }}
+      >
+        {children}
+      </PersistQueryClientProvider>
+    </ErrorBoundary>
   );
 }

@@ -1,21 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import type { LeaveStatus, LeaveType } from '../api/leaves';
 
-export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
-  VACATION: 'Congés payés',
-  SICK: 'Arrêt maladie',
-  PERSONAL: 'Personnel',
-  MATERNITY: 'Maternité',
-  PATERNITY: 'Paternité',
-  UNPAID: 'Sans solde',
-};
+export function useLeaveTypeLabel(type: LeaveType): string {
+  const { t } = useTranslation();
+  return t(`leaveTypes.${type}`);
+}
 
-export const LEAVE_STATUS_LABELS: Record<LeaveStatus, string> = {
-  PENDING: 'En attente',
-  APPROVED: 'Approuvé',
-  REJECTED: 'Refusé',
-  CANCELLED: 'Annulé',
-  INTERRUPTED: 'Interrompu',
-};
+export function useLeaveStatusLabel(status: LeaveStatus): string {
+  const { t } = useTranslation();
+  return t(`leaveStatuses.${status}`);
+}
 
 export const LEAVE_STATUS_COLOR: Record<LeaveStatus, { bg: string; text: string }> = {
   PENDING: { bg: 'bg-warning/15', text: 'text-warning' },

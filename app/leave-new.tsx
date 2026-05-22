@@ -13,7 +13,7 @@ import { Button } from '~/components/ui/Button';
 import { DateField } from '~/components/ui/DateField';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { Select } from '~/components/ui/Select';
-import { LEAVE_TYPE_LABELS } from '~/lib/leaves';
+import { useLeaveTypeLabel } from '~/lib/leaves';
 
 type FormValues = {
   type: LeaveType;
@@ -22,17 +22,19 @@ type FormValues = {
   reason?: string;
 };
 
-const typeOptions = (Object.keys(LEAVE_TYPE_LABELS) as LeaveType[]).map((t) => ({
-  value: t,
-  label: LEAVE_TYPE_LABELS[t],
-}));
-
 export default function LeaveNewScreen() {
   const { t } = useTranslation();
+  const getLeaveTypeLabel = useLeaveTypeLabel;
   const router = useRouter();
   const queryClient = useQueryClient();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  
+  const typeOptions = (['VACATION', 'SICK', 'PERSONAL', 'MATERNITY', 'PATERNITY', 'UNPAID'] as LeaveType[]).map((t) => ({
+    value: t,
+    label: getLeaveTypeLabel(t),
+  }));
+  
   const schema = z
     .object({
       type: z.enum(['VACATION', 'SICK', 'PERSONAL', 'MATERNITY', 'PATERNITY', 'UNPAID']),

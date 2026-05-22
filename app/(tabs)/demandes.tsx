@@ -20,14 +20,14 @@ import { getBalance, listLeaves, type Leave } from '~/api/leaves';
 import { SegmentControl } from '~/components/ui/SegmentControl';
 import {
   ABSENCE_STATUS_COLOR,
-  ABSENCE_STATUS_LABELS,
-  ABSENCE_TYPE_LABELS,
   canJustify,
+  useAbsenceStatusLabel,
+  useAbsenceTypeLabel,
 } from '~/lib/absences';
 import {
   LEAVE_STATUS_COLOR,
-  LEAVE_STATUS_LABELS,
-  LEAVE_TYPE_LABELS,
+  useLeaveStatusLabel,
+  useLeaveTypeLabel,
 } from '~/lib/leaves';
 
 type Tab = 'leaves' | 'absences';
@@ -75,6 +75,7 @@ export default function DemandesScreen() {
 
 function LeavesList() {
   const { t } = useTranslation();
+  const getLeaveTypeLabel = useLeaveTypeLabel;
   const query = useInfiniteQuery({
     queryKey: ['leaves'],
     queryFn: ({ pageParam = 1 }) => listLeaves(pageParam, 20),
@@ -117,7 +118,7 @@ function LeavesList() {
               {balance.data.slice(0, 4).map((b) => (
                 <View key={b.type} className="min-w-[45%] flex-1">
                   <Text className="text-xs text-slate-500 dark:text-slate-400">
-                    {LEAVE_TYPE_LABELS[b.type]}
+                    {getLeaveTypeLabel(b.type)}
                   </Text>
                   <Text className="text-lg font-bold text-slate-900 dark:text-white">
                     {b.remaining}
@@ -155,13 +156,15 @@ function LeavesList() {
 
 function LeaveCard({ leave }: { leave: Leave }) {
   const { t } = useTranslation();
+  const getLeaveTypeLabel = useLeaveTypeLabel;
+  const getLeaveStatusLabel = useLeaveStatusLabel;
   const color = LEAVE_STATUS_COLOR[leave.status];
   return (
     <View className="rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-sm">
       <View className="flex-row items-start justify-between gap-2">
         <View className="flex-1">
           <Text className="text-base font-semibold text-slate-900 dark:text-white">
-            {LEAVE_TYPE_LABELS[leave.type]}
+            {getLeaveTypeLabel(leave.type)}
           </Text>
           <Text className="text-sm text-slate-500 dark:text-slate-400">
             {format(new Date(leave.startDate), 'd MMM yyyy', { locale: fr })} —{' '}
@@ -170,7 +173,7 @@ function LeaveCard({ leave }: { leave: Leave }) {
         </View>
         <View className={`rounded-full px-3 py-1 ${color.bg}`}>
           <Text className={`text-xs font-semibold ${color.text}`}>
-            {LEAVE_STATUS_LABELS[leave.status]}
+            {getLeaveStatusLabel(leave.status)}
           </Text>
         </View>
       </View>
@@ -248,13 +251,15 @@ function AbsencesList() {
 
 function AbsenceCard({ absence, onJustify }: { absence: Absence; onJustify: () => void }) {
   const { t } = useTranslation();
+  const getAbsenceTypeLabel = useAbsenceTypeLabel;
+  const getAbsenceStatusLabel = useAbsenceStatusLabel;
   const color = ABSENCE_STATUS_COLOR[absence.status];
   return (
     <View className="rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-sm gap-2">
       <View className="flex-row items-start justify-between gap-2">
         <View className="flex-1">
           <Text className="text-base font-semibold text-slate-900 dark:text-white">
-            {ABSENCE_TYPE_LABELS[absence.type]}
+            {getAbsenceTypeLabel(absence.type)}
           </Text>
           <Text className="text-sm text-slate-500 dark:text-slate-400">
             {format(new Date(absence.date), 'EEEE d MMMM yyyy', { locale: fr })}
@@ -262,7 +267,7 @@ function AbsenceCard({ absence, onJustify }: { absence: Absence; onJustify: () =
         </View>
         <View className={`rounded-full px-3 py-1 ${color.bg}`}>
           <Text className={`text-xs font-semibold ${color.text}`}>
-            {ABSENCE_STATUS_LABELS[absence.status]}
+            {getAbsenceStatusLabel(absence.status)}
           </Text>
         </View>
       </View>

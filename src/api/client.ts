@@ -1,4 +1,5 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios';
+import i18n from '../i18n';
 
 import { getItem, StorageKeys } from '../lib/secure-storage';
 import type { ApiError } from './types';
@@ -43,12 +44,12 @@ export function humanizeApiError(error: unknown): string {
     if (data?.message) {
       return Array.isArray(data.message) ? data.message.join(', ') : data.message;
     }
-    if (error.code === 'ECONNABORTED') return 'La requête a expiré. Vérifiez votre connexion.';
-    if (error.message === 'Network Error') return 'Connexion réseau indisponible.';
+    if (error.code === 'ECONNABORTED') return i18n.t('errors.timeout');
+    if (error.message === 'Network Error') return i18n.t('errors.network');
     return error.message;
   }
   if (error instanceof Error) return error.message;
-  return 'Erreur inconnue';
+  return i18n.t('errors.unknown');
 }
 
 export function isNetworkError(error: unknown): boolean {

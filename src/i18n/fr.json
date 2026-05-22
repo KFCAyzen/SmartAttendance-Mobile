@@ -177,5 +177,38 @@
     "rejectAbsenceMessage": "Marquer cette absence comme non justifiée ?",
     "rejectedFromMobile": "Rejeté depuis mobile",
     "approvedFromMobile": "Approuvé depuis mobile"
+  },
+  "leaveTypes": {
+    "VACATION": "Congés payés",
+    "SICK": "Arrêt maladie",
+    "PERSONAL": "Personnel",
+    "MATERNITY": "Maternité",
+    "PATERNITY": "Paternité",
+    "UNPAID": "Sans solde"
+  },
+  "leaveStatuses": {
+    "PENDING": "En attente",
+    "APPROVED": "Approuvé",
+    "REJECTED": "Refusé",
+    "CANCELLED": "Annulé",
+    "INTERRUPTED": "Interrompu"
+  },
+  "absenceTypes": {
+    "LATE": "Retard",
+    "UNJUSTIFIED": "Non justifiée",
+    "JUSTIFIED": "Justifiée",
+    "HALF_DAY": "Demi-journée",
+    "NO_SHOW": "Absence"
+  },
+  "absenceStatuses": {
+    "PENDING": "En attente",
+    "JUSTIFIED": "Justifiée",
+    "UNJUSTIFIED": "Non justifiée",
+    "EXCUSED": "Excusée"
+  },
+  "errors": {
+    "timeout": "La requête a expiré. Vérifiez votre connexion.",
+    "network": "Connexion réseau indisponible.",
+    "unknown": "Erreur inconnue"
   }
 }

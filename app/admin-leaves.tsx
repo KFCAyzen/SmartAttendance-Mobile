@@ -20,7 +20,7 @@ import type { AdminLeave } from "~/api/admin";
 import { humanizeApiError } from "~/api/client";
 import { RoleGate } from "~/components/RoleGate";
 import { useAdminActions, usePendingLeaves } from "~/hooks/useAdminData";
-import { LEAVE_TYPE_LABELS } from "~/lib/leaves";
+import { useLeaveTypeLabel } from "~/lib/leaves";
 
 export default function AdminLeavesScreen() {
   return (
@@ -139,6 +139,7 @@ function LeaveRow({
   onReject: () => void;
 }) {
   const { t } = useTranslation();
+  const getLeaveTypeLabel = useLeaveTypeLabel;
   const name = leave.user
     ? `${leave.user.firstName} ${leave.user.lastName}`
     : t("admin.employee");
@@ -150,7 +151,7 @@ function LeaveRow({
             {name}
           </Text>
           <Text className="text-xs text-slate-500 dark:text-slate-400">
-            {LEAVE_TYPE_LABELS[leave.type]}
+            {getLeaveTypeLabel(leave.type)}
           </Text>
         </View>
         {leave.days ? (

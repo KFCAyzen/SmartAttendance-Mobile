@@ -177,5 +177,38 @@
     "rejectAbsenceMessage": "Mark this absence as unjustified?",
     "rejectedFromMobile": "Rejected from mobile",
     "approvedFromMobile": "Approved from mobile"
+  },
+  "leaveTypes": {
+    "VACATION": "Paid leave",
+    "SICK": "Sick leave",
+    "PERSONAL": "Personal",
+    "MATERNITY": "Maternity",
+    "PATERNITY": "Paternity",
+    "UNPAID": "Unpaid"
+  },
+  "leaveStatuses": {
+    "PENDING": "Pending",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "CANCELLED": "Cancelled",
+    "INTERRUPTED": "Interrupted"
+  },
+  "absenceTypes": {
+    "LATE": "Late",
+    "UNJUSTIFIED": "Unjustified",
+    "JUSTIFIED": "Justified",
+    "HALF_DAY": "Half day",
+    "NO_SHOW": "Absence"
+  },
+  "absenceStatuses": {
+    "PENDING": "Pending",
+    "JUSTIFIED": "Justified",
+    "UNJUSTIFIED": "Unjustified",
+    "EXCUSED": "Excused"
+  },
+  "errors": {
+    "timeout": "Request timed out. Check your connection.",
+    "network": "Network unavailable.",
+    "unknown": "Unknown error"
   }
 }
