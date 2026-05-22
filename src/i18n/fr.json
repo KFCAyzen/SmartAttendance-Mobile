@@ -25,6 +25,17 @@
       "sentMessage": "Vérifiez votre boîte de réception.",
       "submit": "Envoyer le lien"
     },
+    "device": {
+      "approved": "Appareil approuvé",
+      "stillPending": "Toujours en attente",
+      "stillPendingMessage": "Demandez à un administrateur de valider votre appareil.",
+      "revokedTitle": "Appareil révoqué",
+      "pendingTitle": "Appareil en attente",
+      "revokedMessage": "Cet appareil a été révoqué par un administrateur. Contactez votre responsable RH pour ré-activer l'accès.",
+      "pendingMessage": "Votre appareil doit être validé par un administrateur avant le premier pointage. Cette vérification est faite depuis la console d'administration.",
+      "account": "Compte",
+      "recheck": "Vérifier à nouveau"
+    },
     "errors": {
       "invalidCredentials": "Email ou mot de passe incorrect.",
       "networkError": "Connexion réseau indisponible."
@@ -42,7 +53,23 @@
     "title": "Pointage",
     "tapToCapture": "Centrez votre visage et appuyez sur Pointer.",
     "capture": "Pointer",
-    "success": "Pointage enregistré"
+    "success": "Pointage enregistré",
+    "rejected": "Pointage refusé",
+    "captureFailed": "Capture impossible",
+    "enableCamera": "Activer la caméra",
+    "cameraPermissionMessage": "L'application a besoin d'accéder à la caméra pour identifier votre visage et enregistrer votre pointage.",
+    "allowCamera": "Autoriser la caméra",
+    "queued": "Pointage mis en file, il sera envoyé dès le retour de la connexion.",
+    "synced": "Pointage synchronisé",
+    "offlineRejected": "Pointage offline refusé"
+  },
+  "history": {
+    "empty": "Aucun pointage enregistré pour le moment.",
+    "checkIn": "Entrée",
+    "checkOut": "Sortie",
+    "gps": "GPS",
+    "unknownSite": "Site non défini",
+    "recognized": "Reconnu"
   },
   "home": {
     "greeting": "Bonjour",

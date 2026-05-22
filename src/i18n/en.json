@@ -25,6 +25,17 @@
       "sentMessage": "Check your inbox.",
       "submit": "Send link"
     },
+    "device": {
+      "approved": "Device approved",
+      "stillPending": "Still pending",
+      "stillPendingMessage": "Ask an administrator to approve your device.",
+      "revokedTitle": "Device revoked",
+      "pendingTitle": "Device pending",
+      "revokedMessage": "This device was revoked by an administrator. Contact HR to restore access.",
+      "pendingMessage": "Your device must be approved by an administrator before the first check-in. This verification is done from the admin console.",
+      "account": "Account",
+      "recheck": "Check again"
+    },
     "errors": {
       "invalidCredentials": "Wrong email or password.",
       "networkError": "Network unavailable."
@@ -42,7 +53,23 @@
     "title": "Check-in",
     "tapToCapture": "Center your face and tap Check in.",
     "capture": "Check in",
-    "success": "Check-in recorded"
+    "success": "Check-in recorded",
+    "rejected": "Check-in rejected",
+    "captureFailed": "Capture failed",
+    "enableCamera": "Enable camera",
+    "cameraPermissionMessage": "The app needs camera access to identify your face and record your check-in.",
+    "allowCamera": "Allow camera",
+    "queued": "Check-in queued. It will be sent when the connection returns.",
+    "synced": "Check-in synchronized",
+    "offlineRejected": "Offline check-in rejected"
+  },
+  "history": {
+    "empty": "No check-ins recorded yet.",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "gps": "GPS",
+    "unknownSite": "Site not set",
+    "recognized": "Recognized"
   },
   "home": {
     "greeting": "Hello",

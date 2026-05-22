@@ -37,7 +37,7 @@ export default function PointageScreen() {
         quality: 0.7,
         skipProcessing: true,
       });
-      if (!photo?.uri) throw new Error('Capture failed');
+      if (!photo?.uri) throw new Error(t('checkin.captureFailed'));
       const coords = await fetchCoords();
       const result = await checkIn.mutateAsync({ photoUri: photo.uri, coords });
       setLastResult(result);
@@ -50,7 +50,7 @@ export default function PointageScreen() {
       setLastResult(null);
       Toast.show({
         type: 'error',
-        text1: 'Pointage refusé',
+        text1: t('checkin.rejected'),
         text2: humanizeApiError(error),
       });
     }
@@ -72,13 +72,12 @@ export default function PointageScreen() {
             <Ionicons name="camera" size={36} color="#3B82F6" />
           </View>
           <Text className="text-2xl font-bold text-center text-slate-900 dark:text-white">
-            Activer la caméra
+            {t('checkin.enableCamera')}
           </Text>
           <Text className="text-base text-center text-slate-500 dark:text-slate-400">
-            L&apos;application a besoin d&apos;accéder à la caméra pour identifier votre visage et
-            enregistrer votre pointage.
+            {t('checkin.cameraPermissionMessage')}
           </Text>
-          <Button label="Autoriser la caméra" onPress={() => void requestPermission()} />
+          <Button label={t('checkin.allowCamera')} onPress={() => void requestPermission()} />
         </View>
       </SafeAreaView>
     );
@@ -111,7 +110,7 @@ export default function PointageScreen() {
           {lastResult?.success && lastResult.user ? (
             <View className="rounded-3xl bg-white/95 dark:bg-slate-900/95 p-4 gap-1">
               <Text className="text-xs uppercase tracking-wide text-success">
-                Pointage enregistré
+                {t('checkin.success')}
               </Text>
               <Text className="text-lg font-semibold text-slate-900 dark:text-white">
                 {lastResult.user.name}

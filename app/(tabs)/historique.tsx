@@ -83,7 +83,7 @@ export default function HistoriqueScreen() {
           <View className="items-center justify-center py-16 gap-2">
             <Ionicons name="time-outline" size={36} color="#94A3B8" />
             <Text className="text-base text-slate-500 dark:text-slate-400">
-              Aucun pointage enregistré pour le moment.
+              {t('history.empty')}
             </Text>
           </View>
         }
@@ -119,6 +119,7 @@ function SectionHeader({ label }: { label: string }) {
 }
 
 function Row({ item }: { item: AttendanceHistoryItem }) {
+  const { t } = useTranslation();
   const isIn = item.type === 'CHECK_IN';
   return (
     <View className="flex-row items-center gap-3 rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-sm">
@@ -135,10 +136,11 @@ function Row({ item }: { item: AttendanceHistoryItem }) {
       </View>
       <View className="flex-1">
         <Text className="text-base font-semibold text-slate-900 dark:text-white">
-          {isIn ? 'Entrée' : 'Sortie'}
+          {isIn ? t('history.checkIn') : t('history.checkOut')}
         </Text>
         <Text className="text-xs text-slate-500 dark:text-slate-400">
-          {item.location?.name ?? (item.latitude && item.longitude ? 'GPS' : 'Site non défini')}
+          {item.location?.name ??
+            (item.latitude && item.longitude ? t('history.gps') : t('history.unknownSite'))}
         </Text>
       </View>
       <View className="items-end">
@@ -149,7 +151,7 @@ function Row({ item }: { item: AttendanceHistoryItem }) {
           <View className="flex-row items-center gap-1">
             <Ionicons name="scan" size={10} color="#3B82F6" />
             <Text className="text-[10px] font-medium text-primary-700 dark:text-primary-100">
-              Reconnu
+              {t('history.recognized')}
               {typeof item.faceConfidence === 'number'
                 ? ` ${Math.round((item.faceConfidence ?? 0) * 100)}%`
                 : ''}

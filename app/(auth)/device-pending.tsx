@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -9,6 +10,7 @@ import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { useAuth } from '~/hooks/useAuth';
 
 export default function DevicePendingScreen() {
+  const { t } = useTranslation();
   const { deviceStatus, user, verifyDevice, logout } = useAuth();
   const [verifying, setVerifying] = useState(false);
 
@@ -19,12 +21,12 @@ export default function DevicePendingScreen() {
     try {
       const next = await verifyDevice();
       if (next === 'ACTIVE') {
-        Toast.show({ type: 'success', text1: 'Appareil approuvé' });
+        Toast.show({ type: 'success', text1: t('auth.device.approved') });
       } else {
         Toast.show({
           type: 'info',
-          text1: 'Toujours en attente',
-          text2: 'Demandez à un administrateur de valider votre appareil.',
+          text1: t('auth.device.stillPending'),
+          text2: t('auth.device.stillPendingMessage'),
         });
       }
     } catch (error) {
@@ -45,18 +47,16 @@ export default function DevicePendingScreen() {
           />
         </View>
         <Text className="text-2xl font-bold text-center text-slate-900 dark:text-white">
-          {isRevoked ? 'Appareil révoqué' : 'Appareil en attente'}
+          {isRevoked ? t('auth.device.revokedTitle') : t('auth.device.pendingTitle')}
         </Text>
         <Text className="text-base text-center text-slate-500 dark:text-slate-400 px-4">
-          {isRevoked
-            ? "Cet appareil a été révoqué par un administrateur. Contactez votre responsable RH pour ré-activer l'accès."
-            : "Votre appareil doit être validé par un administrateur avant le premier pointage. Cette vérification est faite depuis la console d'administration."}
+          {isRevoked ? t('auth.device.revokedMessage') : t('auth.device.pendingMessage')}
         </Text>
       </View>
 
       <View className="rounded-3xl bg-white dark:bg-slate-900 p-5 gap-2 shadow-sm">
         <Text className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          Compte
+          {t('auth.device.account')}
         </Text>
         <Text className="text-base font-semibold text-slate-900 dark:text-white">
           {user ? `${user.firstName} ${user.lastName}` : '—'}
@@ -66,12 +66,12 @@ export default function DevicePendingScreen() {
 
       <View className="gap-3">
         <Button
-          label="Vérifier à nouveau"
+          label={t('auth.device.recheck')}
           loading={verifying}
           onPress={handleRecheck}
           disabled={isRevoked}
         />
-        <Button variant="ghost" label="Se déconnecter" onPress={() => void logout()} />
+        <Button variant="ghost" label={t('common.logout')} onPress={() => void logout()} />
       </View>
     </ScreenContainer>
   );

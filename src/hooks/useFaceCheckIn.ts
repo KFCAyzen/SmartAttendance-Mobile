@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 import { faceCheckIn } from '../api/attendance';
 import { isNetworkError } from '../api/client';
@@ -15,6 +16,7 @@ interface CheckInArgs {
 }
 
 export function useFaceCheckIn() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation<FaceCheckInResponse, unknown, CheckInArgs>({
@@ -47,7 +49,7 @@ export function useFaceCheckIn() {
 
         return {
           success: true,
-          message: 'Pointage mis en file, il sera envoyé dès le retour de la connexion.',
+          message: t('checkin.queued'),
         };
       }
     },
