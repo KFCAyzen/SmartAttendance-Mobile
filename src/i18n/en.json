@@ -24,12 +24,43 @@
     "home": "Home",
     "checkin": "Check-in",
     "history": "History",
-    "profile": "Profile"
+    "requests": "Requests",
+    "profile": "Profile",
+    "admin": "Admin"
   },
   "checkin": {
     "title": "Check-in",
     "tapToCapture": "Center your face and tap Check in.",
     "capture": "Check in",
     "success": "Check-in recorded"
+  },
+  "admin": {
+    "title": "Admin",
+    "forbidden": "This section is reserved for administrators.",
+    "reserved": "Restricted access.",
+    "overview": "30-day overview",
+    "pendingLeaves": "Pending leaves",
+    "pendingAbsences": "Pending absences",
+    "activeEmployees": "Active employees",
+    "checkins": "Check-ins",
+    "lateArrivals": "Late arrivals",
+    "attendance": "Attendance",
+    "noPendingLeaves": "No pending leaves.",
+    "noPendingAbsences": "No pending absences.",
+    "employee": "Employee",
+    "unknownDepartment": "Department not set",
+    "days": "{count} d",
+    "approve": "Approve",
+    "reject": "Reject",
+    "leaveApproved": "Leave approved",
+    "leaveRejected": "Leave rejected",
+    "absenceApproved": "Absence approved",
+    "absenceRejected": "Absence rejected",
+    "rejectLeaveTitle": "Reject leave",
+    "rejectLeaveMessage": "Confirm rejection of this request?",
+    "rejectAbsenceTitle": "Reject justification",
+    "rejectAbsenceMessage": "Mark this absence as unjustified?",
+    "rejectedFromMobile": "Rejected from mobile",
+    "approvedFromMobile": "Approved from mobile"
   }
 }

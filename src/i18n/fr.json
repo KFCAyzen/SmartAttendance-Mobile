@@ -24,12 +24,43 @@
     "home": "Accueil",
     "checkin": "Pointage",
     "history": "Historique",
-    "profile": "Profil"
+    "requests": "Demandes",
+    "profile": "Profil",
+    "admin": "Admin"
   },
   "checkin": {
     "title": "Pointage",
     "tapToCapture": "Centrez votre visage et appuyez sur Pointer.",
     "capture": "Pointer",
     "success": "Pointage enregistré"
+  },
+  "admin": {
+    "title": "Admin",
+    "forbidden": "Cette section est réservée aux administrateurs.",
+    "reserved": "Accès réservé.",
+    "overview": "Aperçu 30 jours",
+    "pendingLeaves": "Congés en attente",
+    "pendingAbsences": "Absences en attente",
+    "activeEmployees": "Employés actifs",
+    "checkins": "Pointages",
+    "lateArrivals": "Retards",
+    "attendance": "Présence",
+    "noPendingLeaves": "Aucun congé en attente.",
+    "noPendingAbsences": "Aucune absence en attente.",
+    "employee": "Employé",
+    "unknownDepartment": "Département non défini",
+    "days": "{count} j",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "leaveApproved": "Congé approuvé",
+    "leaveRejected": "Congé rejeté",
+    "absenceApproved": "Absence approuvée",
+    "absenceRejected": "Absence rejetée",
+    "rejectLeaveTitle": "Rejeter le congé",
+    "rejectLeaveMessage": "Confirmer le rejet de cette demande ?",
+    "rejectAbsenceTitle": "Rejeter la justification",
+    "rejectAbsenceMessage": "Marquer cette absence comme non justifiée ?",
+    "rejectedFromMobile": "Rejeté depuis mobile",
+    "approvedFromMobile": "Approuvé depuis mobile"
   }
 }
