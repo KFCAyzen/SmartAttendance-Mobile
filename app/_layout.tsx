@@ -1,20 +1,24 @@
-import '../global.css';
+import "../global.css";
 
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import Toast from 'react-native-toast-message';
-import 'react-native-reanimated';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { Stack, useRouter, useSegments } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
+import "react-native-reanimated";
+import Toast from "react-native-toast-message";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { setUnauthorizedHandler } from '~/api/client';
-import { Providers } from '~/components/Providers';
-import { useAuthStore } from '~/stores/auth.store';
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { setUnauthorizedHandler } from "~/api/client";
+import { Providers } from "~/components/Providers";
+import { useAuthStore } from "~/stores/auth.store";
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: "(tabs)",
 };
 
 function RootLayoutNav() {
@@ -26,24 +30,32 @@ function RootLayoutNav() {
   useEffect(() => {
     setUnauthorizedHandler(() => {
       void useAuthStore.getState().clearSession();
-      router.replace('/(auth)/login');
+      router.replace("/(auth)/login");
     });
   }, [router]);
 
   useEffect(() => {
-    if (status === 'idle' || status === 'loading' || status === 'verifying_device') return;
-    const inAuthGroup = segments[0] === '(auth)';
-    const currentRoute = segments.join('/');
-    if (status === 'unauthenticated' && !inAuthGroup) {
-      router.replace('/(auth)/login');
-    } else if (status === 'device_pending' && currentRoute !== '(auth)/device-pending') {
-      router.replace('/(auth)/device-pending');
-    } else if (status === 'authenticated' && inAuthGroup) {
-      router.replace('/(tabs)');
+    if (
+      status === "idle" ||
+      status === "loading" ||
+      status === "verifying_device"
+    )
+      return;
+    const inAuthGroup = segments[0] === "(auth)";
+    const currentRoute = segments.join("/");
+    if (status === "unauthenticated" && !inAuthGroup) {
+      router.replace("/(auth)/login");
+    } else if (
+      status === "device_pending" &&
+      currentRoute !== "(auth)/device-pending"
+    ) {
+      router.replace("/(auth)/device-pending");
+    } else if (status === "authenticated" && inAuthGroup) {
+      router.replace("/(tabs)");
     }
   }, [status, segments, router]);
 
-  if (status === 'idle' || status === 'loading') {
+  if (status === "idle" || status === "loading") {
     return (
       <View className="flex-1 items-center justify-center bg-surface-light dark:bg-surface-dark">
         <ActivityIndicator color="#3B82F6" />
@@ -52,7 +64,7 @@ function RootLayoutNav() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
