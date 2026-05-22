@@ -12,16 +12,18 @@ import { Input } from '~/components/ui/Input';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { useAuth } from '~/hooks/useAuth';
 
-const schema = z.object({
-  email: z.string().email('Email invalide'),
-  password: z.string().min(1, 'Mot de passe requis'),
-});
-
-type FormValues = z.infer<typeof schema>;
+type FormValues = {
+  email: string;
+  password: string;
+};
 
 export default function LoginScreen() {
   const { t } = useTranslation();
   const { login } = useAuth();
+  const schema = z.object({
+    email: z.string().email(t('common.emailInvalid')),
+    password: z.string().min(1, t('auth.login.passwordRequired')),
+  });
 
   const {
     control,
@@ -55,7 +57,7 @@ export default function LoginScreen() {
           {t('auth.login.title')}
         </Text>
         <Text className="text-base text-slate-500 dark:text-slate-400">
-          Connectez-vous pour pointer et consulter vos présences.
+          {t('auth.login.subtitle')}
         </Text>
       </View>
 

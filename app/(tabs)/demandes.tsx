@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -32,6 +33,7 @@ import {
 type Tab = 'leaves' | 'absences';
 
 export default function DemandesScreen() {
+  const { t } = useTranslation();
   const [view, setView] = useState<Tab>('leaves');
   const router = useRouter();
 
@@ -40,16 +42,18 @@ export default function DemandesScreen() {
       <View className="px-6 pt-6 pb-3 gap-3">
         <View className="gap-1">
           <Text className="text-xs uppercase tracking-widest text-primary-700 dark:text-primary-100">
-            SmartAttendance
+            {t('common.appName')}
           </Text>
-          <Text className="text-3xl font-bold text-slate-900 dark:text-white">Demandes</Text>
+          <Text className="text-3xl font-bold text-slate-900 dark:text-white">
+            {t('requests.title')}
+          </Text>
         </View>
         <SegmentControl
           value={view}
           onChange={setView}
           options={[
-            { value: 'leaves', label: 'Congés' },
-            { value: 'absences', label: 'Absences' },
+            { value: 'leaves', label: t('requests.leaves') },
+            { value: 'absences', label: t('requests.absences') },
           ]}
         />
       </View>
@@ -70,6 +74,7 @@ export default function DemandesScreen() {
 }
 
 function LeavesList() {
+  const { t } = useTranslation();
   const query = useInfiniteQuery({
     queryKey: ['leaves'],
     queryFn: ({ pageParam = 1 }) => listLeaves(pageParam, 20),
@@ -106,7 +111,7 @@ function LeavesList() {
         balance.data && balance.data.length > 0 ? (
           <View className="mb-2 rounded-3xl bg-white dark:bg-slate-900 p-4 shadow-sm">
             <Text className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
-              Soldes
+              {t('requests.balances')}
             </Text>
             <View className="flex-row flex-wrap gap-3">
               {balance.data.slice(0, 4).map((b) => (
@@ -129,7 +134,7 @@ function LeavesList() {
         <View className="items-center py-16 gap-2">
           <Ionicons name="calendar-outline" size={36} color="#94A3B8" />
           <Text className="text-base text-slate-500 dark:text-slate-400">
-            Aucune demande de congé.
+            {t('requests.noLeaves')}
           </Text>
         </View>
       }
@@ -149,6 +154,7 @@ function LeavesList() {
 }
 
 function LeaveCard({ leave }: { leave: Leave }) {
+  const { t } = useTranslation();
   const color = LEAVE_STATUS_COLOR[leave.status];
   return (
     <View className="rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-sm">
@@ -172,13 +178,16 @@ function LeaveCard({ leave }: { leave: Leave }) {
         <Text className="mt-2 text-sm text-slate-600 dark:text-slate-300">{leave.reason}</Text>
       ) : null}
       {leave.rejectionReason ? (
-        <Text className="mt-2 text-xs text-danger">Motif: {leave.rejectionReason}</Text>
+        <Text className="mt-2 text-xs text-danger">
+          {t('requests.rejectionReason', { reason: leave.rejectionReason })}
+        </Text>
       ) : null}
     </View>
   );
 }
 
 function AbsencesList() {
+  const { t } = useTranslation();
   const router = useRouter();
   const query = useInfiniteQuery({
     queryKey: ['absences'],
@@ -218,7 +227,7 @@ function AbsencesList() {
         <View className="items-center py-16 gap-2">
           <Ionicons name="checkmark-circle-outline" size={36} color="#2F855A" />
           <Text className="text-base text-slate-500 dark:text-slate-400">
-            Aucune absence enregistrée.
+            {t('requests.noAbsences')}
           </Text>
         </View>
       }
@@ -238,6 +247,7 @@ function AbsencesList() {
 }
 
 function AbsenceCard({ absence, onJustify }: { absence: Absence; onJustify: () => void }) {
+  const { t } = useTranslation();
   const color = ABSENCE_STATUS_COLOR[absence.status];
   return (
     <View className="rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-sm gap-2">
@@ -267,7 +277,7 @@ function AbsenceCard({ absence, onJustify }: { absence: Absence; onJustify: () =
         >
           <Ionicons name="document-attach" size={14} color="#1E40AF" />
           <Text className="text-sm font-semibold text-primary-800 dark:text-primary-100">
-            Justifier
+            {t('requests.justify')}
           </Text>
         </Pressable>
       ) : null}

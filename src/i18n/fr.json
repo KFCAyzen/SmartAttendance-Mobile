@@ -5,15 +5,25 @@
     "retry": "Réessayer",
     "cancel": "Annuler",
     "save": "Enregistrer",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "emailInvalid": "Email invalide"
   },
   "auth": {
     "login": {
       "title": "Connexion",
+      "subtitle": "Connectez-vous pour pointer et consulter vos présences.",
       "email": "Adresse email",
       "password": "Mot de passe",
       "submit": "Se connecter",
-      "forgotPassword": "Mot de passe oublié ?"
+      "forgotPassword": "Mot de passe oublié ?",
+      "passwordRequired": "Mot de passe requis"
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "subtitle": "Saisissez votre email professionnel. Nous vous enverrons un lien pour choisir un nouveau mot de passe.",
+      "sentTitle": "Email envoyé",
+      "sentMessage": "Vérifiez votre boîte de réception.",
+      "submit": "Envoyer le lien"
     },
     "errors": {
       "invalidCredentials": "Email ou mot de passe incorrect.",
@@ -34,6 +44,84 @@
     "capture": "Pointer",
     "success": "Pointage enregistré"
   },
+  "home": {
+    "greeting": "Bonjour",
+    "greetingWithName": "Bonjour, {{name}}",
+    "subtitle": "Prêt à pointer ? Lancez la reconnaissance faciale en un tap.",
+    "checkinSubtitle": "Visage reconnu = pointage instantané.",
+    "help": "Aide",
+    "referencePhotoHelp": "Avant votre premier pointage, vérifiez qu'une photo de référence a bien été téléchargée depuis votre profil."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Tout lire",
+    "empty": "Aucune notification pour l'instant."
+  },
+  "requests": {
+    "title": "Demandes",
+    "leaves": "Congés",
+    "absences": "Absences",
+    "balances": "Soldes",
+    "noLeaves": "Aucune demande de congé.",
+    "noAbsences": "Aucune absence enregistrée.",
+    "rejectionReason": "Motif : {{reason}}",
+    "justify": "Justifier"
+  },
+  "leaveNew": {
+    "headerTitle": "Nouvelle demande",
+    "title": "Demande de congé",
+    "subtitle": "Indiquez la période et le motif. Vous serez notifié dès qu'un responsable répond.",
+    "type": "Type de congé",
+    "from": "Du",
+    "to": "Au",
+    "reason": "Motif (optionnel)",
+    "reasonPlaceholder": "Ex : vacances familiales",
+    "submit": "Envoyer la demande",
+    "sentTitle": "Demande envoyée",
+    "sentMessage": "Votre responsable doit valider la demande.",
+    "endDateAfterStart": "La date de fin doit être après la date de début"
+  },
+  "justifyAbsence": {
+    "title": "Justifier l'absence",
+    "subtitle": "Joignez un document (PDF, JPG ou PNG, max 5 Mo) et précisez la raison.",
+    "reason": "Raison",
+    "reasonPlaceholder": "Ex : arrêt maladie, rendez-vous médical",
+    "document": "Document justificatif",
+    "chooseFile": "Choisir un fichier ou prendre une photo",
+    "replaceFile": "Toucher pour remplacer",
+    "submit": "Envoyer la justification",
+    "sent": "Justification envoyée",
+    "missingId": "Identifiant manquant",
+    "missingDocument": "Document obligatoire",
+    "missingReason": "Raison obligatoire",
+    "unsupportedTitle": "Format non supporté",
+    "unsupportedMessage": "Seuls les fichiers PDF, JPG et PNG sont acceptés.",
+    "tooLargeTitle": "Fichier trop volumineux",
+    "tooLargeMessage": "Maximum 5 Mo.",
+    "chooseTitle": "Justificatif",
+    "chooseMessage": "Choisissez une source",
+    "documentSource": "Document (PDF / image)",
+    "cameraSource": "Prendre une photo"
+  },
+  "profile": {
+    "photoSaved": "Photo enregistrée",
+    "photoPending": "En attente de validation par un administrateur.",
+    "photoReady": "Vous pouvez désormais pointer.",
+    "referencePhoto": "Photo de référence",
+    "chooseSource": "Choisissez une source",
+    "camera": "Caméra",
+    "gallery": "Galerie",
+    "logoutMessage": "Vous serez déconnecté de votre compte sur cet appareil.",
+    "role": "Rôle",
+    "department": "Département",
+    "pending": "En attente",
+    "validated": "Validée",
+    "photoUsed": "Cette photo est utilisée pour vous identifier lors du pointage facial.",
+    "photoMissing": "Ajoutez votre photo pour activer le pointage facial.",
+    "uploading": "Envoi…",
+    "changePhoto": "Changer la photo",
+    "addPhoto": "Ajouter une photo"
+  },
   "admin": {
     "title": "Admin",
     "forbidden": "Cette section est réservée aux administrateurs.",
@@ -49,7 +137,7 @@
     "noPendingAbsences": "Aucune absence en attente.",
     "employee": "Employé",
     "unknownDepartment": "Département non défini",
-    "days": "{count} j",
+    "days": "{{count}} j",
     "approve": "Approuver",
     "reject": "Rejeter",
     "leaveApproved": "Congé approuvé",

@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Stack, useRouter } from 'expo-router';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   FlatList,
@@ -20,6 +21,7 @@ import { useNotificationActions, useNotificationsList } from '~/hooks/useNotific
 import { notificationVisual } from '~/lib/notifications';
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const query = useNotificationsList();
   const { read, readAll } = useNotificationActions();
@@ -51,12 +53,12 @@ export default function NotificationsScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          title: 'Notifications',
+          title: t('notifications.title'),
           headerRight: () =>
             hasUnread ? (
               <Pressable onPress={() => void handleReadAll()} className="px-3 py-2">
                 <Text className="text-sm font-semibold text-primary-700 dark:text-primary-100">
-                  Tout lire
+                  {t('notifications.markAllRead')}
                 </Text>
               </Pressable>
             ) : null,
@@ -77,7 +79,7 @@ export default function NotificationsScreen() {
             <View className="items-center py-20 gap-2">
               <Ionicons name="notifications-off-outline" size={36} color="#94A3B8" />
               <Text className="text-base text-slate-500 dark:text-slate-400">
-                Aucune notification pour l&apos;instant.
+                {t('notifications.empty')}
               </Text>
             </View>
           }

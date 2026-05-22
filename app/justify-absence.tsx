@@ -4,6 +4,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -21,6 +22,7 @@ interface PickedFile {
 const ACCEPTED_MIME = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
 export default function JustifyAbsenceScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -29,9 +31,9 @@ export default function JustifyAbsenceScreen() {
 
   const mutation = useMutation({
     mutationFn: () => {
-      if (!id) throw new Error('Identifiant manquant');
-      if (!file) throw new Error('Document obligatoire');
-      if (!reason.trim()) throw new Error('Raison obligatoire');
+      if (!id) throw new Error(t('justifyAbsence.missingId'));
+      if (!file) throw new Error(t('justifyAbsence.missingDocument'));
+      if (!reason.trim()) throw new Error(t('justifyAbsence.missingReason'));
       return justifyAbsence(id, {
         reason: reason.trim(),
         fileUri: file.uri,
@@ -41,7 +43,7 @@ export default function JustifyAbsenceScreen() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['absences'] });
-      Toast.show({ type: 'success', text1: 'Justification envoyée' });
+      Toast.show({ type: 'success', text1: t('justifyAbsence.sent') });
       router.back();
     },
     onError: (e) => Toast.show({ type: 'error', text1: humanizeApiError(e) }),
@@ -58,11 +60,11 @@ export default function JustifyAbsenceScreen() {
     if (!asset) return;
     const mime = asset.mimeType ?? guessMime(asset.name);
     if (!ACCEPTED_MIME.includes(mime)) {
-      Alert.alert('Format non supporté', 'Seuls les fichiers PDF, JPG et PNG sont acceptés.');
+      Alert.alert(t('justifyAbsence.unsupportedTitle'), t('justifyAbsence.unsupportedMessage'));
       return;
     }
     if (asset.size && asset.size > 5 * 1024 * 1024) {
-      Alert.alert('Fichier trop volumineux', 'Maximum 5 Mo.');
+      Alert.alert(t('justifyAbsence.tooLargeTitle'), t('justifyAbsence.tooLargeMessage'));
       return;
     }
     setFile({ uri: asset.uri, name: asset.name, mime });
@@ -83,36 +85,40 @@ export default function JustifyAbsenceScreen() {
   };
 
   const choose = () => {
-    Alert.alert('Justificatif', 'Choisissez une source', [
-      { text: 'Document (PDF / image)', onPress: () => void pickDocument() },
-      { text: 'Prendre une photo', onPress: () => void pickPhoto() },
-      { text: 'Annuler', style: 'cancel' },
+    Alert.alert(t('justifyAbsence.chooseTitle'), t('justifyAbsence.chooseMessage'), [
+      { text: t('justifyAbsence.documentSource'), onPress: () => void pickDocument() },
+      { text: t('justifyAbsence.cameraSource'), onPress: () => void pickPhoto() },
+      { text: t('common.cancel'), style: 'cancel' },
     ]);
   };
 
   return (
     <ScreenContainer>
       <Stack.Screen
-        options={{ headerShown: true, title: "Justifier l'absence", headerBackTitle: 'Annuler' }}
+        options={{
+          headerShown: true,
+          title: t('justifyAbsence.title'),
+          headerBackTitle: t('common.cancel'),
+        }}
       />
 
       <View className="gap-1 mt-2">
         <Text className="text-2xl font-bold text-slate-900 dark:text-white">
-          Justifier l&apos;absence
+          {t('justifyAbsence.title')}
         </Text>
         <Text className="text-base text-slate-500 dark:text-slate-400">
-          Joignez un document (PDF, JPG ou PNG, max 5 Mo) et précisez la raison.
+          {t('justifyAbsence.subtitle')}
         </Text>
       </View>
 
       <View className="gap-1.5">
         <Text className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Raison
+          {t('justifyAbsence.reason')}
         </Text>
         <TextInput
           value={reason}
           onChangeText={setReason}
-          placeholder="Ex : arrêt maladie, rendez-vous médical"
+          placeholder={t('justifyAbsence.reasonPlaceholder')}
           placeholderTextColor="#94A3B8"
           multiline
           numberOfLines={4}
@@ -122,7 +128,7 @@ export default function JustifyAbsenceScreen() {
 
       <View className="gap-2">
         <Text className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-300">
-          Document justificatif
+          {t('justifyAbsence.document')}
         </Text>
         <Pressable
           accessibilityRole="button"
@@ -137,14 +143,14 @@ export default function JustifyAbsenceScreen() {
               </Text>
               <Text className="text-xs text-slate-500 dark:text-slate-400">{file.mime}</Text>
               <Text className="text-sm text-primary-700 dark:text-primary-100 mt-1">
-                Toucher pour remplacer
+                {t('justifyAbsence.replaceFile')}
               </Text>
             </>
           ) : (
             <>
               <Ionicons name="cloud-upload-outline" size={32} color="#64748B" />
               <Text className="text-base text-slate-700 dark:text-slate-300">
-                Choisir un fichier ou prendre une photo
+                {t('justifyAbsence.chooseFile')}
               </Text>
             </>
           )}
@@ -152,7 +158,7 @@ export default function JustifyAbsenceScreen() {
       </View>
 
       <Button
-        label="Envoyer la justification"
+        label={t('justifyAbsence.submit')}
         loading={mutation.isPending}
         disabled={!file || !reason.trim()}
         onPress={() => mutation.mutate()}

@@ -5,15 +5,25 @@
     "retry": "Retry",
     "cancel": "Cancel",
     "save": "Save",
-    "logout": "Log out"
+    "logout": "Log out",
+    "emailInvalid": "Invalid email"
   },
   "auth": {
     "login": {
       "title": "Sign in",
+      "subtitle": "Sign in to check in and view your attendance.",
       "email": "Email address",
       "password": "Password",
       "submit": "Sign in",
-      "forgotPassword": "Forgot password?"
+      "forgotPassword": "Forgot password?",
+      "passwordRequired": "Password is required"
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter your work email. We will send you a link to choose a new password.",
+      "sentTitle": "Email sent",
+      "sentMessage": "Check your inbox.",
+      "submit": "Send link"
     },
     "errors": {
       "invalidCredentials": "Wrong email or password.",
@@ -34,6 +44,84 @@
     "capture": "Check in",
     "success": "Check-in recorded"
   },
+  "home": {
+    "greeting": "Hello",
+    "greetingWithName": "Hello, {{name}}",
+    "subtitle": "Ready to check in? Start face recognition with one tap.",
+    "checkinSubtitle": "Recognized face = instant check-in.",
+    "help": "Help",
+    "referencePhotoHelp": "Before your first check-in, make sure a reference photo has been uploaded from your profile."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "No notifications yet."
+  },
+  "requests": {
+    "title": "Requests",
+    "leaves": "Leaves",
+    "absences": "Absences",
+    "balances": "Balances",
+    "noLeaves": "No leave requests.",
+    "noAbsences": "No absences recorded.",
+    "rejectionReason": "Reason: {{reason}}",
+    "justify": "Justify"
+  },
+  "leaveNew": {
+    "headerTitle": "New request",
+    "title": "Leave request",
+    "subtitle": "Enter the period and reason. You will be notified when a manager responds.",
+    "type": "Leave type",
+    "from": "From",
+    "to": "To",
+    "reason": "Reason (optional)",
+    "reasonPlaceholder": "Example: family vacation",
+    "submit": "Send request",
+    "sentTitle": "Request sent",
+    "sentMessage": "Your manager must approve the request.",
+    "endDateAfterStart": "End date must be after start date"
+  },
+  "justifyAbsence": {
+    "title": "Justify absence",
+    "subtitle": "Attach a document (PDF, JPG or PNG, max 5 MB) and enter the reason.",
+    "reason": "Reason",
+    "reasonPlaceholder": "Example: sick leave, medical appointment",
+    "document": "Supporting document",
+    "chooseFile": "Choose a file or take a photo",
+    "replaceFile": "Tap to replace",
+    "submit": "Send justification",
+    "sent": "Justification sent",
+    "missingId": "Missing identifier",
+    "missingDocument": "Document is required",
+    "missingReason": "Reason is required",
+    "unsupportedTitle": "Unsupported format",
+    "unsupportedMessage": "Only PDF, JPG and PNG files are accepted.",
+    "tooLargeTitle": "File too large",
+    "tooLargeMessage": "Maximum 5 MB.",
+    "chooseTitle": "Supporting document",
+    "chooseMessage": "Choose a source",
+    "documentSource": "Document (PDF / image)",
+    "cameraSource": "Take a photo"
+  },
+  "profile": {
+    "photoSaved": "Photo saved",
+    "photoPending": "Waiting for administrator approval.",
+    "photoReady": "You can now check in.",
+    "referencePhoto": "Reference photo",
+    "chooseSource": "Choose a source",
+    "camera": "Camera",
+    "gallery": "Gallery",
+    "logoutMessage": "You will be signed out of your account on this device.",
+    "role": "Role",
+    "department": "Department",
+    "pending": "Pending",
+    "validated": "Validated",
+    "photoUsed": "This photo is used to identify you during face check-in.",
+    "photoMissing": "Add your photo to enable face check-in.",
+    "uploading": "Uploading…",
+    "changePhoto": "Change photo",
+    "addPhoto": "Add photo"
+  },
   "admin": {
     "title": "Admin",
     "forbidden": "This section is reserved for administrators.",
@@ -49,7 +137,7 @@
     "noPendingAbsences": "No pending absences.",
     "employee": "Employee",
     "unknownDepartment": "Department not set",
-    "days": "{count} d",
+    "days": "{{count}} d",
     "approve": "Approve",
     "reject": "Reject",
     "leaveApproved": "Leave approved",

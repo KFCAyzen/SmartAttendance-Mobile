@@ -26,11 +26,11 @@ export default function ProfileScreen() {
       if (!result) return; // user cancelled
       Toast.show({
         type: 'success',
-        text1: 'Photo enregistrée',
+        text1: t('profile.photoSaved'),
         text2:
           mode === 'request' && !(result as { autoApproved?: boolean }).autoApproved
-            ? 'En attente de validation par un administrateur.'
-            : 'Vous pouvez désormais pointer.',
+            ? t('profile.photoPending')
+            : t('profile.photoReady'),
       });
     } catch (error) {
       Toast.show({ type: 'error', text1: humanizeApiError(error) });
@@ -41,7 +41,7 @@ export default function ProfileScreen() {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['Annuler', 'Prendre une photo', 'Choisir dans la galerie'],
+          options: [t('common.cancel'), t('justifyAbsence.cameraSource'), t('profile.gallery')],
           cancelButtonIndex: 0,
         },
         (i) => {
@@ -50,16 +50,16 @@ export default function ProfileScreen() {
         },
       );
     } else {
-      Alert.alert('Photo de référence', 'Choisissez une source', [
-        { text: 'Caméra', onPress: () => void run(() => pickAndUpload(mode)) },
-        { text: 'Galerie', onPress: () => void run(() => pickFromLibraryAndUpload(mode)) },
-        { text: 'Annuler', style: 'cancel' },
+      Alert.alert(t('profile.referencePhoto'), t('profile.chooseSource'), [
+        { text: t('profile.camera'), onPress: () => void run(() => pickAndUpload(mode)) },
+        { text: t('profile.gallery'), onPress: () => void run(() => pickFromLibraryAndUpload(mode)) },
+        { text: t('common.cancel'), style: 'cancel' },
       ]);
     }
   };
 
   const confirmLogout = () => {
-    Alert.alert(t('common.logout'), 'Vous serez déconnecté de votre compte sur cet appareil.', [
+    Alert.alert(t('common.logout'), t('profile.logoutMessage'), [
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('common.logout'), style: 'destructive', onPress: () => void logout() },
     ]);
@@ -89,19 +89,19 @@ export default function ProfileScreen() {
           </View>
         </View>
         <View className="h-px bg-slate-200 dark:bg-slate-800" />
-        <Row label="Rôle" value={user?.role ?? '—'} />
-        <Row label="Département" value={user?.department ?? '—'} />
+        <Row label={t('profile.role')} value={user?.role ?? '—'} />
+        <Row label={t('profile.department')} value={user?.department ?? '—'} />
       </View>
 
       <View className="rounded-3xl bg-white dark:bg-slate-900 p-6 gap-4 shadow-sm">
         <View className="flex-row items-center justify-between">
           <Text className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Photo de référence
+            {t('profile.referencePhoto')}
           </Text>
           {photo?.photoUrl ? (
             <View className={`rounded-full px-3 py-1 ${isPending ? 'bg-warning/10' : 'bg-success/10'}`}>
               <Text className={`text-xs font-semibold ${isPending ? 'text-warning' : 'text-success'}`}>
-                {isPending ? 'En attente' : 'Validée'}
+                {isPending ? t('profile.pending') : t('profile.validated')}
               </Text>
             </View>
           ) : null}
@@ -122,8 +122,8 @@ export default function ProfileScreen() {
           )}
           <Text className="text-sm text-center text-slate-500 dark:text-slate-400 px-4">
             {photo?.photoUrl
-              ? 'Cette photo est utilisée pour vous identifier lors du pointage facial.'
-              : 'Ajoutez votre photo pour activer le pointage facial.'}
+              ? t('profile.photoUsed')
+              : t('profile.photoMissing')}
           </Text>
         </View>
 
@@ -138,10 +138,10 @@ export default function ProfileScreen() {
           <Ionicons name="camera" size={18} color="#1E40AF" />
           <Text className="text-primary-800 dark:text-primary-100 font-semibold">
             {upload.isPending
-              ? 'Envoi…'
+              ? t('profile.uploading')
               : photo?.photoUrl
-                ? 'Changer la photo'
-                : 'Ajouter une photo'}
+                ? t('profile.changePhoto')
+                : t('profile.addPhoto')}
           </Text>
         </Pressable>
       </View>

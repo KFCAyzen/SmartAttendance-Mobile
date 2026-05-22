@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Stack, useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Text, TextInput, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
@@ -14,19 +15,12 @@ import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { Select } from '~/components/ui/Select';
 import { LEAVE_TYPE_LABELS } from '~/lib/leaves';
 
-const schema = z
-  .object({
-    type: z.enum(['VACATION', 'SICK', 'PERSONAL', 'MATERNITY', 'PATERNITY', 'UNPAID']),
-    startDate: z.date(),
-    endDate: z.date(),
-    reason: z.string().optional(),
-  })
-  .refine((v) => v.endDate >= v.startDate, {
-    path: ['endDate'],
-    message: 'La date de fin doit être après la date de début',
-  });
-
-type FormValues = z.infer<typeof schema>;
+type FormValues = {
+  type: LeaveType;
+  startDate: Date;
+  endDate: Date;
+  reason?: string;
+};
 
 const typeOptions = (Object.keys(LEAVE_TYPE_LABELS) as LeaveType[]).map((t) => ({
   value: t,
@@ -34,10 +28,22 @@ const typeOptions = (Object.keys(LEAVE_TYPE_LABELS) as LeaveType[]).map((t) => (
 }));
 
 export default function LeaveNewScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const schema = z
+    .object({
+      type: z.enum(['VACATION', 'SICK', 'PERSONAL', 'MATERNITY', 'PATERNITY', 'UNPAID']),
+      startDate: z.date(),
+      endDate: z.date(),
+      reason: z.string().optional(),
+    })
+    .refine((v) => v.endDate >= v.startDate, {
+      path: ['endDate'],
+      message: t('leaveNew.endDateAfterStart'),
+    });
 
   const {
     control,
@@ -60,8 +66,8 @@ export default function LeaveNewScreen() {
       void queryClient.invalidateQueries({ queryKey: ['leaves'] });
       Toast.show({
         type: 'success',
-        text1: 'Demande envoyée',
-        text2: 'Votre responsable doit valider la demande.',
+        text1: t('leaveNew.sentTitle'),
+        text2: t('leaveNew.sentMessage'),
       });
       router.back();
     },
@@ -70,14 +76,20 @@ export default function LeaveNewScreen() {
 
   return (
     <ScreenContainer>
-      <Stack.Screen options={{ headerShown: true, title: 'Nouvelle demande', headerBackTitle: 'Annuler' }} />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          title: t('leaveNew.headerTitle'),
+          headerBackTitle: t('common.cancel'),
+        }}
+      />
 
       <View className="gap-1 mt-2">
         <Text className="text-2xl font-bold text-slate-900 dark:text-white">
-          Demande de congé
+          {t('leaveNew.title')}
         </Text>
         <Text className="text-base text-slate-500 dark:text-slate-400">
-          Indiquez la période et le motif. Vous serez notifié dès qu&apos;un responsable répond.
+          {t('leaveNew.subtitle')}
         </Text>
       </View>
 
@@ -85,7 +97,12 @@ export default function LeaveNewScreen() {
         control={control}
         name="type"
         render={({ field: { value, onChange } }) => (
-          <Select label="Type de congé" value={value} onChange={onChange} options={typeOptions} />
+          <Select
+            label={t('leaveNew.type')}
+            value={value}
+            onChange={onChange}
+            options={typeOptions}
+          />
         )}
       />
 
@@ -94,7 +111,7 @@ export default function LeaveNewScreen() {
         name="startDate"
         render={({ field: { value, onChange } }) => (
           <DateField
-            label="Du"
+            label={t('leaveNew.from')}
             value={value}
             onChange={onChange}
             minimumDate={today}
@@ -108,7 +125,7 @@ export default function LeaveNewScreen() {
         name="endDate"
         render={({ field: { value, onChange } }) => (
           <DateField
-            label="Au"
+            label={t('leaveNew.to')}
             value={value}
             onChange={onChange}
             minimumDate={today}
@@ -123,13 +140,13 @@ export default function LeaveNewScreen() {
         render={({ field: { value, onChange, onBlur } }) => (
           <View className="gap-1.5">
             <Text className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-slate-300">
-              Motif (optionnel)
+              {t('leaveNew.reason')}
             </Text>
             <TextInput
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              placeholder="Ex : vacances familiales"
+              placeholder={t('leaveNew.reasonPlaceholder')}
               placeholderTextColor="#94A3B8"
               multiline
               numberOfLines={4}
@@ -140,7 +157,7 @@ export default function LeaveNewScreen() {
       />
 
       <Button
-        label="Envoyer la demande"
+        label={t('leaveNew.submit')}
         loading={create.isPending}
         onPress={handleSubmit((v) => create.mutate(v))}
       />
