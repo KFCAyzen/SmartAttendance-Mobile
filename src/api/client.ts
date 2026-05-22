@@ -50,3 +50,13 @@ export function humanizeApiError(error: unknown): string {
   if (error instanceof Error) return error.message;
   return 'Erreur inconnue';
 }
+
+export function isNetworkError(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) return false;
+  if (!error.response) return true;
+  return (
+    error.code === 'ECONNABORTED' ||
+    error.code === 'ERR_NETWORK' ||
+    error.message === 'Network Error'
+  );
+}

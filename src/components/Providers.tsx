@@ -6,6 +6,7 @@ import { useEffect, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import '../i18n';
+import { useOfflineSync } from '../hooks/useOfflineSync';
 import { useAuthStore } from '../stores/auth.store';
 
 const queryClient = new QueryClient({
@@ -26,6 +27,7 @@ const persister = createAsyncStoragePersister({
 
 export function Providers({ children }: { children: ReactNode }) {
   const hydrate = useAuthStore((s) => s.hydrate);
+  useOfflineSync();
 
   useEffect(() => {
     void hydrate();
