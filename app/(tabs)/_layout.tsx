@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useIsAdmin } from '~/hooks/useAdminData';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
+  const isAdmin = useIsAdmin();
   const tint = '#3B82F6';
   const inactive = colorScheme === 'dark' ? '#94A3B8' : '#64748B';
 
@@ -61,6 +63,16 @@ export default function TabLayout() {
           title: t('tabs.profile'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-circle" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="admin"
+        options={{
+          title: 'Admin',
+          href: isAdmin ? undefined : null,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="shield-checkmark" size={size} color={color} />
           ),
         }}
       />
