@@ -1,6 +1,11 @@
 import { api } from './client';
 import type { LoginResponse, User } from './types';
 
+export async function getCsrfToken(): Promise<string> {
+  const { data } = await api.get<{ token: string }>('/csrf/token');
+  return data.token;
+}
+
 export async function login(email: string, password: string): Promise<LoginResponse> {
   const { data } = await api.post<LoginResponse>('/auth/login', { email, password });
   return data;

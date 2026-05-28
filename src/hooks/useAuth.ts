@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { getMe, login as loginRequest } from '../api/auth';
+import { getCsrfToken, getMe, login as loginRequest } from '../api/auth';
+import { setItem, StorageKeys } from '../lib/secure-storage';
 import { useAuthStore } from '../stores/auth.store';
 
 export function useAuth() {
@@ -14,6 +15,8 @@ export function useAuth() {
 
   const loginMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      const csrfToken = await getCsrfToken();
+      await setItem(StorageKeys.CsrfToken, csrfToken);
       const { user, accessToken } = await loginRequest(email, password);
       return { user, accessToken };
     },

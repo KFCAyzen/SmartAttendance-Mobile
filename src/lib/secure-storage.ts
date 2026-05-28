@@ -4,6 +4,7 @@ export const StorageKeys = {
   AccessToken: 'sa.accessToken',
   DeviceId: 'sa.deviceId',
   CurrentUser: 'sa.currentUser',
+  CsrfToken: 'sa.csrfToken',
 } as const;
 
 export type StorageKey = (typeof StorageKeys)[keyof typeof StorageKeys];
@@ -24,5 +25,6 @@ export async function clearAuth(): Promise<void> {
   await Promise.all([
     removeItem(StorageKeys.AccessToken),
     removeItem(StorageKeys.CurrentUser),
+    removeItem(StorageKeys.CsrfToken),
   ]);
 }

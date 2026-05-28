@@ -1,7 +1,7 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios';
 import i18n from '../i18n';
 
-import { getItem, StorageKeys } from '../lib/secure-storage';
+import { getItem, setItem, StorageKeys } from '../lib/secure-storage';
 import type { ApiError } from './types';
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3001';
@@ -10,6 +10,7 @@ export const api: AxiosInstance = axios.create({
   baseURL,
   timeout: 30_000,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 });
 
 api.interceptors.request.use(async (config) => {
@@ -17,6 +18,13 @@ api.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.set('Authorization', `Bearer ${token}`);
   }
+  
+  // Récupérer le token CSRF du cookie si disponible
+  const csrfToken = await getItem(StorageKeys.CsrfToken);
+  if (csrfToken) {
+    config.headers.set('x-csrf-token', csrfToken);
+  }
+  
   return config;
 });
 
@@ -27,7 +35,14 @@ export function setUnauthorizedHandler(handler: () => void): void {
 }
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Stocker le token CSRF si présent dans les headers
+    const csrfToken = response.headers['x-csrf-token'];
+    if (csrfToken) {
+      setItem(StorageKeys.CsrfToken, csrfToken).catch(() => {});
+    }
+    return response;
+  },
   (error: AxiosError<ApiError>) => {
     const url = error.config?.url ?? '';
     // Don't trigger global logout on login endpoint — it has its own error handling.

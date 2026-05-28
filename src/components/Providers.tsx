@@ -26,13 +26,8 @@ const persister = createAsyncStoragePersister({
   key: 'sa.query-cache',
 });
 
-export function Providers({ children }: { children: ReactNode }) {
-  const hydrate = useAuthStore((s) => s.hydrate);
+function ProvidersInner({ children }: { children: ReactNode }) {
   useOfflineSync();
-
-  useEffect(() => {
-    void hydrate();
-  }, [hydrate]);
 
   useEffect(() => {
     const onChange = (state: AppStateStatus) => focusManager.setFocused(state === 'active');
@@ -40,13 +35,23 @@ export function Providers({ children }: { children: ReactNode }) {
     return () => sub.remove();
   }, []);
 
+  return children;
+}
+
+export function Providers({ children }: { children: ReactNode }) {
+  const hydrate = useAuthStore((s) => s.hydrate);
+
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
+
   return (
     <ErrorBoundary>
       <PersistQueryClientProvider
         client={queryClient}
         persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }}
       >
-        {children}
+        <ProvidersInner>{children}</ProvidersInner>
       </PersistQueryClientProvider>
     </ErrorBoundary>
   );
