@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'expo-router';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -20,6 +21,7 @@ type FormValues = {
 export default function LoginScreen() {
   const { t } = useTranslation();
   const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const schema = z.object({
     email: z.string().email(t('common.emailInvalid')),
     password: z.string().min(1, t('auth.login.passwordRequired')),
@@ -88,13 +90,16 @@ export default function LoginScreen() {
             <Input
               label={t('auth.login.password')}
               placeholder="••••••••"
-              secureTextEntry
+              secureTextEntry={!showPassword}
               autoComplete="password"
               textContentType="password"
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
               error={errors.password?.message}
+              showPasswordToggle
+              isPasswordVisible={showPassword}
+              onTogglePassword={() => setShowPassword(!showPassword)}
             />
           )}
         />
