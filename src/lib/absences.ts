@@ -1,13 +1,11 @@
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { AbsenceStatus, AbsenceType } from '../api/absences';
 
-export function useAbsenceTypeLabel(type: AbsenceType): string {
-  const { t } = useTranslation();
+export function getAbsenceTypeLabel(t: TFunction, type: AbsenceType): string {
   return t(`absenceTypes.${type}`);
 }
 
-export function useAbsenceStatusLabel(status: AbsenceStatus): string {
-  const { t } = useTranslation();
+export function getAbsenceStatusLabel(t: TFunction, status: AbsenceStatus): string {
   return t(`absenceStatuses.${status}`);
 }
 

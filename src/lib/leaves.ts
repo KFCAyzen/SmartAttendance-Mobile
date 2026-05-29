@@ -1,13 +1,11 @@
-import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { LeaveStatus, LeaveType } from '../api/leaves';
 
-export function useLeaveTypeLabel(type: LeaveType): string {
-  const { t } = useTranslation();
+export function getLeaveTypeLabel(t: TFunction, type: LeaveType): string {
   return t(`leaveTypes.${type}`);
 }
 
-export function useLeaveStatusLabel(status: LeaveStatus): string {
-  const { t } = useTranslation();
+export function getLeaveStatusLabel(t: TFunction, status: LeaveStatus): string {
   return t(`leaveStatuses.${status}`);
 }
 

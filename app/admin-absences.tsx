@@ -20,7 +20,7 @@ import type { AdminAbsence } from "~/api/admin";
 import { humanizeApiError } from "~/api/client";
 import { RoleGate } from "~/components/RoleGate";
 import { useAdminActions, usePendingAbsences } from "~/hooks/useAdminData";
-import { useAbsenceTypeLabel } from "~/lib/absences";
+import { getAbsenceTypeLabel } from "~/lib/absences";
 
 export default function AdminAbsencesScreen() {
   return (
@@ -144,7 +144,6 @@ function AbsenceRow({
   onReject: () => void;
 }) {
   const { t } = useTranslation();
-  const getAbsenceTypeLabel = useAbsenceTypeLabel;
   const name = absence.user
     ? `${absence.user.firstName} ${absence.user.lastName}`
     : t("admin.employee");
@@ -161,7 +160,7 @@ function AbsenceRow({
         </View>
         <View className="rounded-full bg-warning/15 px-3 py-1">
           <Text className="text-xs font-semibold text-warning">
-            {getAbsenceTypeLabel(absence.type)}
+            {getAbsenceTypeLabel(t, absence.type)}
           </Text>
         </View>
       </View>
