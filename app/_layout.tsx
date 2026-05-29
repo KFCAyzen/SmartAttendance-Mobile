@@ -65,10 +65,12 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      </Stack>
+      <Providers>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        </Stack>
+      </Providers>
       <StatusBar style="auto" />
     </ThemeProvider>
   );
@@ -76,9 +78,9 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <Providers>
+    <>
       <RootLayoutNav />
       <Toast />
-    </Providers>
+    </>
   );
 }
