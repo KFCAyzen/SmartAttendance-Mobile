@@ -4,6 +4,7 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useEffect, type ReactNode } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import '../i18n';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -46,13 +47,15 @@ export function Providers({ children }: { children: ReactNode }) {
   }, [hydrate]);
 
   return (
-    <ErrorBoundary>
-      <PersistQueryClientProvider
-        client={queryClient}
-        persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }}
-      >
-        <ProvidersInner>{children}</ProvidersInner>
-      </PersistQueryClientProvider>
-    </ErrorBoundary>
+    <SafeAreaProvider>
+      <ErrorBoundary>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }}
+        >
+          <ProvidersInner>{children}</ProvidersInner>
+        </PersistQueryClientProvider>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }
