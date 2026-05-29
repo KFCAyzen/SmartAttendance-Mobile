@@ -3,7 +3,8 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, SafeAreaView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 
 import { humanizeApiError } from '~/api/client';
@@ -36,6 +37,7 @@ export default function PointageScreen() {
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.7,
         skipProcessing: true,
+        base64: false,
       });
       if (!photo?.uri) throw new Error(t('checkin.captureFailed'));
       const coords = await fetchCoords();
@@ -86,7 +88,12 @@ export default function PointageScreen() {
   return (
     <View className="flex-1 bg-black">
       {cameraActive ? (
-        <CameraView ref={cameraRef} style={{ flex: 1 }} facing="front" autofocus="on" />
+        <CameraView 
+          ref={cameraRef} 
+          style={{ flex: 1 }} 
+          facing="front" 
+          mode="picture"
+        />
       ) : (
         <View className="flex-1 bg-black" />
       )}

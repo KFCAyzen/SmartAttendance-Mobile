@@ -4,13 +4,13 @@ import { fr } from "date-fns/locale";
 import { Stack } from "expo-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   ActivityIndicator,
   Alert,
   FlatList,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   Text,
   View,
 } from "react-native";

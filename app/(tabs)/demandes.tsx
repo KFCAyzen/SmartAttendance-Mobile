@@ -5,12 +5,12 @@ import { fr } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   Text,
   View,
 } from 'react-native';
