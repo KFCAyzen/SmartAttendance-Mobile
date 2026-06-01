@@ -8,6 +8,7 @@ export function useAuth() {
   const status = useAuthStore((s) => s.status);
   const user = useAuthStore((s) => s.user);
   const deviceStatus = useAuthStore((s) => s.deviceStatus);
+  const deviceError = useAuthStore((s) => s.deviceError);
   const setSession = useAuthStore((s) => s.setSession);
   const clearSession = useAuthStore((s) => s.clearSession);
   const verifyDevice = useAuthStore((s) => s.verifyDevice);
@@ -42,6 +43,7 @@ export function useAuth() {
     status,
     user,
     deviceStatus,
+    deviceError,
     isAuthenticated: status === 'authenticated',
     isHydrating:
       status === 'idle' || status === 'loading' || status === 'verifying_device',

@@ -11,10 +11,11 @@ import { useAuth } from '~/hooks/useAuth';
 
 export default function DevicePendingScreen() {
   const { t } = useTranslation();
-  const { deviceStatus, user, verifyDevice, logout } = useAuth();
+  const { deviceStatus, deviceError, status, user, verifyDevice, logout } = useAuth();
   const [verifying, setVerifying] = useState(false);
 
   const isRevoked = deviceStatus === 'REVOKED';
+  const isError = status === 'device_error';
 
   const handleRecheck = async () => {
     setVerifying(true);
@@ -22,6 +23,13 @@ export default function DevicePendingScreen() {
       const next = await verifyDevice();
       if (next === 'ACTIVE') {
         Toast.show({ type: 'success', text1: t('auth.device.approved') });
+      } else if (next === null) {
+        // Technical failure (network/server) — not a genuine pending device.
+        Toast.show({
+          type: 'error',
+          text1: t('auth.device.errorTitle'),
+          text2: t('auth.device.errorMessage'),
+        });
       } else {
         Toast.show({
           type: 'info',
@@ -41,16 +49,24 @@ export default function DevicePendingScreen() {
       <View className="mt-16 items-center gap-4">
         <View className="h-20 w-20 rounded-full bg-warning/10 items-center justify-center">
           <Ionicons
-            name={isRevoked ? 'close-circle' : 'time'}
+            name={isError ? 'warning' : isRevoked ? 'close-circle' : 'time'}
             size={48}
             color={isRevoked ? '#991B1B' : '#C2410C'}
           />
         </View>
         <Text className="text-2xl font-bold text-center text-slate-900 dark:text-white">
-          {isRevoked ? t('auth.device.revokedTitle') : t('auth.device.pendingTitle')}
+          {isError
+            ? t('auth.device.errorTitle')
+            : isRevoked
+              ? t('auth.device.revokedTitle')
+              : t('auth.device.pendingTitle')}
         </Text>
         <Text className="text-base text-center text-slate-500 dark:text-slate-400 px-4">
-          {isRevoked ? t('auth.device.revokedMessage') : t('auth.device.pendingMessage')}
+          {isError
+            ? (deviceError ?? t('auth.device.errorMessage'))
+            : isRevoked
+              ? t('auth.device.revokedMessage')
+              : t('auth.device.pendingMessage')}
         </Text>
       </View>
 

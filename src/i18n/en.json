@@ -34,7 +34,9 @@
       "revokedMessage": "This device was revoked by an administrator. Contact HR to restore access.",
       "pendingMessage": "Your device must be approved by an administrator before the first check-in. This verification is done from the admin console.",
       "account": "Account",
-      "recheck": "Check again"
+      "recheck": "Check again",
+      "errorTitle": "Verification failed",
+      "errorMessage": "We couldn't verify your device right now. Check your connection and try again."
     },
     "errors": {
       "invalidCredentials": "Wrong email or password.",

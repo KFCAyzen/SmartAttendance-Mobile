@@ -34,7 +34,9 @@
       "revokedMessage": "Cet appareil a été révoqué par un administrateur. Contactez votre responsable RH pour ré-activer l'accès.",
       "pendingMessage": "Votre appareil doit être validé par un administrateur avant le premier pointage. Cette vérification est faite depuis la console d'administration.",
       "account": "Compte",
-      "recheck": "Vérifier à nouveau"
+      "recheck": "Vérifier à nouveau",
+      "errorTitle": "Vérification impossible",
+      "errorMessage": "Impossible de vérifier votre appareil pour le moment. Vérifiez votre connexion et réessayez."
     },
     "errors": {
       "invalidCredentials": "Email ou mot de passe incorrect.",

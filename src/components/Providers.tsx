@@ -9,7 +9,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '../i18n';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useOfflineSync } from '../hooks/useOfflineSync';
-import { useAuthStore } from '../stores/auth.store';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,12 +39,6 @@ function ProvidersInner({ children }: { children: ReactNode }) {
 }
 
 export function Providers({ children }: { children: ReactNode }) {
-  const hydrate = useAuthStore((s) => s.hydrate);
-
-  useEffect(() => {
-    void hydrate();
-  }, [hydrate]);
-
   return (
     <SafeAreaProvider>
       <ErrorBoundary>

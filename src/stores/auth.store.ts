@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { humanizeApiError } from '../api/client';
 import { registerDevice, type DeviceStatus } from '../api/devices';
 import type { User } from '../api/types';
 import { getOrCreateDeviceId } from '../lib/device-id';
@@ -11,6 +12,7 @@ export type AuthStatus =
   | 'loading'
   | 'verifying_device'
   | 'device_pending'
+  | 'device_error'
   | 'authenticated'
   | 'unauthenticated';
 
@@ -19,10 +21,11 @@ interface AuthState {
   accessToken: string | null;
   status: AuthStatus;
   deviceStatus: DeviceStatus | null;
+  deviceError: string | null;
   hydrate: () => Promise<void>;
   setSession: (token: string, user: User) => Promise<void>;
   clearSession: () => Promise<void>;
-  verifyDevice: () => Promise<DeviceStatus>;
+  verifyDevice: () => Promise<DeviceStatus | null>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -30,6 +33,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: null,
   status: 'idle',
   deviceStatus: null,
+  deviceError: null,
 
   async hydrate() {
     set({ status: 'loading' });
@@ -37,7 +41,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const rawUser = await getItem(StorageKeys.CurrentUser);
     if (!token || !rawUser) {
       await clearAuth();
-      set({ accessToken: null, user: null, deviceStatus: null, status: 'unauthenticated' });
+      set({
+      accessToken: null,
+      user: null,
+      deviceStatus: null,
+      deviceError: null,
+      status: 'unauthenticated',
+    });
       return;
     }
     try {
@@ -46,7 +56,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await get().verifyDevice();
     } catch {
       await clearAuth();
-      set({ accessToken: null, user: null, deviceStatus: null, status: 'unauthenticated' });
+      set({
+      accessToken: null,
+      user: null,
+      deviceStatus: null,
+      deviceError: null,
+      status: 'unauthenticated',
+    });
     }
   },
 
@@ -59,14 +75,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   async clearSession() {
     await clearAuth();
-    set({ accessToken: null, user: null, deviceStatus: null, status: 'unauthenticated' });
+    set({
+      accessToken: null,
+      user: null,
+      deviceStatus: null,
+      deviceError: null,
+      status: 'unauthenticated',
+    });
   },
 
   async verifyDevice() {
-    if (!get().accessToken) {
+    const { accessToken, user } = get();
+    if (!accessToken) {
       set({ status: 'unauthenticated' });
-      return 'PENDING';
+      return null;
     }
+    // Admins are never gated by device verification — the device is registered
+    // best-effort, but its status (or any failure) never blocks them.
+    const isAdmin = user?.role === 'ADMIN';
     const deviceId = await getOrCreateDeviceId();
     const descriptor = getDeviceDescriptor();
     try {
@@ -75,16 +101,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         deviceName: descriptor.deviceName,
         platform: descriptor.platform,
       });
+      const resolved = isAdmin ? 'ACTIVE' : deviceStatus;
       set({
-        deviceStatus,
-        status: deviceStatus === 'ACTIVE' ? 'authenticated' : 'device_pending',
+        deviceStatus: resolved,
+        deviceError: null,
+        status: resolved === 'ACTIVE' ? 'authenticated' : 'device_pending',
       });
-      return deviceStatus;
+      return resolved;
     } catch (error) {
-      // Network or server error: keep user authenticated locally, treat device as pending
-      // so they reach the pending screen and can retry.
-      set({ deviceStatus: 'PENDING', status: 'device_pending' });
-      throw error;
+      if (isAdmin) {
+        set({ deviceStatus: 'ACTIVE', deviceError: null, status: 'authenticated' });
+        return 'ACTIVE';
+      }
+      // A network/server error is NOT a genuine "pending" device. Surface it as
+      // a retryable error instead of masquerading as the device-approval flow,
+      // and never throw (so a transient failure can't drop the whole session).
+      set({ deviceError: humanizeApiError(error), status: 'device_error' });
+      return null;
     }
   },
 }));

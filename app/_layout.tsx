@@ -5,7 +5,12 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack, useRouter, useSegments } from "expo-router";
+import {
+  Stack,
+  useRootNavigationState,
+  useRouter,
+  useSegments,
+} from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -26,6 +31,13 @@ function RootLayoutNav() {
   const router = useRouter();
   const segments = useSegments();
   const status = useAuthStore((s) => s.status);
+  const hydrate = useAuthStore((s) => s.hydrate);
+  const navState = useRootNavigationState();
+  const navReady = Boolean(navState?.key);
+
+  useEffect(() => {
+    void hydrate();
+  }, [hydrate]);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
@@ -36,6 +48,7 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (
+      !navReady ||
       status === "idle" ||
       status === "loading" ||
       status === "verifying_device"
@@ -46,14 +59,14 @@ function RootLayoutNav() {
     if (status === "unauthenticated" && !inAuthGroup) {
       router.replace("/(auth)/login");
     } else if (
-      status === "device_pending" &&
+      (status === "device_pending" || status === "device_error") &&
       currentRoute !== "(auth)/device-pending"
     ) {
       router.replace("/(auth)/device-pending");
     } else if (status === "authenticated" && inAuthGroup) {
       router.replace("/(tabs)");
     }
-  }, [status, segments, router]);
+  }, [navReady, status, segments, router]);
 
   if (status === "idle" || status === "loading") {
     return (
