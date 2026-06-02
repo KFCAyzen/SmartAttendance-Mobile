@@ -18,7 +18,12 @@ export default function PointageScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
   const [cameraActive, setCameraActive] = useState(false);
+  const [capturing, setCapturing] = useState(false);
   const [lastResult, setLastResult] = useState<FaceCheckInResponse | null>(null);
+
+  // Loading must show the instant the user taps — takePictureAsync + GPS run
+  // before the mutation, so relying on checkIn.isPending alone feels frozen.
+  const busy = capturing || checkIn.isPending;
 
   const checkIn = useFaceCheckIn();
   const { fetchCoords } = useLocation();
@@ -32,15 +37,19 @@ export default function PointageScreen() {
   );
 
   const handleCapture = async () => {
-    if (!cameraRef.current) return;
+    if (!cameraRef.current || busy) return;
+    setCapturing(true);
     try {
+      // Kick off location in parallel — it doesn't depend on the photo and is
+      // the slowest step, so racing it with the capture cuts total wait time.
+      const coordsPromise = fetchCoords();
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.7,
         skipProcessing: true,
         base64: false,
       });
       if (!photo?.uri) throw new Error(t('checkin.captureFailed'));
-      const coords = await fetchCoords();
+      const coords = await coordsPromise;
       const result = await checkIn.mutateAsync({ photoUri: photo.uri, coords });
       setLastResult(result);
       Toast.show({
@@ -55,6 +64,8 @@ export default function PointageScreen() {
         text1: t('checkin.rejected'),
         text2: humanizeApiError(error),
       });
+    } finally {
+      setCapturing(false);
     }
   };
 
@@ -132,14 +143,14 @@ export default function PointageScreen() {
 
           <Pressable
             accessibilityRole="button"
-            accessibilityState={{ disabled: checkIn.isPending, busy: checkIn.isPending }}
-            disabled={checkIn.isPending}
+            accessibilityState={{ disabled: busy, busy }}
+            disabled={busy}
             onPress={handleCapture}
             className={`h-16 rounded-full items-center justify-center ${
-              checkIn.isPending ? 'bg-primary/60' : 'bg-primary active:bg-primary-700'
+              busy ? 'bg-primary/60' : 'bg-primary active:bg-primary-700'
             }`}
           >
-            {checkIn.isPending ? (
+            {busy ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <Text className="text-white font-semibold text-base">{t('checkin.capture')}</Text>

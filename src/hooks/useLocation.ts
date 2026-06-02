@@ -27,9 +27,18 @@ export function useLocation() {
         setCoords(null);
         return null;
       }
-      const position = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
+      // getCurrentPositionAsync can hang on emulators with no GPS fix — cap it
+      // at 4s and fall back to the last known position. Coords are optional for
+      // check-in, so a miss must never block the capture.
+      const fresh = await Promise.race([
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+      ]);
+      const position = fresh ?? (await Location.getLastKnownPositionAsync());
+      if (!position) {
+        setCoords(null);
+        return null;
+      }
       const result = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
