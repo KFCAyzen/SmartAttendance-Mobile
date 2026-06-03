@@ -27,6 +27,7 @@ export function ScreenContainer({
       >
         {scrollable ? (
           <ScrollView
+            className="flex-1"
             contentContainerClassName={contentClassName}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
