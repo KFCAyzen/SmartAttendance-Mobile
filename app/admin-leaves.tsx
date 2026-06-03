@@ -83,6 +83,20 @@ function LeavesContent() {
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color="#3B82F6" />
         </View>
+      ) : query.isError ? (
+        <View className="flex-1 items-center justify-center gap-3 px-8">
+          <Ionicons name="cloud-offline" size={40} color="#C2410C" />
+          <Text className="text-center text-base text-slate-600 dark:text-slate-300">
+            {humanizeApiError(query.error)}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => void query.refetch()}
+            className="mt-2 h-11 px-6 rounded-xl bg-primary items-center justify-center active:opacity-80"
+          >
+            <Text className="text-white font-semibold">{t("common.retry")}</Text>
+          </Pressable>
+        </View>
       ) : (
         <FlatList
           data={items}

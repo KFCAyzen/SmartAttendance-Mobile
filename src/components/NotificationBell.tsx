@@ -1,26 +1,28 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, useColorScheme, View } from 'react-native';
 
 import { useUnreadCount } from '../hooks/useNotifications';
 
 export function NotificationBell() {
   const router = useRouter();
+  const scheme = useColorScheme();
   const { count } = useUnreadCount();
-  const display = count > 9 ? '9+' : String(count);
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Notifications${count > 0 ? `, ${count} non lues` : ''}`}
       onPress={() => router.push('/notifications')}
-      className="h-11 w-11 rounded-full bg-white dark:bg-slate-900 items-center justify-center shadow-sm"
+      className="h-11 w-11 items-center justify-center rounded-[14px] border border-black/5 bg-surface-card dark:border-white/10 dark:bg-surface-cardDark"
     >
-      <Ionicons name="notifications" size={20} color="#1E40AF" />
+      <Ionicons
+        name="notifications-outline"
+        size={21}
+        color={scheme === 'dark' ? '#F3F6FD' : '#0E1326'}
+      />
       {count > 0 ? (
-        <View className="absolute -top-1 -right-1 min-w-[20px] h-5 rounded-full bg-danger px-1 items-center justify-center">
-          <Text className="text-[10px] font-bold text-white">{display}</Text>
-        </View>
+        <View className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full border-2 border-surface-card bg-accent dark:border-surface-cardDark" />
       ) : null}
     </Pressable>
   );

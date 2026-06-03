@@ -1,36 +1,47 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { enUS, fr } from 'date-fns/locale';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  Text,
-  View,
-} from 'react-native';
 
-import { listAbsences, type Absence } from '~/api/absences';
-import { getBalance, listLeaves, type Leave } from '~/api/leaves';
+import { listAbsences, type Absence, type AbsenceStatus } from '~/api/absences';
+import { getBalance, listLeaves, type Leave, type LeaveStatus, type LeaveType } from '~/api/leaves';
+import { Card } from '~/components/ui/Card';
+import { ProgressBar } from '~/components/ui/ProgressBar';
 import { SegmentControl } from '~/components/ui/SegmentControl';
-import {
-  ABSENCE_STATUS_COLOR,
-  canJustify,
-  getAbsenceStatusLabel,
-  getAbsenceTypeLabel,
-} from '~/lib/absences';
-import {
-  LEAVE_STATUS_COLOR,
-  getLeaveStatusLabel,
-  getLeaveTypeLabel,
-} from '~/lib/leaves';
+import { StatusPill, type PillTone } from '~/components/ui/StatusPill';
+import { canJustify, getAbsenceStatusLabel, getAbsenceTypeLabel } from '~/lib/absences';
+import { getLeaveStatusLabel, getLeaveTypeLabel } from '~/lib/leaves';
 
 type Tab = 'leaves' | 'absences';
+
+const LEAVE_STATUS_TONE: Record<LeaveStatus, PillTone> = {
+  PENDING: 'warning',
+  APPROVED: 'success',
+  REJECTED: 'danger',
+  CANCELLED: 'neutral',
+  INTERRUPTED: 'neutral',
+};
+
+const ABSENCE_STATUS_TONE: Record<AbsenceStatus, PillTone> = {
+  PENDING: 'warning',
+  JUSTIFIED: 'success',
+  EXCUSED: 'success',
+  UNJUSTIFIED: 'danger',
+};
+
+const LEAVE_TYPE_TONE: Record<LeaveType, 'primary' | 'accent' | 'success' | 'warning'> = {
+  VACATION: 'primary',
+  SICK: 'success',
+  PERSONAL: 'warning',
+  MATERNITY: 'primary',
+  PATERNITY: 'primary',
+  UNPAID: 'accent',
+};
 
 export default function DemandesScreen() {
   const { t } = useTranslation();
@@ -38,13 +49,16 @@ export default function DemandesScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-light dark:bg-surface-dark">
-      <View className="px-6 pt-6 pb-3 gap-3">
-        <View className="gap-1">
-          <Text className="text-xs uppercase tracking-widest text-primary-700 dark:text-primary-100">
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      className="flex-1 bg-surface-light dark:bg-surface-dark"
+    >
+      <View className="gap-3 px-5 pb-3 pt-2">
+        <View className="gap-[3px]">
+          <Text className="font-bodyBold text-[11px] uppercase tracking-[1.4px] text-primary">
             {t('common.appName')}
           </Text>
-          <Text className="text-3xl font-bold text-slate-900 dark:text-white">
+          <Text className="font-display text-[30px] leading-none text-ink dark:text-white">
             {t('requests.title')}
           </Text>
         </View>
@@ -64,7 +78,14 @@ export default function DemandesScreen() {
         <Pressable
           accessibilityRole="button"
           onPress={() => router.push('/leave-new')}
-          className="absolute bottom-8 right-6 h-14 w-14 rounded-full bg-primary items-center justify-center shadow-lg"
+          className="absolute bottom-6 right-5 h-14 w-14 items-center justify-center rounded-[20px] bg-primary active:opacity-90"
+          style={{
+            shadowColor: '#2F5BFF',
+            shadowOpacity: 0.5,
+            shadowRadius: 20,
+            shadowOffset: { width: 0, height: 12 },
+            elevation: 8,
+          }}
         >
           <Ionicons name="add" size={28} color="white" />
         </Pressable>
@@ -97,7 +118,7 @@ function LeavesList() {
   if (query.isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#3B82F6" />
+        <ActivityIndicator color="#2F5BFF" />
       </View>
     );
   }
@@ -106,34 +127,43 @@ function LeavesList() {
     <FlatList
       data={items}
       keyExtractor={(it) => it.id}
-      contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100, gap: 8 }}
+      contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120, gap: 10 }}
       ListHeaderComponent={
         balance.data && balance.data.length > 0 ? (
-          <View className="mb-2 rounded-3xl bg-white dark:bg-slate-900 p-4 shadow-sm">
-            <Text className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">
+          <Card className="mb-1 gap-3.5">
+            <Text className="font-bodyBold text-[12px] uppercase tracking-wide text-muted dark:text-slate-400">
               {t('requests.balances')}
             </Text>
-            <View className="flex-row flex-wrap gap-3">
+            <View className="gap-[15px]">
               {balance.data.slice(0, 4).map((b) => (
-                <View key={b.type} className="min-w-[45%] flex-1">
-                  <Text className="text-xs text-slate-500 dark:text-slate-400">
-                    {getLeaveTypeLabel(t, b.type)}
-                  </Text>
-                  <Text className="text-lg font-bold text-slate-900 dark:text-white">
-                    {b.remaining}
-                    <Text className="text-xs font-normal text-slate-500"> / {b.total} j</Text>
-                  </Text>
+                <View key={b.type} className="gap-[7px]">
+                  <View className="flex-row items-baseline justify-between">
+                    <Text className="font-bodySemibold text-[13.5px] text-ink dark:text-white">
+                      {getLeaveTypeLabel(t, b.type)}
+                    </Text>
+                    <Text className="font-display text-[15px] text-ink dark:text-white">
+                      {b.remaining}
+                      <Text className="font-bodySemibold text-[12px] text-muted dark:text-slate-400">
+                        {` / ${b.total} j`}
+                      </Text>
+                    </Text>
+                  </View>
+                  <ProgressBar
+                    value={b.remaining}
+                    total={b.total}
+                    tone={LEAVE_TYPE_TONE[b.type] ?? 'primary'}
+                  />
                 </View>
               ))}
             </View>
-          </View>
+          </Card>
         ) : null
       }
       renderItem={({ item }) => <LeaveCard leave={item} />}
       ListEmptyComponent={
-        <View className="items-center py-16 gap-2">
-          <Ionicons name="calendar-outline" size={36} color="#94A3B8" />
-          <Text className="text-base text-slate-500 dark:text-slate-400">
+        <View className="items-center gap-2 py-16">
+          <Ionicons name="calendar-outline" size={36} color="#9AA5BE" />
+          <Text className="font-body text-[15px] text-muted dark:text-slate-400">
             {t('requests.noLeaves')}
           </Text>
         </View>
@@ -146,7 +176,7 @@ function LeavesList() {
         <RefreshControl
           refreshing={query.isRefetching && !query.isFetchingNextPage}
           onRefresh={() => void query.refetch()}
-          tintColor="#3B82F6"
+          tintColor="#2F5BFF"
         />
       }
     />
@@ -154,35 +184,41 @@ function LeavesList() {
 }
 
 function LeaveCard({ leave }: { leave: Leave }) {
-  const { t } = useTranslation();
-  const color = LEAVE_STATUS_COLOR[leave.status];
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language?.startsWith('en') ? enUS : fr;
   return (
-    <View className="rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-sm">
-      <View className="flex-row items-start justify-between gap-2">
+    <Card pad={16} radius={20} className="gap-2">
+      <View className="flex-row items-start justify-between gap-2.5">
         <View className="flex-1">
-          <Text className="text-base font-semibold text-slate-900 dark:text-white">
+          <Text className="font-bodyBold text-[15px] text-ink dark:text-white">
             {getLeaveTypeLabel(t, leave.type)}
           </Text>
-          <Text className="text-sm text-slate-500 dark:text-slate-400">
-            {format(new Date(leave.startDate), 'd MMM yyyy', { locale: fr })} —{' '}
-            {format(new Date(leave.endDate), 'd MMM yyyy', { locale: fr })}
-          </Text>
+          <View className="mt-0.5 flex-row items-center gap-1.5">
+            <Ionicons name="calendar-outline" size={13} color="#717A90" />
+            <Text className="font-body text-[12.5px] text-muted dark:text-slate-400">
+              {format(new Date(leave.startDate), 'd MMM yyyy', { locale })} —{' '}
+              {format(new Date(leave.endDate), 'd MMM yyyy', { locale })}
+            </Text>
+          </View>
         </View>
-        <View className={`rounded-full px-3 py-1 ${color.bg}`}>
-          <Text className={`text-xs font-semibold ${color.text}`}>
-            {getLeaveStatusLabel(t, leave.status)}
-          </Text>
-        </View>
+        <StatusPill tone={LEAVE_STATUS_TONE[leave.status]}>
+          {getLeaveStatusLabel(t, leave.status)}
+        </StatusPill>
       </View>
       {leave.reason ? (
-        <Text className="mt-2 text-sm text-slate-600 dark:text-slate-300">{leave.reason}</Text>
-      ) : null}
-      {leave.rejectionReason ? (
-        <Text className="mt-2 text-xs text-danger">
-          {t('requests.rejectionReason', { reason: leave.rejectionReason })}
+        <Text className="font-body text-[13px] leading-5 text-muted dark:text-slate-400">
+          {leave.reason}
         </Text>
       ) : null}
-    </View>
+      {leave.rejectionReason ? (
+        <View className="flex-row items-start gap-1.5 rounded-xl bg-danger/[0.09] px-3 py-2">
+          <Ionicons name="alert-circle-outline" size={14} color="#EF4444" style={{ marginTop: 1 }} />
+          <Text className="flex-1 font-body text-[12px] text-danger">
+            {t('requests.rejectionReason', { reason: leave.rejectionReason })}
+          </Text>
+        </View>
+      ) : null}
+    </Card>
   );
 }
 
@@ -202,15 +238,14 @@ function AbsencesList() {
 
   const items = useMemo<Absence[]>(() => {
     const out: Absence[] = [];
-    for (const p of query.data?.pages ?? [])
-      out.push(...(p.data ?? p.items ?? p.absences ?? []));
+    for (const p of query.data?.pages ?? []) out.push(...(p.data ?? p.items ?? p.absences ?? []));
     return out;
   }, [query.data]);
 
   if (query.isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#3B82F6" />
+        <ActivityIndicator color="#2F5BFF" />
       </View>
     );
   }
@@ -219,14 +254,17 @@ function AbsencesList() {
     <FlatList
       data={items}
       keyExtractor={(it) => it.id}
-      contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32, gap: 8 }}
+      contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32, gap: 10 }}
       renderItem={({ item }) => (
-        <AbsenceCard absence={item} onJustify={() => router.push(`/justify-absence?id=${item.id}`)} />
+        <AbsenceCard
+          absence={item}
+          onJustify={() => router.push(`/justify-absence?id=${item.id}`)}
+        />
       )}
       ListEmptyComponent={
-        <View className="items-center py-16 gap-2">
-          <Ionicons name="checkmark-circle-outline" size={36} color="#2F855A" />
-          <Text className="text-base text-slate-500 dark:text-slate-400">
+        <View className="items-center gap-2 py-16">
+          <Ionicons name="checkmark-circle-outline" size={36} color="#16A34A" />
+          <Text className="font-body text-[15px] text-muted dark:text-slate-400">
             {t('requests.noAbsences')}
           </Text>
         </View>
@@ -239,7 +277,7 @@ function AbsencesList() {
         <RefreshControl
           refreshing={query.isRefetching && !query.isFetchingNextPage}
           onRefresh={() => void query.refetch()}
-          tintColor="#3B82F6"
+          tintColor="#2F5BFF"
         />
       }
     />
@@ -247,40 +285,41 @@ function AbsencesList() {
 }
 
 function AbsenceCard({ absence, onJustify }: { absence: Absence; onJustify: () => void }) {
-  const { t } = useTranslation();
-  const color = ABSENCE_STATUS_COLOR[absence.status];
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language?.startsWith('en') ? enUS : fr;
   return (
-    <View className="rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-sm gap-2">
-      <View className="flex-row items-start justify-between gap-2">
+    <Card pad={16} radius={20} className="gap-2">
+      <View className="flex-row items-start justify-between gap-2.5">
         <View className="flex-1">
-          <Text className="text-base font-semibold text-slate-900 dark:text-white">
+          <Text className="font-bodyBold text-[15px] text-ink dark:text-white">
             {getAbsenceTypeLabel(t, absence.type)}
           </Text>
-          <Text className="text-sm text-slate-500 dark:text-slate-400">
-            {format(new Date(absence.date), 'EEEE d MMMM yyyy', { locale: fr })}
-          </Text>
+          <View className="mt-0.5 flex-row items-center gap-1.5">
+            <Ionicons name="calendar-outline" size={13} color="#717A90" />
+            <Text className="font-body text-[12.5px] text-muted dark:text-slate-400">
+              {format(new Date(absence.date), 'EEEE d MMMM yyyy', { locale })}
+            </Text>
+          </View>
         </View>
-        <View className={`rounded-full px-3 py-1 ${color.bg}`}>
-          <Text className={`text-xs font-semibold ${color.text}`}>
-            {getAbsenceStatusLabel(t, absence.status)}
-          </Text>
-        </View>
+        <StatusPill tone={ABSENCE_STATUS_TONE[absence.status]}>
+          {getAbsenceStatusLabel(t, absence.status)}
+        </StatusPill>
       </View>
       {absence.reason ? (
-        <Text className="text-sm text-slate-600 dark:text-slate-300">{absence.reason}</Text>
+        <Text className="font-body text-[13px] leading-5 text-muted dark:text-slate-400">
+          {absence.reason}
+        </Text>
       ) : null}
       {canJustify(absence.status) ? (
         <Pressable
           accessibilityRole="button"
           onPress={onJustify}
-          className="self-start flex-row items-center gap-2 rounded-full bg-primary-50 dark:bg-primary-900/40 px-4 py-2"
+          className="flex-row items-center gap-1.5 self-start rounded-full bg-primary/10 px-4 py-2 active:opacity-80"
         >
-          <Ionicons name="document-attach" size={14} color="#1E40AF" />
-          <Text className="text-sm font-semibold text-primary-800 dark:text-primary-100">
-            {t('requests.justify')}
-          </Text>
+          <Ionicons name="document-attach-outline" size={14} color="#2F5BFF" />
+          <Text className="font-bodyBold text-[12.5px] text-primary">{t('requests.justify')}</Text>
         </Pressable>
       ) : null}
-    </View>
+    </Card>
   );
 }
