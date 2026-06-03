@@ -136,9 +136,9 @@ export default function HomeScreen() {
       ) : (
         <View className="overflow-hidden rounded-[28px] border border-black/5 dark:border-white/10">
           <LinearGradient
-            colors={['#2F5BFF', '#FF8A3D']}
+            colors={['#2F5BFF', '#826EB1']}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            end={{ x: 0.7, y: 1 }}
             style={{ padding: 20 }}
           >
             <View className="gap-4">
@@ -151,8 +151,8 @@ export default function HomeScreen() {
                     {t('home.notCheckedIn')}
                   </Text>
                 </View>
-                <View className="h-[46px] w-[46px] items-center justify-center rounded-[16px] bg-white/20">
-                  <Ionicons name="scan-circle" size={26} color="#fff" />
+                <View className="h-[46px] w-[46px] items-center justify-center rounded-[16px] bg-white/[0.18]">
+                  <Ionicons name="happy-outline" size={26} color="#fff" />
                 </View>
               </View>
               <Text className="font-body text-[13.5px] leading-5 text-white/90">

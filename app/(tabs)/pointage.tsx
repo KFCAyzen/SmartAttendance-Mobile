@@ -364,7 +364,7 @@ export default function PointageScreen() {
               <Card className="gap-3.5">
                 <View className="flex-row items-center gap-3">
                   <LinearGradient
-                    colors={['#2F5BFF', '#FF8A3D']}
+                    colors={['#2F5BFF', '#8D70A8']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={{

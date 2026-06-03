@@ -219,6 +219,11 @@
     "approvedFromMobile": "Approuvé depuis mobile"
   },
   "leaveTypes": {
+    "PAID_LEAVE": "Congés payés",
+    "RTT": "RTT",
+    "SICK_LEAVE": "Arrêt maladie",
+    "UNPAID_LEAVE": "Congé sans solde",
+    "OTHER": "Autre",
     "VACATION": "Congés payés",
     "SICK": "Arrêt maladie",
     "PERSONAL": "Personnel",

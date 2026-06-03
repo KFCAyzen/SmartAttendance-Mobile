@@ -88,7 +88,7 @@ export default function ProfileScreen() {
       {/* Identité */}
       <Card className="flex-row items-center gap-[15px]">
         <LinearGradient
-          colors={['#2F5BFF', '#FF8A3D']}
+          colors={['#2F5BFF', '#8D70A8']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{

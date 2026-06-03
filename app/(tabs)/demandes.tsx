@@ -9,7 +9,7 @@ import { ActivityIndicator, FlatList, Pressable, RefreshControl, Text, View } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { listAbsences, type Absence, type AbsenceStatus } from '~/api/absences';
-import { getBalance, listLeaves, type Leave, type LeaveStatus, type LeaveType } from '~/api/leaves';
+import { getBalance, listLeaves, type Leave, type LeaveStatus } from '~/api/leaves';
 import { Card } from '~/components/ui/Card';
 import { ProgressBar } from '~/components/ui/ProgressBar';
 import { SegmentControl } from '~/components/ui/SegmentControl';
@@ -34,7 +34,14 @@ const ABSENCE_STATUS_TONE: Record<AbsenceStatus, PillTone> = {
   UNJUSTIFIED: 'danger',
 };
 
-const LEAVE_TYPE_TONE: Record<LeaveType, 'primary' | 'accent' | 'success' | 'warning'> = {
+// Clé = type renvoyé par le backend (PAID_LEAVE…) ; on garde les anciennes clés
+// du front en repli. Tons calqués sur la maquette (payés→primary, RTT→accent…).
+const LEAVE_TYPE_TONE: Record<string, 'primary' | 'accent' | 'success' | 'warning'> = {
+  PAID_LEAVE: 'primary',
+  RTT: 'accent',
+  SICK_LEAVE: 'success',
+  UNPAID_LEAVE: 'warning',
+  OTHER: 'primary',
   VACATION: 'primary',
   SICK: 'success',
   PERSONAL: 'warning',

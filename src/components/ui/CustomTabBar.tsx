@@ -69,7 +69,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
               style={{ marginTop: -34 }}
             >
               <LinearGradient
-                colors={['#2F5BFF', '#1838C2']}
+                colors={['#2F5BFF', '#2140B2']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{

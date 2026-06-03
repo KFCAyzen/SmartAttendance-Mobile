@@ -219,6 +219,11 @@
     "approvedFromMobile": "Approved from mobile"
   },
   "leaveTypes": {
+    "PAID_LEAVE": "Paid leave",
+    "RTT": "RTT",
+    "SICK_LEAVE": "Sick leave",
+    "UNPAID_LEAVE": "Unpaid leave",
+    "OTHER": "Other",
     "VACATION": "Paid leave",
     "SICK": "Sick leave",
     "PERSONAL": "Personal",
