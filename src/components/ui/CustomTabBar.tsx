@@ -11,11 +11,13 @@ const ORDER = ['index', 'historique', 'pointage', 'demandes', 'profile'];
 /** Routes accessibles mais jamais affichées dans la tab bar (accès ailleurs). */
 const HIDDEN = new Set(['admin']);
 
-const ICONS: Record<string, { on: keyof typeof Ionicons.glyphMap; off: keyof typeof Ionicons.glyphMap }> = {
-  index: { on: 'home', off: 'home-outline' },
-  historique: { on: 'time', off: 'time-outline' },
-  demandes: { on: 'document-text', off: 'document-text-outline' },
-  profile: { on: 'person', off: 'person-outline' },
+// Maquette : icônes en contour dans tous les états (actif = même icône, couleur
+// cobalt + label gras), jamais de version pleine. home / clock / doc / user.
+const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  index: 'home-outline',
+  historique: 'time-outline',
+  demandes: 'document-text-outline',
+  profile: 'person-outline',
 };
 
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -101,7 +103,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
           );
         }
 
-        const icon = ICONS[route.name] ?? { on: 'ellipse', off: 'ellipse-outline' };
+        const icon = ICONS[route.name] ?? 'ellipse-outline';
         return (
           <Pressable
             key={route.key}
@@ -111,11 +113,7 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
             onPress={onPress}
             className="flex-1 items-center gap-[5px] py-1"
           >
-            <Ionicons
-              name={focused ? icon.on : icon.off}
-              size={24}
-              color={focused ? '#2F5BFF' : '#717A90'}
-            />
+            <Ionicons name={icon} size={24} color={focused ? '#2F5BFF' : '#717A90'} />
             <Text
               className={`text-[10.5px] ${
                 focused ? 'font-bodyBold text-primary' : 'font-bodySemibold text-muted'
