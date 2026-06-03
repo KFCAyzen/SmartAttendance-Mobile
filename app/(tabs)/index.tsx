@@ -84,7 +84,7 @@ export default function HomeScreen() {
   const goPointage = () => router.push('/(tabs)/pointage');
 
   return (
-    <ScreenContainer contentClassName="flex-grow px-5 pt-2 pb-7 gap-3.5 justify-between">
+    <ScreenContainer contentClassName="flex-grow px-5 pt-2 pb-7 gap-3.5">
       {/* Header */}
       <View className="flex-row items-end justify-between gap-3 pt-1">
         <View className="flex-1 gap-[3px]">
@@ -105,7 +105,7 @@ export default function HomeScreen() {
 
       {/* Hero — statut du jour */}
       {checkedIn ? (
-        <Card className="gap-4">
+        <Card className="flex-1 justify-between gap-4">
           <View className="flex-row items-center justify-between">
             <StatusPill tone="success" dot>
               {t('home.onDuty')}
@@ -134,30 +134,32 @@ export default function HomeScreen() {
           </Pressable>
         </Card>
       ) : (
-        <View className="overflow-hidden rounded-[28px] border border-black/5 dark:border-white/10">
+        <View className="flex-1 overflow-hidden rounded-[28px] border border-black/5 dark:border-white/10">
           <LinearGradient
             colors={['#2F5BFF', '#826EB1']}
             start={{ x: 0, y: 0 }}
             end={{ x: 0.7, y: 1 }}
-            style={{ padding: 20 }}
+            style={{ flex: 1, padding: 20 }}
           >
-            <View className="gap-4">
-              <View className="flex-row items-start justify-between">
-                <View className="flex-1 pr-3">
-                  <Text className="font-bodyBold text-[12.5px] tracking-wide text-white/85">
-                    {t('home.statusTitle')}
-                  </Text>
-                  <Text className="mt-1 font-display text-[23px] text-white">
-                    {t('home.notCheckedIn')}
-                  </Text>
+            <View className="flex-1 justify-between gap-4">
+              <View className="gap-4">
+                <View className="flex-row items-start justify-between">
+                  <View className="flex-1 pr-3">
+                    <Text className="font-bodyBold text-[12.5px] tracking-wide text-white/85">
+                      {t('home.statusTitle')}
+                    </Text>
+                    <Text className="mt-1 font-display text-[23px] text-white">
+                      {t('home.notCheckedIn')}
+                    </Text>
+                  </View>
+                  <View className="h-[46px] w-[46px] items-center justify-center rounded-[16px] bg-white/[0.18]">
+                    <Ionicons name="happy-outline" size={26} color="#fff" />
+                  </View>
                 </View>
-                <View className="h-[46px] w-[46px] items-center justify-center rounded-[16px] bg-white/[0.18]">
-                  <Ionicons name="happy-outline" size={26} color="#fff" />
-                </View>
+                <Text className="font-body text-[13.5px] leading-5 text-white/90">
+                  {t('home.notCheckedInHint')}
+                </Text>
               </View>
-              <Text className="font-body text-[13.5px] leading-5 text-white/90">
-                {t('home.notCheckedInHint')}
-              </Text>
               <Pressable
                 accessibilityRole="button"
                 onPress={goPointage}
@@ -196,7 +198,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Cette semaine */}
-      <Card className="gap-3.5">
+      <Card className="flex-[3] gap-3.5">
         <View className="flex-row items-center justify-between">
           <Text className="font-display text-[16px] text-ink dark:text-white">
             {t('home.thisWeek')}
@@ -205,7 +207,7 @@ export default function HomeScreen() {
             <StatusPill tone="primary">{t('home.onTime', { pct: onTimePct })}</StatusPill>
           ) : null}
         </View>
-        <WeekBars data={weekBars} accentIndex={todayWeekIndex} />
+        <WeekBars data={weekBars} accentIndex={todayWeekIndex} fill />
       </Card>
 
       {/* Actions douces */}
