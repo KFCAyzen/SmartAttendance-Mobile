@@ -127,7 +127,7 @@ export default function HomeScreen() {
             onPress={goPointage}
             className="flex-row items-center justify-center gap-2 rounded-[20px] border border-black/5 bg-surface-soft py-[15px] active:opacity-90 dark:border-white/10 dark:bg-surface-softDark"
           >
-            <Ionicons name="arrow-up" size={20} color="#FF8A3D" />
+            <Ionicons name="arrow-up-outline" size={20} color="#FF8A3D" />
             <Text className="font-bodyBold text-[15px] text-ink dark:text-white">
               {t('home.checkOut')}
             </Text>
