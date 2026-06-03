@@ -63,7 +63,21 @@
     "allowCamera": "Allow camera",
     "queued": "Check-in queued. It will be sent when the connection returns.",
     "synced": "Check-in synchronized",
-    "offlineRejected": "Offline check-in rejected"
+    "offlineRejected": "Offline check-in rejected",
+    "eyebrow": "FACE RECOGNITION",
+    "titleIn": "Check in",
+    "titleOut": "Check out",
+    "placeFace": "Place your face in the frame",
+    "detecting": "Detecting face…",
+    "analyzing": "Analyzing features…",
+    "verifying": "Verifying identity…",
+    "confirmed": "Identity confirmed",
+    "tapToScan": "Tap to scan",
+    "arrivalRecorded": "Arrival recorded",
+    "departureRecorded": "Departure recorded",
+    "gpsVerified": "GPS verified",
+    "locating": "Locating…",
+    "done": "Done"
   },
   "history": {
     "empty": "No check-ins recorded yet.",
@@ -71,7 +85,8 @@
     "checkOut": "Check-out",
     "gps": "GPS",
     "unknownSite": "Site not set",
-    "recognized": "Recognized"
+    "recognized": "Recognized",
+    "weekOf": "WEEK OF {{date}}"
   },
   "home": {
     "greeting": "Hello",
@@ -79,7 +94,22 @@
     "subtitle": "Ready to check in? Start face recognition with one tap.",
     "checkinSubtitle": "Recognized face = instant check-in.",
     "help": "Help",
-    "referencePhotoHelp": "Before your first check-in, make sure a reference photo has been uploaded from your profile."
+    "referencePhotoHelp": "Before your first check-in, make sure a reference photo has been uploaded from your profile.",
+    "statusTitle": "TODAY'S STATUS",
+    "notCheckedIn": "Not checked in yet",
+    "notCheckedInHint": "Start face recognition to record your arrival in an instant.",
+    "checkInArrival": "Check in",
+    "checkOut": "Check out",
+    "onDuty": "On duty",
+    "arrivalAt": "Arrived {{time}}",
+    "workTime": "WORK TIME",
+    "thisWeek": "This week",
+    "onTime": "{{pct}}% on time",
+    "requestLeave": "Request leave",
+    "justifyAbsence": "Justify an absence",
+    "chipArrival": "ARRIVAL",
+    "chipToday": "TODAY",
+    "chipWeek": "WEEK"
   },
   "notifications": {
     "title": "Notifications",
@@ -90,7 +120,7 @@
     "title": "Requests",
     "leaves": "Leaves",
     "absences": "Absences",
-    "balances": "Balances",
+    "balances": "My balances",
     "noLeaves": "No leave requests.",
     "noAbsences": "No absences recorded.",
     "rejectionReason": "Reason: {{reason}}",
@@ -149,7 +179,15 @@
     "photoMissing": "Add your photo to enable face check-in.",
     "uploading": "Uploading…",
     "changePhoto": "Change photo",
-    "addPhoto": "Add photo"
+    "addPhoto": "Add photo",
+    "settings": "Settings",
+    "language": "Language",
+    "languageValue": "English",
+    "notifications": "Notifications",
+    "notificationsOn": "Enabled",
+    "darkMode": "Dark mode",
+    "security": "Security & device",
+    "thisDevice": "This device"
   },
   "admin": {
     "title": "Admin",

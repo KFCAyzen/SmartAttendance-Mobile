@@ -12,7 +12,7 @@ export function SegmentControl<T extends string>({
   onChange,
 }: SegmentControlProps<T>) {
   return (
-    <View className="flex-row rounded-2xl bg-slate-100 dark:bg-slate-800 p-1">
+    <View className="flex-row rounded-[20px] border border-black/5 bg-surface-soft p-1 dark:border-white/10 dark:bg-surface-softDark">
       {options.map((opt) => {
         const active = opt.value === value;
         return (
@@ -21,15 +21,15 @@ export function SegmentControl<T extends string>({
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
             onPress={() => onChange(opt.value)}
-            className={`flex-1 h-10 rounded-xl items-center justify-center ${
-              active ? 'bg-white dark:bg-slate-900 shadow-sm' : ''
+            className={`h-10 flex-1 items-center justify-center rounded-[14px] ${
+              active ? 'bg-surface-card shadow-sm dark:bg-surface-cardDark' : ''
             }`}
           >
             <Text
-              className={`text-sm font-semibold ${
+              className={`text-sm ${
                 active
-                  ? 'text-primary-700 dark:text-primary-100'
-                  : 'text-slate-500 dark:text-slate-400'
+                  ? 'font-bodyBold text-ink dark:text-white'
+                  : 'font-bodySemibold text-muted dark:text-slate-400'
               }`}
             >
               {opt.label}

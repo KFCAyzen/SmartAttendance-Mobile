@@ -49,3 +49,24 @@ export async function getHistory(page = 1, limit = 20): Promise<AttendanceHistor
   });
   return data;
 }
+
+export interface WeeklyStatsDay {
+  /** `YYYY-MM-DD` */
+  date: string;
+  /** 1 = lundi … 7 = dimanche */
+  weekday: number;
+  hours: number;
+}
+
+export interface WeeklyStatsResponse {
+  weekStart: string;
+  targetHours: number;
+  totalHours: number;
+  onTimePct: number | null;
+  days: WeeklyStatsDay[];
+}
+
+export async function getWeeklyStats(): Promise<WeeklyStatsResponse> {
+  const { data } = await api.get<WeeklyStatsResponse>('/attendance/weekly-stats');
+  return data;
+}

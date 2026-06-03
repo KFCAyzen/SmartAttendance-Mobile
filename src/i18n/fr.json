@@ -63,7 +63,21 @@
     "allowCamera": "Autoriser la caméra",
     "queued": "Pointage mis en file, il sera envoyé dès le retour de la connexion.",
     "synced": "Pointage synchronisé",
-    "offlineRejected": "Pointage offline refusé"
+    "offlineRejected": "Pointage offline refusé",
+    "eyebrow": "RECONNAISSANCE FACIALE",
+    "titleIn": "Pointer l'arrivée",
+    "titleOut": "Pointer la sortie",
+    "placeFace": "Placez votre visage dans le cadre",
+    "detecting": "Détection du visage…",
+    "analyzing": "Analyse des traits…",
+    "verifying": "Vérification de l'identité…",
+    "confirmed": "Identité confirmée",
+    "tapToScan": "Touchez pour scanner",
+    "arrivalRecorded": "Arrivée enregistrée",
+    "departureRecorded": "Sortie enregistrée",
+    "gpsVerified": "GPS vérifié",
+    "locating": "Localisation…",
+    "done": "Terminé"
   },
   "history": {
     "empty": "Aucun pointage enregistré pour le moment.",
@@ -71,7 +85,8 @@
     "checkOut": "Sortie",
     "gps": "GPS",
     "unknownSite": "Site non défini",
-    "recognized": "Reconnu"
+    "recognized": "Reconnu",
+    "weekOf": "SEMAINE DU {{date}}"
   },
   "home": {
     "greeting": "Bonjour",
@@ -79,7 +94,22 @@
     "subtitle": "Prêt à pointer ? Lancez la reconnaissance faciale en un tap.",
     "checkinSubtitle": "Visage reconnu = pointage instantané.",
     "help": "Aide",
-    "referencePhotoHelp": "Avant votre premier pointage, vérifiez qu'une photo de référence a bien été téléchargée depuis votre profil."
+    "referencePhotoHelp": "Avant votre premier pointage, vérifiez qu'une photo de référence a bien été téléchargée depuis votre profil.",
+    "statusTitle": "STATUT DU JOUR",
+    "notCheckedIn": "Pas encore pointé",
+    "notCheckedInHint": "Lancez la reconnaissance faciale pour enregistrer votre arrivée en un instant.",
+    "checkInArrival": "Pointer mon arrivée",
+    "checkOut": "Pointer ma sortie",
+    "onDuty": "En service",
+    "arrivalAt": "Arrivée {{time}}",
+    "workTime": "TEMPS DE TRAVAIL",
+    "thisWeek": "Cette semaine",
+    "onTime": "{{pct}}% à l'heure",
+    "requestLeave": "Demander un congé",
+    "justifyAbsence": "Justifier une absence",
+    "chipArrival": "ARRIVÉE",
+    "chipToday": "AUJOURD'HUI",
+    "chipWeek": "SEMAINE"
   },
   "notifications": {
     "title": "Notifications",
@@ -90,7 +120,7 @@
     "title": "Demandes",
     "leaves": "Congés",
     "absences": "Absences",
-    "balances": "Soldes",
+    "balances": "Mes soldes",
     "noLeaves": "Aucune demande de congé.",
     "noAbsences": "Aucune absence enregistrée.",
     "rejectionReason": "Motif : {{reason}}",
@@ -149,7 +179,15 @@
     "photoMissing": "Ajoutez votre photo pour activer le pointage facial.",
     "uploading": "Envoi…",
     "changePhoto": "Changer la photo",
-    "addPhoto": "Ajouter une photo"
+    "addPhoto": "Ajouter une photo",
+    "settings": "Réglages",
+    "language": "Langue",
+    "languageValue": "Français",
+    "notifications": "Notifications",
+    "notificationsOn": "Activées",
+    "darkMode": "Mode sombre",
+    "security": "Sécurité & appareil",
+    "thisDevice": "Cet appareil"
   },
   "admin": {
     "title": "Admin",
