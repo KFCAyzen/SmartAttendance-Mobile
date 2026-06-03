@@ -86,7 +86,9 @@
     "gps": "GPS",
     "unknownSite": "Site not set",
     "recognized": "Recognized",
-    "weekOf": "WEEK OF {{date}}"
+    "weekOf": "WEEK OF {{date}}",
+    "today": "Today",
+    "yesterday": "Yesterday"
   },
   "home": {
     "greeting": "Hello",

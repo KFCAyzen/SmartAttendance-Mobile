@@ -48,13 +48,21 @@ export default function HistoriqueScreen() {
         const key = dayKey(item.timestamp);
         if (key !== currentKey) {
           currentKey = key;
-          out.push({ kind: 'header', label: formatDayLabel(item.timestamp), key });
+          out.push({
+            kind: 'header',
+            label: formatDayLabel(item.timestamp, {
+              locale,
+              today: t('history.today'),
+              yesterday: t('history.yesterday'),
+            }),
+            key,
+          });
         }
         out.push({ kind: 'item', data: item });
       }
     }
     return out;
-  }, [query.data]);
+  }, [query.data, locale, t]);
 
   const weekLabel = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'd MMMM', {
     locale,

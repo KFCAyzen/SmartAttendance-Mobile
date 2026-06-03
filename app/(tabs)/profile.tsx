@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,10 +14,13 @@ import { Card } from '~/components/ui/Card';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { StatusPill } from '~/components/ui/StatusPill';
 import { useAuth } from '~/hooks/useAuth';
+import { useIsAdmin } from '~/hooks/useAdminData';
 import { useReferencePhoto } from '~/hooks/useReferencePhoto';
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
+  const isAdmin = useIsAdmin();
   const { user, logout } = useAuth();
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const { photo, isLoading, upload, pickAndUpload, pickFromLibraryAndUpload } = useReferencePhoto();
@@ -168,6 +172,13 @@ export default function ProfileScreen() {
 
       {/* Réglages */}
       <Card pad={0} className="overflow-hidden">
+        {isAdmin ? (
+          <SettingRow
+            icon="grid-outline"
+            label={t('tabs.admin')}
+            onPress={() => router.push('/(tabs)/admin')}
+          />
+        ) : null}
         <SettingRow icon="globe-outline" label={t('profile.language')} detail={t('profile.languageValue')} />
         <SettingRow icon="notifications-outline" label={t('profile.notifications')} detail={t('profile.notificationsOn')} />
         <SettingRow
@@ -214,19 +225,17 @@ function SettingRow({
   detail,
   control,
   last,
+  onPress,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   detail?: string;
   control?: ReactNode;
   last?: boolean;
+  onPress?: () => void;
 }) {
-  return (
-    <View
-      className={`flex-row items-center gap-3 px-4 py-[14px] ${
-        last ? '' : 'border-b border-black/5 dark:border-white/10'
-      }`}
-    >
+  const inner = (
+    <>
       <View className="h-9 w-9 items-center justify-center rounded-[11px] bg-primary/10">
         <Ionicons name={icon} size={18} color="#2F5BFF" />
       </View>
@@ -241,6 +250,21 @@ function SettingRow({
           <Ionicons name="chevron-forward" size={16} color="#9AA5BE" />
         </View>
       )}
-    </View>
+    </>
   );
+  const base = `flex-row items-center gap-3 px-4 py-[14px] ${
+    last ? '' : 'border-b border-black/5 dark:border-white/10'
+  }`;
+  if (onPress) {
+    return (
+      <Pressable
+        accessibilityRole="button"
+        onPress={onPress}
+        className={`${base} active:bg-black/5 dark:active:bg-white/5`}
+      >
+        {inner}
+      </Pressable>
+    );
+  }
+  return <View className={base}>{inner}</View>;
 }

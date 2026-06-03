@@ -1,11 +1,20 @@
-import { format, isToday, isYesterday } from 'date-fns';
+import { format, isToday, isYesterday, type Locale } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-export function formatDayLabel(date: Date | string): string {
+type DayLabelOptions = {
+  locale?: Locale;
+  today?: string;
+  yesterday?: string;
+};
+
+export function formatDayLabel(
+  date: Date | string,
+  opts: DayLabelOptions = {},
+): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  if (isToday(d)) return "Aujourd'hui";
-  if (isYesterday(d)) return 'Hier';
-  return format(d, 'EEEE d MMMM', { locale: fr });
+  if (isToday(d)) return opts.today ?? "Aujourd'hui";
+  if (isYesterday(d)) return opts.yesterday ?? 'Hier';
+  return format(d, 'EEEE d MMMM', { locale: opts.locale ?? fr });
 }
 
 export function formatTime(date: Date | string): string {

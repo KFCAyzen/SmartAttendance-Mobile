@@ -6,14 +6,16 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /** Ordre d'affichage souhaité (le reste est rejeté en fin de liste). */
-const ORDER = ['index', 'historique', 'pointage', 'demandes', 'profile', 'admin'];
+const ORDER = ['index', 'historique', 'pointage', 'demandes', 'profile'];
+
+/** Routes accessibles mais jamais affichées dans la tab bar (accès ailleurs). */
+const HIDDEN = new Set(['admin']);
 
 const ICONS: Record<string, { on: keyof typeof Ionicons.glyphMap; off: keyof typeof Ionicons.glyphMap }> = {
   index: { on: 'home', off: 'home-outline' },
   historique: { on: 'time', off: 'time-outline' },
   demandes: { on: 'document-text', off: 'document-text-outline' },
   profile: { on: 'person', off: 'person-outline' },
-  admin: { on: 'shield-checkmark', off: 'shield-checkmark-outline' },
 };
 
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -25,7 +27,11 @@ export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarPro
   // Routes visibles (href:null masque l'onglet, ex. admin pour un non-admin),
   // triées dans l'ordre voulu.
   const routes = state.routes
-    .filter((r) => (descriptors[r.key].options as { href?: string | null }).href !== null)
+    .filter(
+      (r) =>
+        !HIDDEN.has(r.name) &&
+        (descriptors[r.key].options as { href?: string | null }).href !== null,
+    )
     .sort((a, b) => ORDER.indexOf(a.name) - ORDER.indexOf(b.name));
 
   return (

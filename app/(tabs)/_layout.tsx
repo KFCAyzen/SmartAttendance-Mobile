@@ -2,11 +2,9 @@ import { Tabs } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 import { CustomTabBar } from "~/components/ui/CustomTabBar";
-import { useIsAdmin } from "~/hooks/useAdminData";
 
 export default function TabLayout() {
   const { t } = useTranslation();
-  const isAdmin = useIsAdmin();
 
   return (
     <Tabs
@@ -18,10 +16,8 @@ export default function TabLayout() {
       <Tabs.Screen name="pointage" options={{ title: t("tabs.checkin") }} />
       <Tabs.Screen name="demandes" options={{ title: t("tabs.requests") }} />
       <Tabs.Screen name="profile" options={{ title: t("tabs.profile") }} />
-      <Tabs.Screen
-        name="admin"
-        options={{ title: t("tabs.admin"), href: isAdmin ? undefined : null }}
-      />
+      {/* Admin reste une route mais hors tab bar (accès via Profil) → scan centré. */}
+      <Tabs.Screen name="admin" options={{ title: t("tabs.admin"), href: null }} />
     </Tabs>
   );
 }
