@@ -19,6 +19,9 @@ const ICONS: Record<string, { on: keyof typeof Ionicons.glyphMap; off: keyof typ
 export function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
 
+  // Pointage = écran immersif plein écran (caméra) → pas de tab bar (cf. maquette).
+  if (state.routes[state.index]?.name === 'pointage') return null;
+
   // Routes visibles (href:null masque l'onglet, ex. admin pour un non-admin),
   // triées dans l'ordre voulu.
   const routes = state.routes
