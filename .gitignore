@@ -42,3 +42,9 @@ app-example
 # generated native folders
 /ios
 /android
+
+# IDE
+.idea/
+
+# local dev scripts (machine-specific)
+start-dev.ps1
