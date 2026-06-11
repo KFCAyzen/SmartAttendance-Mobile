@@ -93,7 +93,7 @@ export default function HistoriqueScreen() {
       edges={['top', 'left', 'right']}
       className="flex-1 bg-surface-light dark:bg-surface-dark"
     >
-      <View className="gap-[3px] px-5 pb-1 pt-2">
+      <View className="gap-[3px] px-5 pb-1 pt-4">
         <Text className="font-bodyBold text-[11px] uppercase tracking-[1.4px] text-primary">
           {t('common.appName')}
         </Text>

@@ -84,7 +84,7 @@ export default function HomeScreen() {
   const goPointage = () => router.push('/(tabs)/pointage');
 
   return (
-    <ScreenContainer contentClassName="flex-grow px-5 pt-2 pb-7 gap-3.5">
+    <ScreenContainer contentClassName="flex-grow px-5 pt-4 pb-7 gap-3.5">
       {/* Header */}
       <View className="flex-row items-end justify-between gap-3 pt-1">
         <View className="flex-1 gap-[3px]">

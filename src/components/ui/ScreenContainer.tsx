@@ -9,7 +9,7 @@ interface ScreenContainerProps {
   contentClassName?: string;
 }
 
-const DEFAULT_CONTENT = 'flex-grow px-5 pt-2 pb-7 gap-3.5';
+const DEFAULT_CONTENT = 'flex-grow px-5 pt-4 pb-7 gap-3.5';
 
 export function ScreenContainer({
   children,

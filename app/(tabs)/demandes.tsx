@@ -60,7 +60,7 @@ export default function DemandesScreen() {
       edges={['top', 'left', 'right']}
       className="flex-1 bg-surface-light dark:bg-surface-dark"
     >
-      <View className="gap-3 px-5 pb-3 pt-2">
+      <View className="gap-3 px-5 pb-3 pt-4">
         <View className="gap-[3px]">
           <Text className="font-bodyBold text-[11px] uppercase tracking-[1.4px] text-primary">
             {t('common.appName')}
