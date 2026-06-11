@@ -126,6 +126,26 @@ export function useEmployees(search: string, department?: string) {
   });
 }
 
+export function useEmployeeDepartments(search: string) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "employee-departments", search],
+    queryFn: async () => {
+      const response = await getEmployees(1, 1000, search);
+      const employees = response.data ?? response.items ?? [];
+      return Array.from(
+        new Set(
+          employees
+            .map((employee) => employee.department)
+            .filter((department): department is string => !!department),
+        ),
+      ).sort((a, b) => a.localeCompare(b));
+    },
+    enabled: isAdmin,
+    initialData: [],
+  });
+}
+
 export function usePendingLeaves() {
   const isAdmin = useIsAdmin();
   return useInfiniteQuery({

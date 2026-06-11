@@ -19,7 +19,7 @@ import {
 import { Sheet } from "~/components/admin/Sheet";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
-import { useCreateEmployee, useEmployees } from "~/hooks/useAdminData";
+import { useCreateEmployee, useEmployeeDepartments, useEmployees } from "~/hooks/useAdminData";
 import { useAuthStore } from "~/stores/auth.store";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -37,16 +37,15 @@ export default function TeamScreen() {
   const [addOpen, setAddOpen] = useState(false);
 
   const query = useEmployees(search, dept === "all" ? undefined : dept);
+  const departmentsQuery = useEmployeeDepartments(search);
   const items = useMemo(
     () => (query.data?.pages ?? []).flatMap((pg) => pg.data ?? pg.items ?? []),
     [query.data],
   );
 
   const depts = useMemo(() => {
-    const set = new Set<string>();
-    items.forEach((e) => e.department && set.add(e.department));
-    return ["all", ...Array.from(set)];
-  }, [items]);
+    return ["all", ...departmentsQuery.data];
+  }, [departmentsQuery.data]);
 
   const chips = depts.map((d) => ({ key: d, label: d === "all" ? "Tous" : d }));
 
