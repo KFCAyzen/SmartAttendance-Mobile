@@ -7,12 +7,16 @@ import {
 
 import {
   approveLeave,
+  createEmployee,
+  createLeaveRequest,
+  createSite,
   getAdminOverview,
   getAdminPendingCounts,
   getAnalyticsDepartments,
   getAnalyticsPresence,
   getDevices,
   getEmployees,
+  getLivePresence,
   getPendingAbsences,
   getPendingLeaves,
   getPlanning,
@@ -24,6 +28,9 @@ import {
   updateAbsenceStatus,
   updateSetting,
   type AdminSettings,
+  type CreateEmployeeInput,
+  type CreateLeaveInput,
+  type CreateSiteInput,
 } from "../api/admin";
 import { useAuthStore } from "../stores/auth.store";
 
@@ -58,6 +65,48 @@ export function useAdminPresence(days = 7) {
     queryKey: [...root, "presence", days],
     queryFn: () => getAnalyticsPresence(days),
     enabled: isAdmin,
+  });
+}
+
+/** Présence en direct : statut du jour réel par employé (rafraîchi en continu). */
+export function useLivePresence() {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "live-presence"],
+    queryFn: getLivePresence,
+    enabled: isAdmin,
+    refetchInterval: 30_000,
+  });
+}
+
+export function useCreateEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateEmployeeInput) => createEmployee(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...root, "employees"] });
+      queryClient.invalidateQueries({ queryKey: [...root, "roles"] });
+      queryClient.invalidateQueries({ queryKey: [...root, "live-presence"] });
+    },
+  });
+}
+
+export function useCreateSite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateSiteInput) => createSite(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [...root, "sites"] }),
+  });
+}
+
+export function useCreateLeave() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateLeaveInput) => createLeaveRequest(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...root, "planning"] });
+      queryClient.invalidateQueries({ queryKey: [...root, "live-presence"] });
+    },
   });
 }
 

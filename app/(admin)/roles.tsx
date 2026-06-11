@@ -7,7 +7,6 @@ import {
   AdminHeader,
   AdminScrollBody,
   Card,
-  IconBtn,
   SectionTitle,
 } from "~/components/admin/primitives";
 import { FONT, toneColor, toneSoft, withAlpha, type Tone } from "~/components/admin/theme";
@@ -20,8 +19,6 @@ const ROLE_META: Record<RoleSummary["role"], { name: string; desc: string; perms
   HR: { name: "Ressources humaines", desc: "Employés, congés, rapports & paie", perms: ["Employés", "Valider congés", "Rapports"], tone: "accent", icon: "briefcase" },
   EMPLOYEE: { name: "Employé", desc: "Pointage, historique & demandes", perms: ["Pointer", "Ses demandes"], tone: "neutral", icon: "user" },
 };
-
-const soon = () => Toast.show({ type: "info", text1: "Nouveau rôle", text2: "Bientôt disponible." });
 
 export default function RolesScreen() {
   const p = useAdminTheme();
@@ -40,11 +37,7 @@ export default function RolesScreen() {
 
   return (
     <AdminScrollBody gap={12}>
-      <AdminHeader
-        sub="Accès & configuration"
-        title="Rôles"
-        right={<IconBtn icon="plus" tone="primary" onPress={soon} />}
-      />
+      <AdminHeader sub="Accès & configuration" title="Rôles" />
 
       {roles.isLoading ? (
         <View style={{ paddingTop: 40, alignItems: "center" }}>

@@ -87,6 +87,46 @@ export async function getEmployees(
   return data;
 }
 
+export interface CreateEmployeeInput {
+  email: string;
+  firstName: string;
+  lastName: string;
+  position?: string;
+  department?: string;
+  phone?: string;
+  role?: 'EMPLOYEE' | 'HR' | 'ADMIN';
+}
+
+export interface CreatedEmployee extends AdminEmployee {
+  /** Mot de passe temporaire à transmettre à l'employé (1re connexion). */
+  tempPassword: string;
+}
+
+export async function createEmployee(input: CreateEmployeeInput): Promise<CreatedEmployee> {
+  const { data } = await api.post<CreatedEmployee>('/admin/employees', input);
+  return data;
+}
+
+/** Présence en direct : statut du jour réel par employé. */
+export type LivePresenceState = 'present' | 'late' | 'out' | 'leave' | 'absent' | 'pending';
+
+export interface LivePresenceEntry {
+  id: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  position?: string | null;
+  department?: string | null;
+  site?: string | null;
+  state: LivePresenceState;
+  since?: string | null;
+}
+
+export async function getLivePresence(): Promise<LivePresenceEntry[]> {
+  const { data } = await api.get<LivePresenceEntry[]>('/admin/presence');
+  return data;
+}
+
 /** Présence agrégée par date (taux de pointage à l'heure / en retard). */
 export async function getAnalyticsPresence(days = 30): Promise<AdminPresencePoint[]> {
   const { data } = await api.get<AdminPresencePoint[]>('/admin/analytics/presence', {
@@ -177,6 +217,19 @@ export async function getPlanning(year: number, month: number): Promise<AdminPla
   return data;
 }
 
+export interface CreateLeaveInput {
+  userId: string;
+  type: LeaveType;
+  startDate: string; // ISO yyyy-mm-dd
+  endDate: string;
+  reason?: string;
+}
+
+export async function createLeaveRequest(input: CreateLeaveInput): Promise<{ id: string }> {
+  const { data } = await api.post<{ id: string }>('/admin/leave-requests', input);
+  return data;
+}
+
 // ── Rôles (effectifs par rôle) ──────────────────────────────────────────────
 export interface RoleSummary {
   role: 'ADMIN' | 'HR' | 'EMPLOYEE';
@@ -225,6 +278,20 @@ export interface AdminSite {
 
 export async function getSites(): Promise<AdminSite[]> {
   const { data } = await api.get<AdminSite[]>('/admin/sites');
+  return data;
+}
+
+export interface CreateSiteInput {
+  name: string;
+  address: string;
+  city?: string;
+  latitude: number;
+  longitude: number;
+  radius?: number;
+}
+
+export async function createSite(input: CreateSiteInput): Promise<AdminSite> {
+  const { data } = await api.post<AdminSite>('/admin/sites', input);
   return data;
 }
 

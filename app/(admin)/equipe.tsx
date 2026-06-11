@@ -19,7 +19,7 @@ import {
 import { Sheet } from "~/components/admin/Sheet";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
-import { useEmployees } from "~/hooks/useAdminData";
+import { useCreateEmployee, useEmployees } from "~/hooks/useAdminData";
 
 const ROLE_LABEL: Record<string, string> = {
   ADMIN: "Administrateur",
@@ -125,14 +125,7 @@ export default function TeamScreen() {
       <Sheet open={addOpen} onClose={() => setAddOpen(false)}>
         <AddEmployeeForm
           departments={depts.filter((d) => d !== "all")}
-          onSubmit={() => {
-            setAddOpen(false);
-            Toast.show({
-              type: "info",
-              text1: "Bientôt disponible",
-              text2: "La création d'employé nécessite un endpoint backend.",
-            });
-          }}
+          onDone={() => setAddOpen(false)}
         />
       </Sheet>
     </>
@@ -233,17 +226,54 @@ function EmpDetail({ emp }: { emp: AdminEmployee }) {
 
 function AddEmployeeForm({
   departments,
-  onSubmit,
+  onDone,
 }: {
   departments: string[];
-  onSubmit: () => void;
+  onDone: () => void;
 }) {
   const p = useAdminTheme();
+  const create = useCreateEmployee();
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
+  const [email, setEmail] = useState("");
   const [position, setPosition] = useState("");
   const [dept, setDept] = useState(departments[0] ?? "");
-  const [role, setRole] = useState("EMPLOYEE");
+  const [role, setRole] = useState<"EMPLOYEE" | "HR" | "ADMIN">("EMPLOYEE");
+
+  const submit = () => {
+    if (!first.trim() || !last.trim() || !email.trim()) {
+      Toast.show({ type: "error", text1: "Champs requis", text2: "Prénom, nom et e-mail sont obligatoires." });
+      return;
+    }
+    create.mutate(
+      {
+        firstName: first.trim(),
+        lastName: last.trim(),
+        email: email.trim(),
+        position: position.trim() || undefined,
+        department: dept || undefined,
+        role,
+      },
+      {
+        onSuccess: (u) => {
+          onDone();
+          Toast.show({
+            type: "success",
+            text1: "Employé créé",
+            text2: `Mot de passe temporaire : ${u.tempPassword}`,
+            visibilityTime: 8000,
+          });
+        },
+        onError: (e: any) => {
+          Toast.show({
+            type: "error",
+            text1: "Création impossible",
+            text2: e?.response?.data?.message ?? "Veuillez réessayer.",
+          });
+        },
+      },
+    );
+  };
 
   const field = (
     label: string,
@@ -291,6 +321,7 @@ function AddEmployeeForm({
         {field("Prénom", first, setFirst, "Salim")}
         {field("Nom", last, setLast, "Mansouri")}
       </View>
+      {field("E-mail", email, setEmail, "salim@exemple.com")}
       {field("Poste", position, setPosition, "Ingénieur logiciel")}
 
       {departments.length ? (
@@ -345,11 +376,11 @@ function AddEmployeeForm({
           Rôle d&apos;accès
         </Text>
         <View style={{ flexDirection: "row", gap: 8, marginTop: 9 }}>
-          {[
+          {([
             ["EMPLOYEE", "Employé"],
-            ["MANAGER", "Manager"],
             ["HR", "RH"],
-          ].map(([k, lbl]) => {
+            ["ADMIN", "Admin"],
+          ] as const).map(([k, lbl]) => {
             const on = role === k;
             return (
               <Pressable
@@ -392,15 +423,20 @@ function AddEmployeeForm({
       </View>
 
       <Pressable
-        onPress={onSubmit}
+        onPress={create.isPending ? undefined : submit}
         style={{
           backgroundColor: p.primary,
           borderRadius: RADIUS.base,
           paddingVertical: 16,
           alignItems: "center",
+          opacity: create.isPending ? 0.7 : 1,
         }}
       >
-        <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Ajouter &amp; inviter</Text>
+        {create.isPending ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Ajouter &amp; inviter</Text>
+        )}
       </Pressable>
     </View>
   );

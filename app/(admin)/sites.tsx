@@ -1,5 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { ActivityIndicator, Text, View } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 import { AdminIcon } from "~/components/admin/AdminIcon";
@@ -11,26 +12,27 @@ import {
   Pill,
   SectionTitle,
 } from "~/components/admin/primitives";
+import { Sheet } from "~/components/admin/Sheet";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
-import { useAdminDevices, useAdminSites } from "~/hooks/useAdminData";
-
-const soon = () => Toast.show({ type: "info", text1: "Nouveau site", text2: "Bientôt disponible." });
+import { useAdminDevices, useAdminSites, useCreateSite } from "~/hooks/useAdminData";
 
 export default function SitesScreen() {
   const p = useAdminTheme();
   const sites = useAdminSites();
   const devices = useAdminDevices();
+  const [addOpen, setAddOpen] = useState(false);
 
   const siteList = sites.data ?? [];
   const deviceList = devices.data ?? [];
 
   return (
+    <>
     <AdminScrollBody gap={12}>
       <AdminHeader
         sub="Lieux & pointeuses"
         title="Sites"
-        right={<IconBtn icon="plus" tone="primary" onPress={soon} />}
+        right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}
       />
 
       {sites.isLoading ? (
@@ -168,6 +170,146 @@ export default function SitesScreen() {
         </Card>
       )}
     </AdminScrollBody>
+
+    <Sheet open={addOpen} onClose={() => setAddOpen(false)}>
+      <AddSiteForm onDone={() => setAddOpen(false)} />
+    </Sheet>
+    </>
+  );
+}
+
+function AddSiteForm({ onDone }: { onDone: () => void }) {
+  const p = useAdminTheme();
+  const create = useCreateSite();
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
+  const [radius, setRadius] = useState("100");
+
+  const submit = () => {
+    const latN = Number(lat.replace(",", "."));
+    const lngN = Number(lng.replace(",", "."));
+    if (!name.trim() || !address.trim()) {
+      Toast.show({ type: "error", text1: "Champs requis", text2: "Nom et adresse sont obligatoires." });
+      return;
+    }
+    if (!Number.isFinite(latN) || !Number.isFinite(lngN) || latN === 0 || lngN === 0) {
+      Toast.show({ type: "error", text1: "Coordonnées invalides", text2: "Renseignez une latitude et une longitude." });
+      return;
+    }
+    create.mutate(
+      {
+        name: name.trim(),
+        address: address.trim(),
+        city: city.trim() || undefined,
+        latitude: latN,
+        longitude: lngN,
+        radius: Number(radius) || 100,
+      },
+      {
+        onSuccess: () => {
+          onDone();
+          Toast.show({ type: "success", text1: "Site créé", text2: name.trim() });
+        },
+        onError: (e: any) =>
+          Toast.show({
+            type: "error",
+            text1: "Création impossible",
+            text2: e?.response?.data?.message ?? "Veuillez réessayer.",
+          }),
+      },
+    );
+  };
+
+  const field = (
+    label: string,
+    value: string,
+    setter: (v: string) => void,
+    placeholder: string,
+    numeric?: boolean,
+  ) => (
+    <View style={{ flex: 1 }}>
+      <Text
+        style={{
+          fontFamily: FONT.bold,
+          fontSize: 11.5,
+          color: p.muted,
+          letterSpacing: 0.3,
+          textTransform: "uppercase",
+        }}
+      >
+        {label}
+      </Text>
+      <TextInput
+        value={value}
+        onChangeText={setter}
+        placeholder={placeholder}
+        placeholderTextColor={p.muted2}
+        keyboardType={numeric ? "numbers-and-punctuation" : "default"}
+        style={{
+          marginTop: 8,
+          paddingVertical: 13,
+          paddingHorizontal: 14,
+          borderRadius: RADIUS.base,
+          backgroundColor: p.surface2,
+          borderWidth: 1,
+          borderColor: p.line,
+          fontFamily: FONT.medium,
+          fontSize: 14,
+          color: p.ink,
+        }}
+      />
+    </View>
+  );
+
+  return (
+    <View style={{ gap: 15 }}>
+      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>Nouveau site</Text>
+      {field("Nom", name, setName, "Siège — Casablanca")}
+      {field("Adresse", address, setAddress, "12 rue Hassan II")}
+      {field("Ville", city, setCity, "Casablanca")}
+      <View style={{ flexDirection: "row", gap: 10 }}>
+        {field("Latitude", lat, setLat, "33.5731", true)}
+        {field("Longitude", lng, setLng, "-7.5898", true)}
+      </View>
+      {field("Rayon de géofencing (m)", radius, setRadius, "100", true)}
+
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 9,
+          backgroundColor: withAlpha(p.primary, 0.12),
+          borderRadius: RADIUS.base,
+          padding: 12,
+          paddingHorizontal: 14,
+        }}
+      >
+        <AdminIcon name="location" size={16} color={p.primary} />
+        <Text style={{ flex: 1, fontFamily: FONT.semibold, fontSize: 12.5, color: p.primary }}>
+          Les pointages hors du rayon seront refusés.
+        </Text>
+      </View>
+
+      <Pressable
+        onPress={create.isPending ? undefined : submit}
+        style={{
+          backgroundColor: p.primary,
+          borderRadius: RADIUS.base,
+          paddingVertical: 16,
+          alignItems: "center",
+          opacity: create.isPending ? 0.7 : 1,
+        }}
+      >
+        {create.isPending ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Créer le site</Text>
+        )}
+      </Pressable>
+    </View>
   );
 }
 

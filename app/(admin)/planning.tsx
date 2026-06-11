@@ -1,24 +1,35 @@
-import { useState } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { useMemo, useState } from "react";
+import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
 
-import type { PlanningEvent } from "~/api/admin";
+import type { AdminEmployee, PlanningEvent } from "~/api/admin";
+import type { LeaveType } from "~/api/leaves";
 import { AdminIcon } from "~/components/admin/AdminIcon";
+import { initialsOf } from "~/components/admin/format";
 import {
   AdminHeader,
   AdminScrollBody,
   Card,
   EmpAvatar,
   IconBtn,
+  SearchBar,
   SectionTitle,
 } from "~/components/admin/primitives";
-import { FONT, toneColor, withAlpha, type Tone } from "~/components/admin/theme";
+import { Sheet } from "~/components/admin/Sheet";
+import { FONT, RADIUS, toneColor, withAlpha, type Tone } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
-import { useAdminPlanning } from "~/hooks/useAdminData";
+import { useAdminPlanning, useCreateLeave, useEmployees } from "~/hooks/useAdminData";
 
 const WEEKDAYS = ["L", "M", "M", "J", "V", "S", "D"];
 
-const soon = () => Toast.show({ type: "info", text1: "Nouvelle demande", text2: "Bientôt disponible." });
+const LEAVE_TYPES: [LeaveType, string][] = [
+  ["VACATION", "Congés payés"],
+  ["SICK", "Maladie"],
+  ["PERSONAL", "Personnel"],
+  ["UNPAID", "Sans solde"],
+  ["MATERNITY", "Maternité"],
+  ["PATERNITY", "Paternité"],
+];
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -26,6 +37,7 @@ export default function PlanningScreen() {
   const p = useAdminTheme();
   const now = new Date();
   const [ym, setYm] = useState({ year: now.getFullYear(), month: now.getMonth() + 1 });
+  const [addOpen, setAddOpen] = useState(false);
   const planning = useAdminPlanning(ym.year, ym.month);
 
   const events = planning.data?.events ?? [];
@@ -62,11 +74,12 @@ export default function PlanningScreen() {
     });
 
   return (
+    <>
     <AdminScrollBody gap={12}>
       <AdminHeader
         sub="Congés & absences"
         title="Planning"
-        right={<IconBtn icon="plus" tone="primary" onPress={soon} />}
+        right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}
       />
 
       {/* Navigation de mois */}
@@ -245,6 +258,217 @@ export default function PlanningScreen() {
         </>
       )}
     </AdminScrollBody>
+
+    <Sheet open={addOpen} onClose={() => setAddOpen(false)}>
+      <AddLeaveForm onDone={() => setAddOpen(false)} />
+    </Sheet>
+    </>
+  );
+}
+
+function AddLeaveForm({ onDone }: { onDone: () => void }) {
+  const p = useAdminTheme();
+  const create = useCreateLeave();
+  const [search, setSearch] = useState("");
+  const [emp, setEmp] = useState<AdminEmployee | null>(null);
+  const [type, setType] = useState<LeaveType>("VACATION");
+  const today = new Date().toISOString().slice(0, 10);
+  const [start, setStart] = useState(today);
+  const [end, setEnd] = useState(today);
+
+  const query = useEmployees(search);
+  const employees = useMemo(
+    () => (query.data?.pages ?? []).flatMap((pg) => pg.data ?? pg.items ?? []),
+    [query.data],
+  );
+
+  const isoOk = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s).getTime());
+
+  const submit = () => {
+    if (!emp) {
+      Toast.show({ type: "error", text1: "Employé requis", text2: "Sélectionnez un employé." });
+      return;
+    }
+    if (!isoOk(start) || !isoOk(end)) {
+      Toast.show({ type: "error", text1: "Dates invalides", text2: "Format attendu : AAAA-MM-JJ." });
+      return;
+    }
+    if (new Date(end) < new Date(start)) {
+      Toast.show({ type: "error", text1: "Dates incohérentes", text2: "La fin précède le début." });
+      return;
+    }
+    create.mutate(
+      { userId: emp.id, type, startDate: start, endDate: end },
+      {
+        onSuccess: () => {
+          onDone();
+          Toast.show({ type: "success", text1: "Congé planifié", text2: `${emp.firstName} ${emp.lastName}` });
+        },
+        onError: (e: any) =>
+          Toast.show({
+            type: "error",
+            text1: "Échec",
+            text2: e?.response?.data?.message ?? "Veuillez réessayer.",
+          }),
+      },
+    );
+  };
+
+  const label = (s: string) => (
+    <Text
+      style={{
+        fontFamily: FONT.bold,
+        fontSize: 11.5,
+        color: p.muted,
+        letterSpacing: 0.3,
+        textTransform: "uppercase",
+      }}
+    >
+      {s}
+    </Text>
+  );
+
+  const dateInput = (value: string, setter: (v: string) => void) => (
+    <View style={{ flex: 1 }}>
+      <TextInput
+        value={value}
+        onChangeText={setter}
+        placeholder="AAAA-MM-JJ"
+        placeholderTextColor={p.muted2}
+        autoCapitalize="none"
+        style={{
+          marginTop: 8,
+          paddingVertical: 13,
+          paddingHorizontal: 14,
+          borderRadius: RADIUS.base,
+          backgroundColor: p.surface2,
+          borderWidth: 1,
+          borderColor: p.line,
+          fontFamily: FONT.medium,
+          fontSize: 14,
+          color: p.ink,
+        }}
+      />
+    </View>
+  );
+
+  return (
+    <View style={{ gap: 15 }}>
+      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>Planifier un congé</Text>
+
+      {emp ? (
+        <Pressable
+          onPress={() => setEmp(null)}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 12,
+            backgroundColor: withAlpha(p.primary, 0.1),
+            borderRadius: RADIUS.base,
+            padding: 11,
+            paddingHorizontal: 13,
+          }}
+        >
+          <EmpAvatar name={`${emp.firstName} ${emp.lastName}`} initials={initialsOf(emp.firstName, emp.lastName)} size={38} />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text numberOfLines={1} style={{ fontFamily: FONT.bold, fontSize: 14, color: p.ink }}>
+              {emp.firstName} {emp.lastName}
+            </Text>
+            <Text style={{ fontFamily: FONT.body, fontSize: 12, color: p.muted }}>Changer d&apos;employé</Text>
+          </View>
+          <AdminIcon name="xmark" size={16} color={p.muted2} />
+        </Pressable>
+      ) : (
+        <View style={{ gap: 9 }}>
+          {label("Employé")}
+          <SearchBar placeholder="Nom ou poste…" value={search} onChange={setSearch} />
+          <View style={{ gap: 6, maxHeight: 220 }}>
+            {employees.slice(0, 8).map((e) => (
+              <Pressable
+                key={e.id}
+                onPress={() => setEmp(e)}
+                android_ripple={{ color: withAlpha(p.primary, 0.08) }}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 11,
+                  paddingVertical: 9,
+                  paddingHorizontal: 11,
+                  borderRadius: RADIUS.base,
+                  backgroundColor: p.surface2,
+                  borderWidth: 1,
+                  borderColor: p.line,
+                }}
+              >
+                <EmpAvatar name={`${e.firstName} ${e.lastName}`} initials={initialsOf(e.firstName, e.lastName)} size={34} />
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text numberOfLines={1} style={{ fontFamily: FONT.semibold, fontSize: 13.5, color: p.ink }}>
+                    {e.firstName} {e.lastName}
+                  </Text>
+                  <Text numberOfLines={1} style={{ fontFamily: FONT.body, fontSize: 11.5, color: p.muted }}>
+                    {e.position ?? e.department ?? "—"}
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+            {query.isLoading ? <ActivityIndicator color={p.primary} /> : null}
+          </View>
+        </View>
+      )}
+
+      <View>
+        {label("Type")}
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 9 }}>
+          {LEAVE_TYPES.map(([k, lbl]) => {
+            const on = type === k;
+            return (
+              <Pressable
+                key={k}
+                onPress={() => setType(k)}
+                style={{
+                  borderWidth: 1,
+                  borderColor: on ? p.primary : p.line,
+                  backgroundColor: on ? withAlpha(p.primary, 0.12) : p.surface2,
+                  borderRadius: 999,
+                  paddingHorizontal: 13,
+                  paddingVertical: 9,
+                }}
+              >
+                <Text style={{ fontFamily: FONT.bold, fontSize: 12.5, color: on ? p.primary : p.muted }}>{lbl}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
+      <View style={{ flexDirection: "row", gap: 10 }}>
+        <View style={{ flex: 1 }}>
+          {label("Début")}
+          {dateInput(start, setStart)}
+        </View>
+        <View style={{ flex: 1 }}>
+          {label("Fin")}
+          {dateInput(end, setEnd)}
+        </View>
+      </View>
+
+      <Pressable
+        onPress={create.isPending ? undefined : submit}
+        style={{
+          backgroundColor: p.primary,
+          borderRadius: RADIUS.base,
+          paddingVertical: 16,
+          alignItems: "center",
+          opacity: create.isPending ? 0.7 : 1,
+        }}
+      >
+        {create.isPending ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Planifier</Text>
+        )}
+      </Pressable>
+    </View>
   );
 }
 

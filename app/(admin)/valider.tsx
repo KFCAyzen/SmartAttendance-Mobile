@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 
 import type { AdminAbsence, AdminLeave } from "~/api/admin";
 import type { LeaveType } from "~/api/leaves";
@@ -13,6 +13,7 @@ import {
   Pill,
   Segmented,
 } from "~/components/admin/primitives";
+import { Sheet } from "~/components/admin/Sheet";
 import { initialsOf } from "~/components/admin/format";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
@@ -39,7 +40,12 @@ const ABSENCE_LABEL: Record<AbsenceType, string> = {
   NO_SHOW: "Absence",
 };
 
-const REJECT_COMMENT = "Demande refusée par l'administration"; // TODO(ux): sheet de motif de refus
+const REJECT_PRESETS = [
+  "Solde de congés insuffisant",
+  "Période trop chargée",
+  "Justificatif manquant",
+  "Dates incompatibles",
+];
 
 function fmtDay(iso: string): string {
   return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
@@ -144,6 +150,94 @@ function Resolved({ name, approved }: { name: string; approved: boolean }) {
         </Text>
       </View>
     </View>
+  );
+}
+
+function RejectReasonSheet({
+  open,
+  onClose,
+  name,
+  pending,
+  onConfirm,
+}: {
+  open: boolean;
+  onClose: () => void;
+  name: string;
+  pending: boolean;
+  onConfirm: (reason: string) => void;
+}) {
+  const p = useAdminTheme();
+  const [reason, setReason] = useState("");
+
+  return (
+    <Sheet open={open} onClose={onClose}>
+      <View style={{ gap: 14 }}>
+        <View style={{ gap: 3 }}>
+          <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>Motif du refus</Text>
+          <Text style={{ fontFamily: FONT.body, fontSize: 13, color: p.muted }}>{name}</Text>
+        </View>
+
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {REJECT_PRESETS.map((r) => {
+            const on = reason === r;
+            return (
+              <Pressable
+                key={r}
+                onPress={() => setReason(r)}
+                style={{
+                  borderWidth: 1,
+                  borderColor: on ? p.danger : p.line,
+                  backgroundColor: on ? withAlpha(p.danger, 0.12) : p.surface2,
+                  borderRadius: 999,
+                  paddingHorizontal: 13,
+                  paddingVertical: 9,
+                }}
+              >
+                <Text style={{ fontFamily: FONT.semibold, fontSize: 12.5, color: on ? p.danger : p.muted }}>{r}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <TextInput
+          value={reason}
+          onChangeText={setReason}
+          placeholder="Préciser le motif (facultatif)…"
+          placeholderTextColor={p.muted2}
+          multiline
+          style={{
+            minHeight: 80,
+            paddingVertical: 13,
+            paddingHorizontal: 14,
+            borderRadius: RADIUS.base,
+            backgroundColor: p.surface2,
+            borderWidth: 1,
+            borderColor: p.line,
+            fontFamily: FONT.medium,
+            fontSize: 14,
+            color: p.ink,
+            textAlignVertical: "top",
+          }}
+        />
+
+        <Pressable
+          onPress={pending ? undefined : () => onConfirm(reason.trim() || "Demande refusée par l'administration")}
+          style={{
+            backgroundColor: p.danger,
+            borderRadius: RADIUS.base,
+            paddingVertical: 16,
+            alignItems: "center",
+            opacity: pending ? 0.7 : 1,
+          }}
+        >
+          {pending ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Confirmer le refus</Text>
+          )}
+        </Pressable>
+      </View>
+    </Sheet>
   );
 }
 
@@ -263,6 +357,7 @@ function LeaveCard({ item }: { item: AdminLeave }) {
   const p = useAdminTheme();
   const { approveLeaveMutation, rejectLeaveMutation } = useAdminActions();
   const [done, setDone] = useState<null | boolean>(null);
+  const [rejectOpen, setRejectOpen] = useState(false);
   const name = item.user
     ? `${item.user.firstName} ${item.user.lastName}`
     : "Employé";
@@ -296,10 +391,22 @@ function LeaveCard({ item }: { item: AdminLeave }) {
       <ActionRow
         pending={busy}
         onApprove={() => approveLeaveMutation.mutate(item.id, { onSuccess: () => setDone(true) })}
-        onReject={() =>
+        onReject={() => setRejectOpen(true)}
+      />
+      <RejectReasonSheet
+        open={rejectOpen}
+        onClose={() => setRejectOpen(false)}
+        name={name}
+        pending={rejectLeaveMutation.isPending}
+        onConfirm={(comment) =>
           rejectLeaveMutation.mutate(
-            { id: item.id, comment: REJECT_COMMENT },
-            { onSuccess: () => setDone(false) },
+            { id: item.id, comment },
+            {
+              onSuccess: () => {
+                setRejectOpen(false);
+                setDone(false);
+              },
+            },
           )
         }
       />
@@ -310,6 +417,7 @@ function LeaveCard({ item }: { item: AdminLeave }) {
 function AbsenceCard({ item }: { item: AdminAbsence }) {
   const { approveAbsenceMutation, rejectAbsenceMutation } = useAdminActions();
   const [done, setDone] = useState<null | boolean>(null);
+  const [rejectOpen, setRejectOpen] = useState(false);
   const name = item.user ? `${item.user.firstName} ${item.user.lastName}` : "Employé";
   const initials = initialsOf(item.user?.firstName, item.user?.lastName);
   const busy = approveAbsenceMutation.isPending || rejectAbsenceMutation.isPending;
@@ -337,10 +445,22 @@ function AbsenceCard({ item }: { item: AdminAbsence }) {
             { onSuccess: () => setDone(true) },
           )
         }
-        onReject={() =>
+        onReject={() => setRejectOpen(true)}
+      />
+      <RejectReasonSheet
+        open={rejectOpen}
+        onClose={() => setRejectOpen(false)}
+        name={name}
+        pending={rejectAbsenceMutation.isPending}
+        onConfirm={(comment) =>
           rejectAbsenceMutation.mutate(
-            { id: item.id, comment: REJECT_COMMENT },
-            { onSuccess: () => setDone(false) },
+            { id: item.id, comment },
+            {
+              onSuccess: () => {
+                setRejectOpen(false);
+                setDone(false);
+              },
+            },
           )
         }
       />
