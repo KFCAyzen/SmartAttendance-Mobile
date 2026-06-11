@@ -37,7 +37,7 @@ export default function RolesScreen() {
 
   return (
     <AdminScrollBody gap={12}>
-      <AdminHeader sub="Accès & configuration" title="Rôles" />
+      <AdminHeader backLabel="Plus" sub="Accès & configuration" title="Rôles" />
 
       {roles.isLoading ? (
         <View style={{ paddingTop: 40, alignItems: "center" }}>

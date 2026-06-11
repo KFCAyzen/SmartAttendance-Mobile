@@ -58,6 +58,7 @@ export default function TeamScreen() {
     <>
       <AdminScrollBody gap={12}>
         <AdminHeader
+          backLabel="Plus"
           sub={`${query.data?.pages?.[0]?.meta?.total ?? items.length} employés`}
           title="Équipe"
           right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}

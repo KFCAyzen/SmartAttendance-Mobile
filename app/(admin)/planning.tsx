@@ -77,6 +77,7 @@ export default function PlanningScreen() {
     <>
     <AdminScrollBody gap={12}>
       <AdminHeader
+        backLabel="Plus"
         sub="Congés & absences"
         title="Planning"
         right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}

@@ -30,6 +30,7 @@ export default function SitesScreen() {
     <>
     <AdminScrollBody gap={12}>
       <AdminHeader
+        backLabel="Plus"
         sub="Lieux & pointeuses"
         title="Sites"
         right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useRouter } from 'expo-router';
 import {
   Pressable,
   ScrollView,
@@ -154,42 +155,69 @@ export function AdminHeader({
   title,
   sub,
   right,
+  backLabel,
 }: {
   title: string;
   sub?: string;
   right?: ReactNode;
+  backLabel?: string;
 }) {
   const p = useAdminTheme();
+  const router = useRouter();
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        justifyContent: 'space-between',
-        gap: 12,
-        paddingTop: 2,
-        paddingBottom: 4,
-      }}
-    >
-      <View style={{ flex: 1, gap: 3 }}>
-        {sub ? (
-          <Text
-            style={{
-              fontFamily: FONT.bold,
-              fontSize: 11,
-              letterSpacing: 1.3,
-              textTransform: 'uppercase',
-              color: p.primary,
-            }}
-          >
-            {sub}
+    <View style={{ gap: backLabel ? 10 : 0 }}>
+      {backLabel ? (
+        <Pressable
+          onPress={() => router.replace('/(admin)/plus' as never)}
+          android_ripple={{ color: withAlpha(p.primary, 0.08), borderless: false }}
+          style={{
+            alignSelf: 'flex-start',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            borderWidth: 1,
+            borderColor: p.line,
+            backgroundColor: p.surface,
+            borderRadius: 999,
+            paddingVertical: 8,
+            paddingLeft: 10,
+            paddingRight: 13,
+          }}
+        >
+          <AdminIcon name="chevronLeft" size={16} color={p.primary} />
+          <Text style={{ fontFamily: FONT.bold, fontSize: 12.5, color: p.primary }}>{backLabel}</Text>
+        </Pressable>
+      ) : null}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          gap: 12,
+          paddingTop: 2,
+          paddingBottom: 4,
+        }}
+      >
+        <View style={{ flex: 1, gap: 3 }}>
+          {sub ? (
+            <Text
+              style={{
+                fontFamily: FONT.bold,
+                fontSize: 11,
+                letterSpacing: 1.3,
+                textTransform: 'uppercase',
+                color: p.primary,
+              }}
+            >
+              {sub}
+            </Text>
+          ) : null}
+          <Text style={{ fontFamily: FONT.display, fontSize: 27, color: p.ink, letterSpacing: -0.5 }}>
+            {title}
           </Text>
-        ) : null}
-        <Text style={{ fontFamily: FONT.display, fontSize: 27, color: p.ink, letterSpacing: -0.5 }}>
-          {title}
-        </Text>
+        </View>
+        {right}
       </View>
-      {right}
     </View>
   );
 }

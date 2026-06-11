@@ -82,7 +82,7 @@ export default function ReportsScreen() {
 
   return (
     <AdminScrollBody gap={12}>
-      <AdminHeader sub="Exports & analyses" title="Rapports" />
+      <AdminHeader backLabel="Plus" sub="Exports & analyses" title="Rapports" />
       <Segmented
         value={period}
         onChange={setPeriod}
