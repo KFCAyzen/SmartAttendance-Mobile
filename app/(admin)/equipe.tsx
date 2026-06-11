@@ -44,8 +44,13 @@ export default function TeamScreen() {
   );
 
   const depts = useMemo(() => {
-    return ["all", ...departmentsQuery.data];
-  }, [departmentsQuery.data]);
+    const set = new Set<string>(departmentsQuery.data);
+    items.forEach((employee) => {
+      if (employee.department) set.add(employee.department);
+    });
+    if (dept !== "all") set.add(dept);
+    return ["all", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+  }, [departmentsQuery.data, dept, items]);
 
   const chips = depts.map((d) => ({ key: d, label: d === "all" ? "Tous" : d }));
 

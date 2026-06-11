@@ -131,7 +131,7 @@ export function useEmployeeDepartments(search: string) {
   return useQuery({
     queryKey: [...root, "employee-departments", search],
     queryFn: async () => {
-      const response = await getEmployees(1, 1000, search);
+      const response = await getEmployees(1, 100, search);
       const employees = response.data ?? response.items ?? [];
       return Array.from(
         new Set(
