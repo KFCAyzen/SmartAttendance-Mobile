@@ -27,6 +27,7 @@ import { Card } from '~/components/ui/Card';
 import { useFaceCheckIn } from '~/hooks/useFaceCheckIn';
 import { useLocation } from '~/hooks/useLocation';
 import { formatTime } from '~/lib/date';
+import { useAuthStore } from '~/stores/auth.store';
 
 type Phase = 'idle' | 'scanning' | 'success';
 
@@ -37,6 +38,10 @@ const SITE_LABEL = 'Siège — Casablanca'; // TODO(api): site réel quand l'end
 export default function PointageScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  // L'écran est partagé par l'app employé et le back-office admin : on referme
+  // vers l'accueil du bon groupe pour éviter un rebond de redirection.
+  const isAdmin = useAuthStore((s) => s.user?.role === 'ADMIN' || s.user?.role === 'HR');
+  const homeRoute = isAdmin ? '/(admin)' : '/(tabs)';
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
   const [cameraActive, setCameraActive] = useState(false);
@@ -181,7 +186,7 @@ export default function PointageScreen() {
   const handleDone = () => {
     setPhase('idle');
     setLastResult(null);
-    router.navigate('/(tabs)');
+    router.navigate(homeRoute);
   };
 
   // ── Permission states ─────────────────────────────────────────────────────
@@ -256,10 +261,10 @@ export default function PointageScreen() {
 
       {/* Header */}
       <SafeAreaView edges={['top']} className="absolute inset-x-0 top-0">
-        <View className="flex-row items-center px-5 pt-2">
+        <View className="flex-row items-center px-5 pt-4">
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.navigate('/(tabs)')}
+            onPress={() => router.navigate(homeRoute)}
             className="h-[42px] w-[42px] items-center justify-center rounded-[13px] bg-white/12"
           >
             <Ionicons name="chevron-back" size={22} color="#fff" />

@@ -9,10 +9,21 @@ import {
   approveLeave,
   getAdminOverview,
   getAdminPendingCounts,
+  getAnalyticsDepartments,
+  getAnalyticsPresence,
+  getDevices,
+  getEmployees,
   getPendingAbsences,
   getPendingLeaves,
+  getPlanning,
+  getReports,
+  getRoles,
+  getSettings,
+  getSites,
   rejectLeave,
   updateAbsenceStatus,
+  updateSetting,
+  type AdminSettings,
 } from "../api/admin";
 import { useAuthStore } from "../stores/auth.store";
 
@@ -32,12 +43,37 @@ export function useAdminPendingCounts() {
   });
 }
 
-export function useAdminOverview() {
+export function useAdminOverview(days = 30) {
   const isAdmin = useIsAdmin();
   return useQuery({
-    queryKey: [...root, "overview"],
-    queryFn: getAdminOverview,
+    queryKey: [...root, "overview", days],
+    queryFn: () => getAdminOverview(days),
     enabled: isAdmin,
+  });
+}
+
+export function useAdminPresence(days = 7) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "presence", days],
+    queryFn: () => getAnalyticsPresence(days),
+    enabled: isAdmin,
+  });
+}
+
+export function useEmployees(search: string, department?: string) {
+  const isAdmin = useIsAdmin();
+  return useInfiniteQuery({
+    queryKey: [...root, "employees", search, department ?? "all"],
+    queryFn: ({ pageParam = 1 }) => getEmployees(pageParam, 20, search, department),
+    initialPageParam: 1,
+    enabled: isAdmin,
+    getNextPageParam: (last) => {
+      const meta = last.meta ?? last.pagination;
+      if (!meta) return undefined;
+      const next = meta.page + 1;
+      return next <= meta.totalPages ? next : undefined;
+    },
   });
 }
 
@@ -70,6 +106,80 @@ export function usePendingAbsences() {
       const next = meta.page + 1;
       return next <= meta.totalPages ? next : undefined;
     },
+  });
+}
+
+export function useAdminPlanning(year: number, month: number) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "planning", year, month],
+    queryFn: () => getPlanning(year, month),
+    enabled: isAdmin,
+  });
+}
+
+export function useAdminRoles() {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "roles"],
+    queryFn: getRoles,
+    enabled: isAdmin,
+  });
+}
+
+export function useAdminSettings() {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "settings"],
+    queryFn: getSettings,
+    enabled: isAdmin,
+  });
+}
+
+export function useUpdateSetting() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ key, value }: { key: keyof AdminSettings; value: string | boolean }) =>
+      updateSetting(key, value),
+    onSuccess: (data) => {
+      queryClient.setQueryData([...root, "settings"], data);
+    },
+  });
+}
+
+export function useAdminSites() {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "sites"],
+    queryFn: getSites,
+    enabled: isAdmin,
+  });
+}
+
+export function useAdminDevices() {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "devices"],
+    queryFn: getDevices,
+    enabled: isAdmin,
+  });
+}
+
+export function useAdminDepartments(days = 30) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "departments", days],
+    queryFn: () => getAnalyticsDepartments(days),
+    enabled: isAdmin,
+  });
+}
+
+export function useAdminReports(days = 30) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "reports", days],
+    queryFn: () => getReports(days),
+    enabled: isAdmin,
   });
 }
 

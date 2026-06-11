@@ -42,6 +42,7 @@ function RootLayoutNav() {
   const router = useRouter();
   const segments = useSegments();
   const status = useAuthStore((s) => s.status);
+  const isAdmin = useAuthStore((s) => s.user?.role === "ADMIN" || s.user?.role === "HR");
   const hydrate = useAuthStore((s) => s.hydrate);
   const navState = useRootNavigationState();
   const navReady = Boolean(navState?.key);
@@ -78,7 +79,10 @@ function RootLayoutNav() {
     )
       return;
     const inAuthGroup = segments[0] === "(auth)";
+    const inAdminGroup = segments[0] === "(admin)";
+    const inTabsGroup = segments[0] === "(tabs)";
     const currentRoute = segments.join("/");
+    const home = isAdmin ? "/(admin)" : "/(tabs)";
     if (status === "unauthenticated" && !inAuthGroup) {
       router.replace("/(auth)/login");
     } else if (
@@ -86,10 +90,17 @@ function RootLayoutNav() {
       currentRoute !== "(auth)/device-pending"
     ) {
       router.replace("/(auth)/device-pending");
-    } else if (status === "authenticated" && inAuthGroup) {
-      router.replace("/(tabs)");
+    } else if (status === "authenticated") {
+      // Aiguillage par rôle : admins/RH → back-office, employés → app.
+      if (inAuthGroup) {
+        router.replace(home);
+      } else if (isAdmin && inTabsGroup) {
+        router.replace("/(admin)");
+      } else if (!isAdmin && inAdminGroup) {
+        router.replace("/(tabs)");
+      }
     }
-  }, [navReady, status, segments, router]);
+  }, [navReady, status, isAdmin, segments, router]);
 
   if (!fontsLoaded) {
     // Splash reste affiché tant que les polices ne sont pas chargées.
@@ -109,6 +120,7 @@ function RootLayoutNav() {
       <Providers>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(admin)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         </Stack>
       </Providers>

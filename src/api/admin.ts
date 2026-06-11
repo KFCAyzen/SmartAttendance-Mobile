@@ -51,13 +51,59 @@ export interface AdminAbsence extends Absence {
   user?: AdminUserSummary;
 }
 
+export type UserRole = 'ADMIN' | 'HR' | 'MANAGER' | 'EMPLOYEE';
+
+export interface AdminEmployee {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  department?: string | null;
+  position?: string | null;
+  phone?: string | null;
+  isActive: boolean;
+  isPending: boolean;
+  team?: { id: string; name: string } | null;
+  site?: { id: string; name: string } | null;
+  _count?: { attendances: number };
+}
+
+export interface AdminPresencePoint {
+  date: string;
+  onTime: number;
+  late: number;
+}
+
+export async function getEmployees(
+  page = 1,
+  limit = 20,
+  search?: string,
+  department?: string,
+): Promise<PagedResponse<AdminEmployee>> {
+  const { data } = await api.get<PagedResponse<AdminEmployee>>('/admin/employees', {
+    params: { page, limit, search: search || undefined, department: department || undefined },
+  });
+  return data;
+}
+
+/** Présence agrégée par date (taux de pointage à l'heure / en retard). */
+export async function getAnalyticsPresence(days = 30): Promise<AdminPresencePoint[]> {
+  const { data } = await api.get<AdminPresencePoint[]>('/admin/analytics/presence', {
+    params: { days },
+  });
+  return data;
+}
+
 export async function getAdminPendingCounts(): Promise<AdminPendingCounts> {
   const { data } = await api.get<AdminPendingCounts>('/admin/pending-counts');
   return data;
 }
 
-export async function getAdminOverview(): Promise<AdminOverview> {
-  const { data } = await api.get<AdminOverview>('/admin/analytics/overview');
+export async function getAdminOverview(days = 30): Promise<AdminOverview> {
+  const { data } = await api.get<AdminOverview>('/admin/analytics/overview', {
+    params: { days },
+  });
   return data;
 }
 
@@ -105,6 +151,143 @@ export async function updateAbsenceStatus(
   const { data } = await api.patch<AdminAbsence>(`/admin/absences/${id}`, {
     status,
     adminComment,
+  });
+  return data;
+}
+
+// ── Planning (congés & absences du mois) ────────────────────────────────────
+export interface PlanningEvent {
+  emp: string;
+  initials: string;
+  type: string;
+  tone: string;
+  start: number;
+  end: number;
+}
+
+export interface AdminPlanning {
+  year: number;
+  month: number; // 1-12
+  daysInMonth: number;
+  events: PlanningEvent[];
+}
+
+export async function getPlanning(year: number, month: number): Promise<AdminPlanning> {
+  const { data } = await api.get<AdminPlanning>('/admin/planning', { params: { year, month } });
+  return data;
+}
+
+// ── Rôles (effectifs par rôle) ──────────────────────────────────────────────
+export interface RoleSummary {
+  role: 'ADMIN' | 'HR' | 'EMPLOYEE';
+  members: number;
+}
+
+export async function getRoles(): Promise<RoleSummary[]> {
+  const { data } = await api.get<RoleSummary[]>('/admin/roles');
+  return data;
+}
+
+// ── Paramètres de pointage ──────────────────────────────────────────────────
+export interface AdminSettings {
+  faceThreshold: string;
+  geofencing: boolean;
+  workHours: string;
+  strictDoubleCheckin: boolean;
+  lateAlerts: boolean;
+}
+
+export async function getSettings(): Promise<AdminSettings> {
+  const { data } = await api.get<AdminSettings>('/admin/settings');
+  return data;
+}
+
+export async function updateSetting(
+  key: keyof AdminSettings,
+  value: string | boolean,
+): Promise<AdminSettings> {
+  const { data } = await api.put<AdminSettings>('/admin/settings', { key, value });
+  return data;
+}
+
+// ── Sites & appareils ───────────────────────────────────────────────────────
+export interface AdminSite {
+  id: string;
+  name: string;
+  address: string;
+  city?: string | null;
+  geofence: number;
+  status: string;
+  total: number;
+  present: number;
+  devices: number;
+}
+
+export async function getSites(): Promise<AdminSite[]> {
+  const { data } = await api.get<AdminSite[]>('/admin/sites');
+  return data;
+}
+
+export interface AdminDevice {
+  id: string;
+  deviceName: string;
+  platform: string;
+  status: 'PENDING' | 'ACTIVE' | 'REVOKED';
+  lastUsedAt?: string | null;
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    site?: { name: string } | null;
+  } | null;
+}
+
+export async function getDevices(): Promise<AdminDevice[]> {
+  const { data } = await api.get<AdminDevice[]>('/admin/devices');
+  return data;
+}
+
+// ── Analytics par département (présence) ────────────────────────────────────
+export interface AdminDeptStat {
+  department: string;
+  count: number;
+  onTime: number;
+  late: number;
+  onTimeRate: number;
+  headcount: number;
+  present: number;
+}
+
+export async function getAnalyticsDepartments(days = 30): Promise<AdminDeptStat[]> {
+  const { data } = await api.get<AdminDeptStat[]>('/admin/analytics/departments', {
+    params: { days },
+  });
+  return data;
+}
+
+// ── Rapports & export ───────────────────────────────────────────────────────
+export interface ReportSummary {
+  type: string;
+  rows: number;
+}
+
+export async function getReports(days = 30): Promise<ReportSummary[]> {
+  const { data } = await api.get<ReportSummary[]>('/admin/reports', { params: { days } });
+  return data;
+}
+
+export interface ReportExport {
+  type: string;
+  title: string;
+  filename: string;
+  columns: string[];
+  rows: string[][];
+  csv: string;
+}
+
+export async function exportReport(type: string, days = 30): Promise<ReportExport> {
+  const { data } = await api.get<ReportExport>(`/admin/reports/${type}/export`, {
+    params: { days },
   });
   return data;
 }
