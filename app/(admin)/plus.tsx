@@ -31,6 +31,7 @@ interface HubItem {
 }
 
 const ITEMS: HubItem[] = [
+  { key: "espace", icon: "user", label: "Mon espace", desc: "Profil, congés et pointages", route: "/(admin)/espace" },
   { key: "equipe", icon: "users", label: "Équipe", desc: "Annuaire & fiches employés", route: "/(admin)/equipe" },
   { key: "planning", icon: "calendar", label: "Planning des congés", desc: "Calendrier d'équipe", route: "/(admin)/planning" },
   { key: "reports", icon: "bars", label: "Rapports & exports", desc: "Assiduité, heures, congés", route: "/(admin)/reports" },
