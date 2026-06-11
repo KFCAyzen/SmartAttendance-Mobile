@@ -20,6 +20,7 @@ import { Sheet } from "~/components/admin/Sheet";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useCreateEmployee, useEmployees } from "~/hooks/useAdminData";
+import { useAuthStore } from "~/stores/auth.store";
 
 const ROLE_LABEL: Record<string, string> = {
   ADMIN: "Administrateur",
@@ -233,6 +234,17 @@ function AddEmployeeForm({
 }) {
   const p = useAdminTheme();
   const create = useCreateEmployee();
+  const myRole = useAuthStore((s) => s.user?.role);
+  // Côté serveur, seul un ADMIN peut créer des comptes HR/ADMIN ; on masque ces options aux HR.
+  const roleOptions = (
+    myRole === "ADMIN"
+      ? ([
+          ["EMPLOYEE", "Employé"],
+          ["HR", "RH"],
+          ["ADMIN", "Admin"],
+        ] as const)
+      : ([["EMPLOYEE", "Employé"]] as const)
+  );
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
   const [email, setEmail] = useState("");
@@ -376,11 +388,7 @@ function AddEmployeeForm({
           Rôle d&apos;accès
         </Text>
         <View style={{ flexDirection: "row", gap: 8, marginTop: 9 }}>
-          {([
-            ["EMPLOYEE", "Employé"],
-            ["HR", "RH"],
-            ["ADMIN", "Admin"],
-          ] as const).map(([k, lbl]) => {
+          {roleOptions.map(([k, lbl]) => {
             const on = role === k;
             return (
               <Pressable
