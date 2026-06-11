@@ -23,7 +23,7 @@ const ACTIONS: SpaceAction[] = [
     icon: 'person-outline',
     label: 'Profil',
     detail: 'Identité, photo et réglages',
-    route: '/(tabs)/profile',
+    route: '/(admin)/profile',
     tone: 'primary',
   },
   {
@@ -31,7 +31,7 @@ const ACTIONS: SpaceAction[] = [
     icon: 'calendar-outline',
     label: 'Congés et absences',
     detail: 'Soldes, demandes et justificatifs',
-    route: '/(tabs)/demandes',
+    route: '/(admin)/demandes',
     tone: 'accent',
   },
   {
@@ -39,16 +39,8 @@ const ACTIONS: SpaceAction[] = [
     icon: 'time-outline',
     label: 'Historique de pointage',
     detail: 'Arrivées, sorties et temps de travail',
-    route: '/(tabs)/historique',
+    route: '/(admin)/historique',
     tone: 'success',
-  },
-  {
-    key: 'checkin',
-    icon: 'scan-outline',
-    label: 'Pointer',
-    detail: 'Arrivée ou sortie avec reconnaissance',
-    route: '/(admin)/pointage',
-    tone: 'warning',
   },
 ];
 

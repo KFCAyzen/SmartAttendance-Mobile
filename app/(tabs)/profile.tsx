@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useRouter, useSegments } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,7 @@ import { useReferencePhoto } from '~/hooks/useReferencePhoto';
 export default function ProfileScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const segments = useSegments();
   const isAdmin = useIsAdmin();
   const { user, logout } = useAuth();
   const { colorScheme, toggleColorScheme } = useColorScheme();
@@ -32,6 +33,7 @@ export default function ProfileScreen() {
     .filter(Boolean)
     .map((p) => (p as string).charAt(0).toUpperCase())
     .join('');
+  const adminRoute = segments[0] === '(admin)' ? '/(admin)' : '/(tabs)/admin';
 
   const run = async (action: () => Promise<unknown>) => {
     try {
@@ -176,7 +178,7 @@ export default function ProfileScreen() {
           <SettingRow
             icon="grid-outline"
             label={t('tabs.admin')}
-            onPress={() => router.push('/(tabs)/admin')}
+            onPress={() => router.push(adminRoute as never)}
           />
         ) : null}
         <SettingRow icon="globe-outline" label={t('profile.language')} detail={t('profile.languageValue')} />

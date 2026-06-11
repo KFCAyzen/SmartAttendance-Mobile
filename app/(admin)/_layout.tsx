@@ -15,6 +15,9 @@ export default function AdminLayout() {
       <Tabs.Screen name="plus" options={{ title: "Plus" }} />
       {/* Atteints via le hub « Plus » → masqués de la barre. */}
       <Tabs.Screen name="espace" options={{ title: "Mon espace", href: null }} />
+      <Tabs.Screen name="profile" options={{ title: "Profil", href: null }} />
+      <Tabs.Screen name="demandes" options={{ title: "Demandes", href: null }} />
+      <Tabs.Screen name="historique" options={{ title: "Historique", href: null }} />
       <Tabs.Screen name="equipe" options={{ title: "Équipe", href: null }} />
       <Tabs.Screen name="planning" options={{ title: "Planning", href: null }} />
       <Tabs.Screen name="reports" options={{ title: "Rapports", href: null }} />
