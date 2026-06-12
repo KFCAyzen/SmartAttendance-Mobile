@@ -1,6 +1,8 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 
+import { NotificationsSheet } from "~/components/NotificationsSheet";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import { Donut, MiniBars, Sparkline } from "~/components/admin/charts";
 import { longDate, weekdayLetter } from "~/components/admin/format";
@@ -24,6 +26,7 @@ import { useAuthStore } from "~/stores/auth.store";
 export default function DashboardScreen() {
   const router = useRouter();
   const p = useAdminTheme();
+  const [notifOpen, setNotifOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
   const overview = useAdminOverview();
   const counts = useAdminPendingCounts();
@@ -71,6 +74,7 @@ export default function DashboardScreen() {
   const todayArrivals = arrivals.length ? arrivals[arrivals.length - 1] : 0;
 
   return (
+    <>
     <AdminScrollBody>
       <AdminHeader
         sub={user?.department ? `SmartAttendance · ${user.department}` : "SmartAttendance"}
@@ -79,7 +83,7 @@ export default function DashboardScreen() {
           <IconBtn
             icon="bell"
             badge={pendingTotal}
-            onPress={() => router.push("/notifications")}
+            onPress={() => setNotifOpen(true)}
           />
         }
       />
@@ -218,6 +222,8 @@ export default function DashboardScreen() {
         ) : null}
       </View>
     </AdminScrollBody>
+    <NotificationsSheet open={notifOpen} onClose={() => setNotifOpen(false)} />
+    </>
   );
 }
 

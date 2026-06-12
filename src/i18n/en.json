@@ -116,6 +116,7 @@
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",
+    "seeAll": "See all",
     "empty": "No notifications yet."
   },
   "requests": {

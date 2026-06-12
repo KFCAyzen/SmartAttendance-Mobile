@@ -116,6 +116,7 @@
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Tout lire",
+    "seeAll": "Voir tout",
     "empty": "Aucune notification pour l'instant."
   },
   "requests": {
