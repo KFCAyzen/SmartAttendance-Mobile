@@ -1,4 +1,5 @@
-import { ActivityIndicator, Switch, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { ActivityIndicator, Pressable, Switch, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 import type { AdminSettings, RoleSummary } from "~/api/admin";
@@ -12,6 +13,7 @@ import {
 import { FONT, toneColor, toneSoft, withAlpha, type Tone } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useAdminRoles, useAdminSettings, useUpdateSetting } from "~/hooks/useAdminData";
+import { setLanguage } from "~/i18n";
 
 // Métadonnées présentationnelles du rôle ; l'effectif vient du backend.
 const ROLE_META: Record<RoleSummary["role"], { name: string; desc: string; perms: string[]; tone: Tone; icon: string }> = {
@@ -22,12 +24,14 @@ const ROLE_META: Record<RoleSummary["role"], { name: string; desc: string; perms
 
 export default function RolesScreen() {
   const p = useAdminTheme();
+  const { i18n } = useTranslation();
   const roles = useAdminRoles();
   const settings = useAdminSettings();
   const updateSetting = useUpdateSetting();
 
   const s = settings.data;
   const roleList = roles.data ?? [];
+  const isEnglish = i18n.language?.startsWith("en");
 
   const toggle = (key: keyof AdminSettings, value: boolean) =>
     updateSetting.mutate(
@@ -126,6 +130,17 @@ export default function RolesScreen() {
           last
         />
       </Card>
+
+      <SectionTitle>Préférences</SectionTitle>
+      <Card pad={0} style={{ overflow: "hidden" }}>
+        <CfgRow
+          icon="globe"
+          label="Langue"
+          detail={isEnglish ? "English" : "Français"}
+          onPress={() => void setLanguage(isEnglish ? "fr" : "en")}
+          last
+        />
+      </Card>
     </AdminScrollBody>
   );
 }
@@ -136,6 +151,7 @@ function CfgRow({
   detail,
   value,
   onToggle,
+  onPress,
   disabled,
   last,
 }: {
@@ -144,23 +160,14 @@ function CfgRow({
   detail?: string;
   value?: boolean;
   onToggle?: (v: boolean) => void;
+  onPress?: () => void;
   disabled?: boolean;
   last?: boolean;
 }) {
   const p = useAdminTheme();
   const isToggle = onToggle != null;
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 13,
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        borderBottomWidth: last ? 0 : 1,
-        borderBottomColor: p.line,
-      }}
-    >
+  const inner = (
+    <>
       <View
         style={{
           width: 36,
@@ -188,6 +195,23 @@ function CfgRow({
           <AdminIcon name="chevron" size={16} color={p.muted2} />
         </View>
       )}
-    </View>
+    </>
   );
+  const rowStyle = {
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    gap: 13,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: last ? 0 : 1,
+    borderBottomColor: p.line,
+  };
+  if (onPress) {
+    return (
+      <Pressable onPress={onPress} android_ripple={{ color: withAlpha(p.primary, 0.08) }} style={rowStyle}>
+        {inner}
+      </Pressable>
+    );
+  }
+  return <View style={rowStyle}>{inner}</View>;
 }
