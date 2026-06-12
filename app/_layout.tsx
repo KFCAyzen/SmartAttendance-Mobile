@@ -83,7 +83,10 @@ function RootLayoutNav() {
     const inTabsGroup = segments[0] === "(tabs)";
     const currentRoute = segments.join("/");
     const home = isAdmin ? "/(admin)" : "/(tabs)";
-    if (status === "unauthenticated" && !inAuthGroup) {
+    // device-pending requires a live session, so a logout there must fall back to
+    // login (it lives in (auth), so the inAuthGroup guard alone would strand it).
+    const onDevicePending = currentRoute === "(auth)/device-pending";
+    if (status === "unauthenticated" && (!inAuthGroup || onDevicePending)) {
       router.replace("/(auth)/login");
     } else if (
       (status === "device_pending" || status === "device_error") &&
