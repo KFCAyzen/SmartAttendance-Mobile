@@ -12,11 +12,29 @@
     "login": {
       "title": "Connexion",
       "subtitle": "Connectez-vous pour pointer et consulter vos présences.",
+      "greetingTitle": "Bon retour.",
+      "greetingSubtitle": "Authentifiez-vous pour pointer votre journée.",
+      "brandTagline": "Pointage par reconnaissance faciale",
+      "methodFace": "Face ID",
+      "methodPwd": "Identifiants",
       "email": "Adresse email",
       "password": "Mot de passe",
+      "rememberMe": "Se souvenir de moi",
       "submit": "Se connecter",
       "forgotPassword": "Mot de passe oublié ?",
-      "passwordRequired": "Mot de passe requis"
+      "passwordRequired": "Mot de passe requis",
+      "secureFooter": "Connexion chiffrée de bout en bout"
+    },
+    "face": {
+      "tapToAuth": "Touchez pour vous authentifier",
+      "scanning": "Vérification de l'identité…",
+      "confirmed": "Identité confirmée",
+      "reason": "Confirmez votre identité",
+      "cancel": "Annuler",
+      "unavailable": "Biométrie indisponible sur cet appareil",
+      "noSession": "Connectez-vous une fois pour activer Face ID",
+      "failed": "Authentification refusée",
+      "expired": "Session expirée, reconnectez-vous"
     },
     "forgotPassword": {
       "title": "Réinitialiser le mot de passe",

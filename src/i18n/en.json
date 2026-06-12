@@ -12,11 +12,29 @@
     "login": {
       "title": "Sign in",
       "subtitle": "Sign in to check in and view your attendance.",
+      "greetingTitle": "Welcome back.",
+      "greetingSubtitle": "Authenticate to clock in for the day.",
+      "brandTagline": "Facial-recognition attendance",
+      "methodFace": "Face ID",
+      "methodPwd": "Credentials",
       "email": "Email address",
       "password": "Password",
+      "rememberMe": "Remember me",
       "submit": "Sign in",
       "forgotPassword": "Forgot password?",
-      "passwordRequired": "Password is required"
+      "passwordRequired": "Password is required",
+      "secureFooter": "End-to-end encrypted connection"
+    },
+    "face": {
+      "tapToAuth": "Tap to authenticate",
+      "scanning": "Verifying identity…",
+      "confirmed": "Identity confirmed",
+      "reason": "Confirm your identity",
+      "cancel": "Cancel",
+      "unavailable": "Biometrics unavailable on this device",
+      "noSession": "Sign in once to enable Face ID",
+      "failed": "Authentication declined",
+      "expired": "Session expired, please sign in"
     },
     "forgotPassword": {
       "title": "Reset password",

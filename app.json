@@ -42,6 +42,12 @@
       "expo-secure-store",
       "expo-localization",
       [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Utilisez Face ID pour vous reconnecter rapidement à SmartAttendance."
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "Accédez à la caméra pour pointer par reconnaissance faciale."

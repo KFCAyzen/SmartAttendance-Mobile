@@ -5,6 +5,10 @@ export const StorageKeys = {
   DeviceId: 'sa.deviceId',
   CurrentUser: 'sa.currentUser',
   CsrfToken: 'sa.csrfToken',
+  // Biometric "remember me" session — deliberately NOT wiped by clearAuth so the
+  // user can re-authenticate by Face ID / fingerprint after an explicit logout.
+  BioToken: 'sa.bioToken',
+  BioUser: 'sa.bioUser',
 } as const;
 
 export type StorageKey = (typeof StorageKeys)[keyof typeof StorageKeys];
