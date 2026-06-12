@@ -2,11 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 
 import { humanizeApiError } from '~/api/client';
-import { Button } from '~/components/ui/Button';
-import { ScreenContainer } from '~/components/ui/ScreenContainer';
+import {
+  AuthScreen,
+  C,
+  FONT,
+  GhostButton,
+  PrimaryButton,
+} from '~/components/login/auth-ui';
 import { useAuth } from '~/hooks/useAuth';
 
 export default function DevicePendingScreen() {
@@ -16,6 +22,7 @@ export default function DevicePendingScreen() {
 
   const isRevoked = deviceStatus === 'REVOKED';
   const isError = status === 'device_error';
+  const tone = isRevoked ? C.danger : C.warning;
 
   const handleRecheck = async () => {
     setVerifying(true);
@@ -45,50 +52,103 @@ export default function DevicePendingScreen() {
   };
 
   return (
-    <ScreenContainer>
-      <View className="mt-16 items-center gap-4">
-        <View className="h-20 w-20 rounded-full bg-warning/10 items-center justify-center">
+    <AuthScreen>
+      <Animated.View entering={FadeInDown.duration(500)} style={{ marginTop: 24, alignItems: 'center', gap: 18 }}>
+        <View
+          style={{
+            width: 92,
+            height: 92,
+            borderRadius: 46,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: `${tone}22`,
+            borderWidth: 1,
+            borderColor: `${tone}55`,
+          }}
+        >
           <Ionicons
             name={isError ? 'warning' : isRevoked ? 'close-circle' : 'time'}
-            size={48}
-            color={isRevoked ? '#991B1B' : '#C2410C'}
+            size={46}
+            color={tone}
           />
         </View>
-        <Text className="text-2xl font-bold text-center text-slate-900 dark:text-white">
+        <Text
+          style={{
+            fontFamily: FONT.display,
+            fontSize: 26,
+            color: C.white,
+            textAlign: 'center',
+            letterSpacing: -0.4,
+          }}
+        >
           {isError
             ? t('auth.device.errorTitle')
             : isRevoked
               ? t('auth.device.revokedTitle')
               : t('auth.device.pendingTitle')}
         </Text>
-        <Text className="text-base text-center text-slate-500 dark:text-slate-400 px-4">
+        <Text
+          style={{
+            fontFamily: FONT.body,
+            fontSize: 14.5,
+            lineHeight: 22,
+            color: 'rgba(255,255,255,0.6)',
+            textAlign: 'center',
+            paddingHorizontal: 6,
+          }}
+        >
           {isError
             ? (deviceError ?? t('auth.device.errorMessage'))
             : isRevoked
               ? t('auth.device.revokedMessage')
               : t('auth.device.pendingMessage')}
         </Text>
-      </View>
+      </Animated.View>
 
-      <View className="rounded-3xl bg-white dark:bg-slate-900 p-5 gap-2 shadow-sm">
-        <Text className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      <Animated.View
+        entering={FadeInDown.duration(500).delay(80)}
+        style={{
+          marginTop: 28,
+          borderRadius: 20,
+          backgroundColor: C.glass,
+          borderWidth: 1,
+          borderColor: C.glassBorder,
+          padding: 18,
+          gap: 4,
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: FONT.bold,
+            fontSize: 11,
+            letterSpacing: 0.6,
+            textTransform: 'uppercase',
+            color: C.w50,
+          }}
+        >
           {t('auth.device.account')}
         </Text>
-        <Text className="text-base font-semibold text-slate-900 dark:text-white">
+        <Text style={{ fontFamily: FONT.semibold, fontSize: 16, color: C.white }}>
           {user ? `${user.firstName} ${user.lastName}` : '—'}
         </Text>
-        <Text className="text-sm text-slate-500 dark:text-slate-400">{user?.email ?? '—'}</Text>
-      </View>
+        <Text style={{ fontFamily: FONT.medium, fontSize: 13.5, color: 'rgba(255,255,255,0.55)' }}>
+          {user?.email ?? '—'}
+        </Text>
+      </Animated.View>
 
-      <View className="gap-3">
-        <Button
-          label={t('auth.device.recheck')}
-          loading={verifying}
-          onPress={handleRecheck}
-          disabled={isRevoked}
-        />
-        <Button variant="ghost" label={t('common.logout')} onPress={() => void logout()} />
-      </View>
-    </ScreenContainer>
+      <View style={{ flex: 1 }} />
+
+      <Animated.View entering={FadeInDown.duration(500).delay(140)} style={{ gap: 12 }}>
+        {!isRevoked ? (
+          <PrimaryButton
+            label={t('auth.device.recheck')}
+            onPress={handleRecheck}
+            loading={verifying}
+            icon="refresh"
+          />
+        ) : null}
+        <GhostButton label={t('common.logout')} onPress={() => void logout()} />
+      </Animated.View>
+    </AuthScreen>
   );
 }

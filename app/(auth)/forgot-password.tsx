@@ -1,15 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
 import { api, humanizeApiError } from '~/api/client';
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
-import { ScreenContainer } from '~/components/ui/ScreenContainer';
+import {
+  AuthField,
+  AuthScreen,
+  BackButton,
+  C,
+  FONT,
+  PrimaryButton,
+} from '~/components/login/auth-ui';
 
 type FormValues = { email: string };
 
@@ -38,36 +44,56 @@ export default function ForgotPasswordScreen() {
   });
 
   return (
-    <ScreenContainer>
-      <Stack.Screen options={{ headerShown: true, title: t('auth.login.forgotPassword') }} />
-      <View className="gap-2 mt-4">
-        <Text className="text-2xl font-bold text-slate-900 dark:text-white">
+    <AuthScreen>
+      <Animated.View entering={FadeInDown.duration(500)}>
+        <BackButton onPress={() => router.back()} />
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.duration(500).delay(60)} style={{ marginTop: 32 }}>
+        <Text style={{ fontFamily: FONT.display, fontSize: 30, color: C.white, letterSpacing: -0.5 }}>
           {t('auth.forgotPassword.title')}
         </Text>
-        <Text className="text-base text-slate-500 dark:text-slate-400">
+        <Text
+          style={{
+            marginTop: 10,
+            fontFamily: FONT.body,
+            fontSize: 14.5,
+            lineHeight: 21,
+            color: 'rgba(255,255,255,0.6)',
+            maxWidth: 300,
+          }}
+        >
           {t('auth.forgotPassword.subtitle')}
         </Text>
-      </View>
+      </Animated.View>
 
-      <Controller
-        control={control}
-        name="email"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            label={t('auth.login.email')}
-            placeholder="prenom.nom@entreprise.com"
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            error={errors.email?.message}
-          />
-        )}
-      />
+      <Animated.View entering={FadeInDown.duration(500).delay(120)} style={{ marginTop: 28, gap: 16 }}>
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <AuthField
+              icon="mail-outline"
+              label={t('auth.login.email')}
+              placeholder="prenom.nom@entreprise.com"
+              value={value}
+              onChange={onChange}
+              onBlur={onBlur}
+              keyboardType="email-address"
+              autoComplete="email"
+              error={errors.email?.message}
+            />
+          )}
+        />
+        <PrimaryButton
+          label={t('auth.forgotPassword.submit')}
+          onPress={onSubmit}
+          loading={isSubmitting}
+          icon="paper-plane-outline"
+        />
+      </Animated.View>
 
-      <Button label={t('auth.forgotPassword.submit')} loading={isSubmitting} onPress={onSubmit} />
-    </ScreenContainer>
+      <View style={{ flex: 1 }} />
+    </AuthScreen>
   );
 }

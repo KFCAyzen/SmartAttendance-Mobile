@@ -2,20 +2,10 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
@@ -28,13 +18,19 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
 import { getMe } from '~/api/auth';
 import { humanizeApiError } from '~/api/client';
-import { AuthAura } from '~/components/login/AuthAura';
+import {
+  AuthField,
+  AuthScreen,
+  BrandMark,
+  C,
+  FONT,
+  PrimaryButton,
+} from '~/components/login/auth-ui';
 import { useAuth } from '~/hooks/useAuth';
 import {
   clearBiometricSession,
@@ -47,63 +43,7 @@ import {
 import { clearAuth, setItem, StorageKeys } from '~/lib/secure-storage';
 import { useAuthStore } from '~/stores/auth.store';
 
-const C = {
-  primary: '#2F5BFF',
-  accent: '#FF8A3D',
-  success: '#16A34A',
-  danger: '#EF4444',
-  ink: '#0E1326',
-  white: '#fff',
-  w50: 'rgba(255,255,255,0.5)',
-  w62: 'rgba(255,255,255,0.62)',
-  glass: 'rgba(255,255,255,0.06)',
-  glassBorder: 'rgba(255,255,255,0.12)',
-};
-const FONT = {
-  display: 'BricolageGrotesque_700Bold',
-  body: 'PlusJakartaSans_400Regular',
-  medium: 'PlusJakartaSans_500Medium',
-  semibold: 'PlusJakartaSans_600SemiBold',
-  bold: 'PlusJakartaSans_700Bold',
-};
-
 type Method = 'face' | 'pwd';
-
-// ── Brand lockup ──────────────────────────────────────────────────────────
-function BrandMark() {
-  const { t } = useTranslation();
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-      <LinearGradient
-        colors={[C.primary, '#6E5BFF']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{
-          width: 46,
-          height: 46,
-          borderRadius: 15,
-          alignItems: 'center',
-          justifyContent: 'center',
-          shadowColor: C.primary,
-          shadowOpacity: 0.45,
-          shadowRadius: 13,
-          shadowOffset: { width: 0, height: 10 },
-          elevation: 8,
-        }}
-      >
-        <MaterialCommunityIcons name="line-scan" size={25} color={C.white} />
-      </LinearGradient>
-      <View style={{ gap: 1 }}>
-        <Text style={{ fontFamily: FONT.display, fontSize: 18, color: C.white, letterSpacing: -0.2 }}>
-          SmartAttendance
-        </Text>
-        <Text style={{ fontFamily: FONT.semibold, fontSize: 11.5, color: C.w50, letterSpacing: 0.2 }}>
-          {t('auth.login.brandTagline')}
-        </Text>
-      </View>
-    </View>
-  );
-}
 
 // ── Mode toggle (Face ID ⇄ Identifiants) ────────────────────────────────────
 function ModeToggle({ value, onChange }: { value: Method; onChange: (m: Method) => void }) {
@@ -474,104 +414,6 @@ function PulseRing({ delay }: { delay: number }) {
   );
 }
 
-// ── Floating-label glass field ──────────────────────────────────────────────
-function LoginField({
-  icon,
-  label,
-  value,
-  onChange,
-  secure,
-  keyboardType,
-  autoComplete,
-  trailing,
-  error,
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  secure?: boolean;
-  keyboardType?: 'email-address' | 'default';
-  autoComplete?: 'email' | 'password';
-  trailing?: React.ReactNode;
-  error?: string;
-}) {
-  const [focus, setFocus] = useState(false);
-  const float = focus || value.length > 0;
-  const f = useSharedValue(float ? 1 : 0);
-  useEffect(() => {
-    f.value = withTiming(float ? 1 : 0, { duration: 180 });
-  }, [float, f]);
-  const labelStyle = useAnimatedStyle(() => ({
-    top: interpolate(f.value, [0, 1], [19, 9]),
-    fontSize: interpolate(f.value, [0, 1], [15, 11]),
-  }));
-  const borderColor = error ? C.danger : focus ? C.primary : C.glassBorder;
-  const iconColor = focus ? C.primary : C.w50;
-
-  return (
-    <View>
-      <View
-        style={{
-          height: 60,
-          borderRadius: 20,
-          backgroundColor: C.glass,
-          borderWidth: 1.5,
-          borderColor,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-          paddingHorizontal: 14,
-        }}
-      >
-        <Ionicons name={icon} size={20} color={iconColor} />
-        <View style={{ flex: 1, height: '100%', justifyContent: 'center' }}>
-          <Animated.Text
-            pointerEvents="none"
-            style={[
-              {
-                position: 'absolute',
-                left: 0,
-                fontFamily: float ? FONT.bold : FONT.medium,
-                letterSpacing: float ? 0.4 : 0,
-                textTransform: float ? 'uppercase' : 'none',
-                color: focus ? C.primary : C.w50,
-              },
-              labelStyle,
-            ]}
-          >
-            {label}
-          </Animated.Text>
-          <TextInput
-            value={value}
-            onChangeText={onChange}
-            secureTextEntry={secure}
-            keyboardType={keyboardType}
-            autoComplete={autoComplete}
-            autoCapitalize="none"
-            onFocus={() => setFocus(true)}
-            onBlur={() => setFocus(false)}
-            style={{
-              color: C.white,
-              fontFamily: FONT.semibold,
-              fontSize: 15,
-              height: '100%',
-              paddingTop: 18,
-              paddingBottom: 4,
-            }}
-          />
-        </View>
-        {trailing}
-      </View>
-      {error ? (
-        <Text style={{ color: '#FCA5A5', fontSize: 12, marginTop: 4, marginLeft: 4, fontFamily: FONT.medium }}>
-          {error}
-        </Text>
-      ) : null}
-    </View>
-  );
-}
-
 // ── Credentials form (real login + biometric enrolment) ─────────────────────
 type FormValues = { email: string; password: string };
 
@@ -615,7 +457,7 @@ function CredForm() {
         control={control}
         name="email"
         render={({ field: { onChange, value } }) => (
-          <LoginField
+          <AuthField
             icon="mail-outline"
             label={t('auth.login.email')}
             value={value}
@@ -630,7 +472,7 @@ function CredForm() {
         control={control}
         name="password"
         render={({ field: { onChange, value } }) => (
-          <LoginField
+          <AuthField
             icon="lock-closed-outline"
             label={t('auth.login.password')}
             value={value}
@@ -690,37 +532,7 @@ function CredForm() {
         </Link>
       </View>
 
-      <Pressable
-        accessibilityRole="button"
-        onPress={onSubmit}
-        disabled={login.isPending}
-        style={({ pressed }) => ({
-          height: 56,
-          borderRadius: 20,
-          backgroundColor: C.primary,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 10,
-          opacity: pressed ? 0.9 : 1,
-          shadowColor: C.primary,
-          shadowOpacity: 0.45,
-          shadowRadius: 15,
-          shadowOffset: { width: 0, height: 14 },
-          elevation: 8,
-        })}
-      >
-        {login.isPending ? (
-          <ActivityIndicator color={C.white} />
-        ) : (
-          <>
-            <Text style={{ fontFamily: FONT.bold, fontSize: 15.5, color: C.white }}>
-              {t('auth.login.submit')}
-            </Text>
-            <Ionicons name="arrow-forward" size={20} color={C.white} />
-          </>
-        )}
-      </Pressable>
+      <PrimaryButton label={t('auth.login.submit')} onPress={onSubmit} loading={login.isPending} />
     </View>
   );
 }
@@ -728,28 +540,11 @@ function CredForm() {
 // ── Login screen ────────────────────────────────────────────────────────────
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const [method, setMethod] = useState<Method>('face');
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#070A14' }}>
-      <StatusBar style="light" />
-      <AuthAura />
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingTop: insets.top + 28,
-            paddingHorizontal: 26,
-            paddingBottom: insets.bottom + 28,
-          }}
-        >
-          <Animated.View entering={FadeInDown.duration(500)}>
+    <AuthScreen>
+      <Animated.View entering={FadeInDown.duration(500)}>
             <BrandMark />
           </Animated.View>
 
@@ -801,8 +596,6 @@ export default function LoginScreen() {
               {t('auth.login.secureFooter')}
             </Text>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+    </AuthScreen>
   );
 }
