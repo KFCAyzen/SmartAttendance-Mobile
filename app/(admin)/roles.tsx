@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Pressable, Switch, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Switch, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 import type { AdminSettings, RoleSummary } from "~/api/admin";
@@ -10,10 +11,18 @@ import {
   Card,
   SectionTitle,
 } from "~/components/admin/primitives";
-import { FONT, toneColor, toneSoft, withAlpha, type Tone } from "~/components/admin/theme";
+import { Sheet } from "~/components/admin/Sheet";
+import { FONT, RADIUS, toneColor, toneSoft, withAlpha, type Tone } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useAdminRoles, useAdminSettings, useUpdateSetting } from "~/hooks/useAdminData";
 import { setLanguage } from "~/i18n";
+
+// Champs texte/numériques de la config de pointage éditables via la feuille.
+type EditKey = "faceThreshold" | "workHours";
+const EDITABLE: Record<EditKey, { title: string; placeholder: string; numeric?: boolean }> = {
+  faceThreshold: { title: "Seuil de reconnaissance (%)", placeholder: "85", numeric: true },
+  workHours: { title: "Horaires de travail", placeholder: "09:00 - 18:00" },
+};
 
 // Métadonnées présentationnelles du rôle ; l'effectif vient du backend.
 const ROLE_META: Record<RoleSummary["role"], { name: string; desc: string; perms: string[]; tone: Tone; icon: string }> = {
@@ -33,13 +42,48 @@ export default function RolesScreen() {
   const roleList = roles.data ?? [];
   const isEnglish = i18n.language?.startsWith("en");
 
+  const [editKey, setEditKey] = useState<EditKey | null>(null);
+  const [draft, setDraft] = useState("");
+
   const toggle = (key: keyof AdminSettings, value: boolean) =>
     updateSetting.mutate(
       { key, value },
       { onError: () => Toast.show({ type: "error", text1: "Échec", text2: "Paramètre non enregistré." }) },
     );
 
+  const openEdit = (key: EditKey) => {
+    setDraft(String(s?.[key] ?? ""));
+    setEditKey(key);
+  };
+
+  const saveEdit = () => {
+    if (!editKey) return;
+    let value = draft.trim();
+    if (editKey === "faceThreshold") {
+      const n = Number(value);
+      if (!Number.isFinite(n) || n < 1 || n > 100) {
+        Toast.show({ type: "error", text1: "Valeur invalide", text2: "Entrez un seuil entre 1 et 100." });
+        return;
+      }
+      value = String(Math.round(n));
+    } else if (!value) {
+      Toast.show({ type: "error", text1: "Champ requis" });
+      return;
+    }
+    updateSetting.mutate(
+      { key: editKey, value },
+      {
+        onSuccess: () => {
+          setEditKey(null);
+          Toast.show({ type: "success", text1: "Paramètre enregistré" });
+        },
+        onError: () => Toast.show({ type: "error", text1: "Échec", text2: "Paramètre non enregistré." }),
+      },
+    );
+  };
+
   return (
+    <>
     <AdminScrollBody gap={12}>
       <AdminHeader backLabel="Plus" sub="Accès & configuration" title="Rôles" />
 
@@ -105,7 +149,12 @@ export default function RolesScreen() {
 
       <SectionTitle>Paramètres de pointage</SectionTitle>
       <Card pad={0} style={{ overflow: "hidden" }}>
-        <CfgRow icon="face" label="Reconnaissance faciale" detail={s ? `Seuil ${s.faceThreshold}%` : "—"} />
+        <CfgRow
+          icon="face"
+          label="Reconnaissance faciale"
+          detail={s ? `Seuil ${s.faceThreshold}%` : "—"}
+          onPress={s ? () => openEdit("faceThreshold") : undefined}
+        />
         <CfgRow
           icon="location"
           label="Géofencing"
@@ -113,7 +162,12 @@ export default function RolesScreen() {
           onToggle={(v) => toggle("geofencing", v)}
           disabled={!s}
         />
-        <CfgRow icon="clockSmall" label="Horaires de travail" detail={s?.workHours ?? "—"} />
+        <CfgRow
+          icon="clockSmall"
+          label="Horaires de travail"
+          detail={s?.workHours ?? "—"}
+          onPress={s ? () => openEdit("workHours") : undefined}
+        />
         <CfgRow
           icon="shield"
           label="Double pointage strict"
@@ -142,6 +196,48 @@ export default function RolesScreen() {
         />
       </Card>
     </AdminScrollBody>
+
+      <Sheet open={editKey != null} onClose={() => setEditKey(null)}>
+        {editKey ? (
+          <View style={{ gap: 15 }}>
+            <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>
+              {EDITABLE[editKey].title}
+            </Text>
+            <TextInput
+              value={draft}
+              onChangeText={setDraft}
+              placeholder={EDITABLE[editKey].placeholder}
+              placeholderTextColor={p.muted2}
+              keyboardType={EDITABLE[editKey].numeric ? "number-pad" : "default"}
+              autoFocus
+              style={{
+                paddingVertical: 13,
+                paddingHorizontal: 14,
+                borderRadius: RADIUS.base,
+                backgroundColor: p.surface2,
+                borderWidth: 1,
+                borderColor: p.line,
+                fontFamily: FONT.medium,
+                fontSize: 15,
+                color: p.ink,
+              }}
+            />
+            <Pressable
+              onPress={updateSetting.isPending ? undefined : saveEdit}
+              style={{
+                backgroundColor: p.primary,
+                borderRadius: RADIUS.base,
+                paddingVertical: 16,
+                alignItems: "center",
+                opacity: updateSetting.isPending ? 0.7 : 1,
+              }}
+            >
+              <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Enregistrer</Text>
+            </Pressable>
+          </View>
+        ) : null}
+      </Sheet>
+    </>
   );
 }
 
