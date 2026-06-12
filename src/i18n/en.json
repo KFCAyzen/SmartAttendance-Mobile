@@ -191,6 +191,17 @@
     "security": "Security & device",
     "thisDevice": "This device"
   },
+  "changePassword": {
+    "title": "Password",
+    "subtitle": "Choose a new password to keep your account secure.",
+    "current": "Current password",
+    "new": "New password",
+    "confirm": "Confirm password",
+    "submit": "Update",
+    "minLength": "At least 8 characters.",
+    "mismatch": "Passwords do not match.",
+    "success": "Password changed"
+  },
   "admin": {
     "title": "Admin",
     "forbidden": "This section is reserved for administrators.",

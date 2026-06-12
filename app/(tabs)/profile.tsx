@@ -15,16 +15,22 @@ import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { StatusPill } from '~/components/ui/StatusPill';
 import { useAuth } from '~/hooks/useAuth';
 import { useIsAdmin } from '~/hooks/useAdminData';
+import { useUnreadCount } from '~/hooks/useNotifications';
 import { useReferencePhoto } from '~/hooks/useReferencePhoto';
+import { setLanguage } from '~/i18n';
 
 export default function ProfileScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const segments = useSegments();
   const isAdmin = useIsAdmin();
   const { user, logout } = useAuth();
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const { photo, isLoading, upload, pickAndUpload, pickFromLibraryAndUpload } = useReferencePhoto();
+  const { count: unreadCount } = useUnreadCount();
+
+  const isEnglish = i18n.language?.startsWith('en');
+  const toggleLanguage = () => void setLanguage(isEnglish ? 'fr' : 'en');
 
   const mode: 'set' | 'request' = photo?.photoUrl ? 'request' : 'set';
   const photoUrl = buildPhotoUrl(photo?.photoUrl);
@@ -181,8 +187,18 @@ export default function ProfileScreen() {
             onPress={() => router.push(adminRoute as never)}
           />
         ) : null}
-        <SettingRow icon="globe-outline" label={t('profile.language')} detail={t('profile.languageValue')} />
-        <SettingRow icon="notifications-outline" label={t('profile.notifications')} detail={t('profile.notificationsOn')} />
+        <SettingRow
+          icon="globe-outline"
+          label={t('profile.language')}
+          detail={isEnglish ? 'English' : 'Français'}
+          onPress={toggleLanguage}
+        />
+        <SettingRow
+          icon="notifications-outline"
+          label={t('profile.notifications')}
+          detail={unreadCount > 0 ? String(unreadCount) : undefined}
+          onPress={() => router.push('/notifications')}
+        />
         <SettingRow
           icon="moon-outline"
           label={t('profile.darkMode')}
@@ -199,7 +215,7 @@ export default function ProfileScreen() {
         <SettingRow
           icon="shield-checkmark-outline"
           label={t('profile.security')}
-          detail={t('profile.thisDevice')}
+          onPress={() => router.push('/change-password')}
           last
         />
       </Card>

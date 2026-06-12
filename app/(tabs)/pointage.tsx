@@ -33,7 +33,6 @@ type Phase = 'idle' | 'scanning' | 'success';
 
 const FRAME_W = 224;
 const FRAME_H = 290;
-const SITE_LABEL = 'Siège — Casablanca'; // TODO(api): site réel quand l'endpoint existe.
 
 export default function PointageScreen() {
   const { t } = useTranslation();
@@ -41,6 +40,7 @@ export default function PointageScreen() {
   // L'écran est partagé par l'app employé et le back-office admin : on referme
   // vers l'accueil du bon groupe pour éviter un rebond de redirection.
   const isAdmin = useAuthStore((s) => s.user?.role === 'ADMIN' || s.user?.role === 'HR');
+  const siteName = useAuthStore((s) => s.user?.site?.name ?? null);
   const homeRoute = isAdmin ? '/(admin)' : '/(tabs)';
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
@@ -420,7 +420,9 @@ export default function PointageScreen() {
                 <View className="flex-row items-center gap-1.5">
                   <Ionicons name="location-outline" size={14} color="#717A90" />
                   <Text className="font-body text-[12.5px] text-muted dark:text-slate-400">
-                    {att?.location ?? SITE_LABEL} · {t('checkin.gpsVerified')}
+                    {[att?.location ?? siteName, t('checkin.gpsVerified')]
+                      .filter(Boolean)
+                      .join(' · ')}
                   </Text>
                 </View>
                 <Pressable
@@ -436,10 +438,12 @@ export default function PointageScreen() {
             </Animated.View>
           ) : (
             <View className="items-center gap-4">
-              <View className="flex-row items-center gap-1.5">
-                <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.6)" />
-                <Text className="font-body text-[12.5px] text-white/60">{SITE_LABEL}</Text>
-              </View>
+              {siteName ? (
+                <View className="flex-row items-center gap-1.5">
+                  <Ionicons name="location-outline" size={14} color="rgba(255,255,255,0.6)" />
+                  <Text className="font-body text-[12.5px] text-white/60">{siteName}</Text>
+                </View>
+              ) : null}
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ disabled: busy, busy }}

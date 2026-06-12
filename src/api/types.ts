@@ -10,6 +10,7 @@ export interface User {
   department?: string | null;
   teamId?: string | null;
   siteId?: string | null;
+  site?: { name: string } | null;
   isActive: boolean;
   isPending: boolean;
 }
