@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 
 import { Card } from '~/components/ui/Card';
@@ -11,37 +12,14 @@ import { useAuth } from '~/hooks/useAuth';
 interface SpaceAction {
   key: string;
   icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  detail: string;
   route: string;
   tone: 'primary' | 'success' | 'accent' | 'warning';
 }
 
 const ACTIONS: SpaceAction[] = [
-  {
-    key: 'profile',
-    icon: 'person-outline',
-    label: 'Profil',
-    detail: 'Identité, photo et réglages',
-    route: '/(admin)/profile',
-    tone: 'primary',
-  },
-  {
-    key: 'leaves',
-    icon: 'calendar-outline',
-    label: 'Congés et absences',
-    detail: 'Soldes, demandes et justificatifs',
-    route: '/(admin)/demandes',
-    tone: 'accent',
-  },
-  {
-    key: 'history',
-    icon: 'time-outline',
-    label: 'Historique de pointage',
-    detail: 'Arrivées, sorties et temps de travail',
-    route: '/(admin)/historique',
-    tone: 'success',
-  },
+  { key: 'profile', icon: 'person-outline', route: '/(admin)/profile', tone: 'primary' },
+  { key: 'leaves', icon: 'calendar-outline', route: '/(admin)/demandes', tone: 'accent' },
+  { key: 'history', icon: 'time-outline', route: '/(admin)/historique', tone: 'success' },
 ];
 
 const TONE_CLASS: Record<SpaceAction['tone'], { bg: string; color: string }> = {
@@ -53,8 +31,9 @@ const TONE_CLASS: Record<SpaceAction['tone'], { bg: string; color: string }> = {
 
 export default function AdminSpaceScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { user } = useAuth();
-  const name = user ? `${user.firstName} ${user.lastName}` : 'Administrateur';
+  const name = user ? `${user.firstName} ${user.lastName}` : t('admin.bo.espace.defaultName');
   const initials = [user?.firstName, user?.lastName]
     .filter(Boolean)
     .map((part) => (part as string).charAt(0).toUpperCase())
@@ -75,7 +54,7 @@ export default function AdminSpaceScreen() {
             SmartAttendance
           </Text>
           <Text className="font-display text-[30px] leading-none text-ink dark:text-white">
-            Mon espace
+            {t('admin.bo.espace.title')}
           </Text>
         </View>
       </View>
@@ -114,6 +93,8 @@ export default function AdminSpaceScreen() {
           <SpaceRow
             key={action.key}
             action={action}
+            label={t(`admin.bo.espace.${action.key}Label`)}
+            detail={t(`admin.bo.espace.${action.key}Detail`)}
             last={index === ACTIONS.length - 1}
             onPress={() => router.push(action.route as never)}
           />
@@ -125,10 +106,14 @@ export default function AdminSpaceScreen() {
 
 function SpaceRow({
   action,
+  label,
+  detail,
   last,
   onPress,
 }: {
   action: SpaceAction;
+  label: string;
+  detail: string;
   last: boolean;
   onPress: () => void;
 }) {
@@ -145,9 +130,9 @@ function SpaceRow({
         <Ionicons name={action.icon} size={20} color={tone.color} />
       </View>
       <View className="flex-1">
-        <Text className="font-bodyBold text-[15px] text-ink dark:text-white">{action.label}</Text>
+        <Text className="font-bodyBold text-[15px] text-ink dark:text-white">{label}</Text>
         <Text className="mt-0.5 font-body text-[12.5px] text-muted dark:text-slate-400">
-          {action.detail}
+          {detail}
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={17} color="#9AA5BE" />

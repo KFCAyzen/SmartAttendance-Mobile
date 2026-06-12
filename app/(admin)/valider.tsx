@@ -1,9 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 
 import type { AdminAbsence, AdminLeave } from "~/api/admin";
-import type { LeaveType } from "~/api/leaves";
-import type { AbsenceType } from "~/api/absences";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import {
   AdminHeader,
@@ -17,38 +16,18 @@ import { Sheet } from "~/components/admin/Sheet";
 import { initialsOf } from "~/components/admin/format";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
+import i18n from "~/i18n";
 import {
   useAdminActions,
   usePendingAbsences,
   usePendingLeaves,
 } from "~/hooks/useAdminData";
 
-const LEAVE_LABEL: Record<LeaveType, string> = {
-  VACATION: "Congés payés",
-  SICK: "Maladie",
-  PERSONAL: "Congé personnel",
-  MATERNITY: "Maternité",
-  PATERNITY: "Paternité",
-  UNPAID: "Sans solde",
-};
-
-const ABSENCE_LABEL: Record<AbsenceType, string> = {
-  LATE: "Retard",
-  UNJUSTIFIED: "Non justifiée",
-  JUSTIFIED: "Justifiée",
-  HALF_DAY: "Demi-journée",
-  NO_SHOW: "Absence",
-};
-
-const REJECT_PRESETS = [
-  "Solde de congés insuffisant",
-  "Période trop chargée",
-  "Justificatif manquant",
-  "Dates incompatibles",
-];
+const REJECT_PRESET_KEYS = ["presetBalance", "presetBusy", "presetMissingDoc", "presetConflict"] as const;
 
 function fmtDay(iso: string): string {
-  return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+  const locale = i18n.language?.startsWith("en") ? "en-US" : "fr-FR";
+  return new Date(iso).toLocaleDateString(locale, { day: "numeric", month: "long" });
 }
 
 function dayCount(start: string, end: string): number {
@@ -58,6 +37,7 @@ function dayCount(start: string, end: string): number {
 
 export default function ValidationScreen() {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const [tab, setTab] = useState<"leave" | "absence">("leave");
   const leaves = usePendingLeaves();
   const absences = usePendingAbsences();
@@ -70,13 +50,13 @@ export default function ValidationScreen() {
 
   return (
     <AdminScrollBody gap={12}>
-      <AdminHeader sub="File d'approbation" title="Validation" />
+      <AdminHeader sub={t("admin.bo.valider.sub")} title={t("admin.bo.valider.title")} />
       <Segmented
         value={tab}
         onChange={(k) => setTab(k as "leave" | "absence")}
         options={[
-          { key: "leave", label: "Congés", count: leaveItems.length },
-          { key: "absence", label: "Absences", count: absenceItems.length },
+          { key: "leave", label: t("admin.bo.valider.leaves"), count: leaveItems.length },
+          { key: "absence", label: t("admin.bo.valider.absences"), count: absenceItems.length },
         ]}
       />
 
@@ -98,9 +78,9 @@ export default function ValidationScreen() {
           >
             <AdminIcon name="checkCircle" size={24} color={p.success} />
           </View>
-          <Text style={{ fontFamily: FONT.display, fontSize: 15, color: p.ink }}>Tout est traité</Text>
+          <Text style={{ fontFamily: FONT.display, fontSize: 15, color: p.ink }}>{t("admin.bo.valider.allDone")}</Text>
           <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted }}>
-            Aucune demande en attente.
+            {t("admin.bo.valider.noPending")}
           </Text>
         </Card>
       ) : (
@@ -116,6 +96,7 @@ export default function ValidationScreen() {
 
 function Resolved({ name, approved }: { name: string; approved: boolean }) {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const color = approved ? p.success : p.danger;
   return (
     <View
@@ -146,7 +127,7 @@ function Resolved({ name, approved }: { name: string; approved: boolean }) {
       <View style={{ flex: 1 }}>
         <Text style={{ fontFamily: FONT.bold, fontSize: 14, color: p.ink }}>{name}</Text>
         <Text style={{ fontFamily: FONT.semibold, fontSize: 12, color }}>
-          {approved ? "Demande approuvée" : "Demande refusée"}
+          {approved ? t("admin.bo.valider.approved") : t("admin.bo.valider.rejected")}
         </Text>
       </View>
     </View>
@@ -167,18 +148,20 @@ function RejectReasonSheet({
   onConfirm: (reason: string) => void;
 }) {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const [reason, setReason] = useState("");
+  const presets = REJECT_PRESET_KEYS.map((k) => t(`admin.bo.valider.${k}`));
 
   return (
     <Sheet open={open} onClose={onClose}>
       <View style={{ gap: 14 }}>
         <View style={{ gap: 3 }}>
-          <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>Motif du refus</Text>
+          <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>{t("admin.bo.valider.rejectTitle")}</Text>
           <Text style={{ fontFamily: FONT.body, fontSize: 13, color: p.muted }}>{name}</Text>
         </View>
 
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-          {REJECT_PRESETS.map((r) => {
+          {presets.map((r) => {
             const on = reason === r;
             return (
               <Pressable
@@ -202,7 +185,7 @@ function RejectReasonSheet({
         <TextInput
           value={reason}
           onChangeText={setReason}
-          placeholder="Préciser le motif (facultatif)…"
+          placeholder={t("admin.bo.valider.reasonPlaceholder")}
           placeholderTextColor={p.muted2}
           multiline
           style={{
@@ -221,7 +204,7 @@ function RejectReasonSheet({
         />
 
         <Pressable
-          onPress={pending ? undefined : () => onConfirm(reason.trim() || "Demande refusée par l'administration")}
+          onPress={pending ? undefined : () => onConfirm(reason.trim() || t("admin.bo.valider.defaultComment"))}
           style={{
             backgroundColor: p.danger,
             borderRadius: RADIUS.base,
@@ -233,7 +216,7 @@ function RejectReasonSheet({
           {pending ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Confirmer le refus</Text>
+            <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>{t("admin.bo.valider.confirmReject")}</Text>
           )}
         </Pressable>
       </View>
@@ -251,6 +234,7 @@ function ActionRow({
   onReject: () => void;
 }) {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   return (
     <View style={{ flexDirection: "row", gap: 9 }}>
       <Card
@@ -259,7 +243,7 @@ function ActionRow({
         onPress={pending ? undefined : onReject}
         style={{ flex: 1, paddingVertical: 12, alignItems: "center", backgroundColor: p.surface, borderColor: p.line }}
       >
-        <Text style={{ fontFamily: FONT.bold, fontSize: 14, color: p.danger }}>Refuser</Text>
+        <Text style={{ fontFamily: FONT.bold, fontSize: 14, color: p.danger }}>{t("admin.bo.valider.reject")}</Text>
       </Card>
       <Card
         pad={0}
@@ -284,7 +268,7 @@ function ActionRow({
         ) : (
           <>
             <AdminIcon name="check" size={17} color="#fff" />
-            <Text style={{ fontFamily: FONT.bold, fontSize: 14, color: "#fff" }}>Approuver</Text>
+            <Text style={{ fontFamily: FONT.bold, fontSize: 14, color: "#fff" }}>{t("admin.bo.valider.approve")}</Text>
           </>
         )}
       </Card>
@@ -355,12 +339,13 @@ function InfoBox({ icon, line1, line2 }: { icon: string; line1: string; line2: s
 
 function LeaveCard({ item }: { item: AdminLeave }) {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const { approveLeaveMutation, rejectLeaveMutation } = useAdminActions();
   const [done, setDone] = useState<null | boolean>(null);
   const [rejectOpen, setRejectOpen] = useState(false);
   const name = item.user
     ? `${item.user.firstName} ${item.user.lastName}`
-    : "Employé";
+    : t("admin.bo.common.employee");
   const initials = initialsOf(item.user?.firstName, item.user?.lastName);
   const days = item.days ?? dayCount(item.startDate, item.endDate);
   const range =
@@ -376,10 +361,10 @@ function LeaveCard({ item }: { item: AdminLeave }) {
       name={name}
       initials={initials}
       dept={item.user?.department ?? "—"}
-      typeLabel={LEAVE_LABEL[item.type] ?? item.type}
+      typeLabel={t(`leaveTypes.${item.type}`)}
       typeTone="primary"
     >
-      <InfoBox icon="calendar" line1={range} line2={`${days} jour${days > 1 ? "s" : ""}`} />
+      <InfoBox icon="calendar" line1={range} line2={t("admin.bo.valider.days", { count: days })} />
       {item.reason ? (
         <View style={{ flexDirection: "row", gap: 7 }}>
           <AdminIcon name="doc" size={14} color={p.muted2} />
@@ -415,10 +400,11 @@ function LeaveCard({ item }: { item: AdminLeave }) {
 }
 
 function AbsenceCard({ item }: { item: AdminAbsence }) {
+  const { t } = useTranslation();
   const { approveAbsenceMutation, rejectAbsenceMutation } = useAdminActions();
   const [done, setDone] = useState<null | boolean>(null);
   const [rejectOpen, setRejectOpen] = useState(false);
-  const name = item.user ? `${item.user.firstName} ${item.user.lastName}` : "Employé";
+  const name = item.user ? `${item.user.firstName} ${item.user.lastName}` : t("admin.bo.common.employee");
   const initials = initialsOf(item.user?.firstName, item.user?.lastName);
   const busy = approveAbsenceMutation.isPending || rejectAbsenceMutation.isPending;
 
@@ -429,13 +415,13 @@ function AbsenceCard({ item }: { item: AdminAbsence }) {
       name={name}
       initials={initials}
       dept={item.user?.department ?? "—"}
-      typeLabel={ABSENCE_LABEL[item.type] ?? item.type}
+      typeLabel={t(`absenceTypes.${item.type}`)}
       typeTone="warning"
     >
       <InfoBox
         icon="calendar"
         line1={fmtDay(item.date)}
-        line2={item.reason ?? item.duration ?? "Sans justificatif"}
+        line2={item.reason ?? item.duration ?? t("admin.bo.valider.noDocument")}
       />
       <ActionRow
         pending={busy}

@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { Pressable, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -15,41 +16,34 @@ import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useAuthStore } from "~/stores/auth.store";
 
-const ROLE_LABEL: Record<string, string> = {
-  ADMIN: "Administrateur",
-  HR: "Ressources humaines",
-  EMPLOYEE: "Employé",
-};
-
 interface HubItem {
   key: string;
   icon: string;
-  label: string;
-  desc: string;
   route?: string;
   soon?: boolean;
 }
 
 const ITEMS: HubItem[] = [
-  { key: "espace", icon: "user", label: "Mon espace", desc: "Profil, congés et pointages", route: "/(admin)/espace" },
-  { key: "equipe", icon: "users", label: "Équipe", desc: "Annuaire & fiches employés", route: "/(admin)/equipe" },
-  { key: "planning", icon: "calendar", label: "Planning des congés", desc: "Calendrier d'équipe", route: "/(admin)/planning" },
-  { key: "reports", icon: "bars", label: "Rapports & exports", desc: "Assiduité, heures, congés", route: "/(admin)/reports" },
-  { key: "sites", icon: "building", label: "Sites & pointeuses", desc: "Lieux & appareils", route: "/(admin)/sites" },
-  { key: "roles", icon: "key", label: "Rôles & permissions", desc: "Accès & paramètres", route: "/(admin)/roles" },
+  { key: "espace", icon: "user", route: "/(admin)/espace" },
+  { key: "equipe", icon: "users", route: "/(admin)/equipe" },
+  { key: "planning", icon: "calendar", route: "/(admin)/planning" },
+  { key: "reports", icon: "bars", route: "/(admin)/reports" },
+  { key: "sites", icon: "building", route: "/(admin)/sites" },
+  { key: "roles", icon: "key", route: "/(admin)/roles" },
 ];
 
 export default function MoreScreen() {
   const p = useAdminTheme();
   const router = useRouter();
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const clearSession = useAuthStore((s) => s.clearSession);
 
-  const name = user ? `${user.firstName} ${user.lastName}` : "Administrateur";
+  const name = user ? `${user.firstName} ${user.lastName}` : t("admin.bo.plus.defaultName");
 
   const onItem = (it: HubItem) => {
     if (it.soon || !it.route) {
-      Toast.show({ type: "info", text1: it.label, text2: "Bientôt disponible." });
+      Toast.show({ type: "info", text1: t(`admin.bo.plus.${it.key}Label`), text2: t("admin.bo.plus.soonToast") });
       return;
     }
     router.push(it.route as never);
@@ -57,7 +51,7 @@ export default function MoreScreen() {
 
   return (
     <AdminScrollBody gap={12}>
-      <AdminHeader sub="Administration" title="Plus" />
+      <AdminHeader sub={t("admin.bo.plus.sub")} title={t("admin.bo.plus.title")} />
 
       <Card style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
         <EmpAvatar name={name} initials={initialsOf(user?.firstName, user?.lastName)} size={54} radius={18} />
@@ -67,7 +61,7 @@ export default function MoreScreen() {
             {user?.email ?? ""}
           </Text>
           <View style={{ marginTop: 7 }}>
-            <Pill tone="accent">{ROLE_LABEL[user?.role ?? ""] ?? user?.role ?? "—"}</Pill>
+            <Pill tone="accent">{user?.role ? t(`admin.bo.roleLabels.${user.role}`) : "—"}</Pill>
           </View>
         </View>
       </Card>
@@ -102,14 +96,14 @@ export default function MoreScreen() {
             </View>
             <View style={{ flex: 1, gap: 2 }}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                <Text style={{ fontFamily: FONT.bold, fontSize: 14.5, color: p.ink }}>{it.label}</Text>
+                <Text style={{ fontFamily: FONT.bold, fontSize: 14.5, color: p.ink }}>{t(`admin.bo.plus.${it.key}Label`)}</Text>
                 {it.soon ? (
                   <View style={{ backgroundColor: p.surface2, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 }}>
-                    <Text style={{ fontFamily: FONT.bold, fontSize: 10, color: p.muted2 }}>Bientôt</Text>
+                    <Text style={{ fontFamily: FONT.bold, fontSize: 10, color: p.muted2 }}>{t("admin.bo.plus.soon")}</Text>
                   </View>
                 ) : null}
               </View>
-              <Text style={{ fontFamily: FONT.body, fontSize: 12, color: p.muted }}>{it.desc}</Text>
+              <Text style={{ fontFamily: FONT.body, fontSize: 12, color: p.muted }}>{t(`admin.bo.plus.${it.key}Desc`)}</Text>
             </View>
             <AdminIcon name="chevron" size={18} color={p.muted2} />
           </Pressable>
@@ -131,7 +125,7 @@ export default function MoreScreen() {
         }}
       >
         <AdminIcon name="logout" size={19} color={p.danger} />
-        <Text style={{ fontFamily: FONT.bold, fontSize: 14.5, color: p.danger }}>Se déconnecter</Text>
+        <Text style={{ fontFamily: FONT.bold, fontSize: 14.5, color: p.danger }}>{t("common.logout")}</Text>
       </Pressable>
 
       <Text style={{ textAlign: "center", fontFamily: FONT.body, fontSize: 11.5, color: p.muted2 }}>

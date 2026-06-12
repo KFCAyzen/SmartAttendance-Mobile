@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -20,21 +21,25 @@ import { FONT, RADIUS, toneColor, withAlpha, type Tone } from "~/components/admi
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useAdminPlanning, useCreateLeave, useEmployees } from "~/hooks/useAdminData";
 
-const WEEKDAYS = ["L", "M", "M", "J", "V", "S", "D"];
-
-const LEAVE_TYPES: [LeaveType, string][] = [
-  ["VACATION", "Congés payés"],
-  ["SICK", "Maladie"],
-  ["PERSONAL", "Personnel"],
-  ["UNPAID", "Sans solde"],
-  ["MATERNITY", "Maternité"],
-  ["PATERNITY", "Paternité"],
-];
+const LEAVE_TYPE_KEYS: LeaveType[] = ["VACATION", "SICK", "PERSONAL", "UNPAID", "MATERNITY", "PATERNITY"];
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
+/** Code locale Intl courant. */
+const localeOf = (lng?: string) => (lng?.startsWith("en") ? "en-US" : "fr-FR");
+
+/** Lettres des jours, lundi → dimanche, selon la langue. */
+function weekdayLetters(lng?: string): string[] {
+  const fmt = new Intl.DateTimeFormat(localeOf(lng), { weekday: "narrow" });
+  // 2024-01-01 est un lundi → on couvre lundi..dimanche.
+  return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(2024, 0, 1 + i)));
+}
+
 export default function PlanningScreen() {
   const p = useAdminTheme();
+  const { t, i18n } = useTranslation();
+  const locale = localeOf(i18n.language);
+  const WEEKDAYS = useMemo(() => weekdayLetters(i18n.language), [i18n.language]);
   const now = new Date();
   const [ym, setYm] = useState({ year: now.getFullYear(), month: now.getMonth() + 1 });
   const [addOpen, setAddOpen] = useState(false);
@@ -46,8 +51,8 @@ export default function PlanningScreen() {
 
   const first = new Date(ym.year, ym.month - 1, 1);
   const startWd = (first.getDay() + 6) % 7;
-  const monthName = first.toLocaleDateString("fr-FR", { month: "long" });
-  const label = cap(first.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }));
+  const monthName = first.toLocaleDateString(locale, { month: "long" });
+  const label = cap(first.toLocaleDateString(locale, { month: "long", year: "numeric" }));
   const isCurrent = now.getFullYear() === ym.year && now.getMonth() + 1 === ym.month;
   const todayD = isCurrent ? now.getDate() : -1;
 
@@ -77,9 +82,9 @@ export default function PlanningScreen() {
     <>
     <AdminScrollBody gap={12}>
       <AdminHeader
-        backLabel="Plus"
-        sub="Congés & absences"
-        title="Planning"
+        backLabel={t("admin.bo.nav.more")}
+        sub={t("admin.bo.planning.sub")}
+        title={t("admin.bo.planning.title")}
         right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}
       />
 
@@ -180,7 +185,7 @@ export default function PlanningScreen() {
                 borderTopColor: p.line,
               }}
             >
-              {([["Congés", "accent"], ["RTT / Télétravail", "primary"], ["Absence", "warning"]] as [string, Tone][]).map(
+              {([[t("admin.bo.planning.legendLeave"), "accent"], [t("admin.bo.planning.legendRtt"), "primary"], [t("admin.bo.planning.legendAbsence"), "warning"]] as [string, Tone][]).map(
                 ([l, tn]) => (
                   <View key={l} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                     <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: toneColor(p, tn) }} />
@@ -208,20 +213,20 @@ export default function PlanningScreen() {
             <View style={{ flex: 1 }}>
               <Text style={{ fontFamily: FONT.bold, fontSize: 14, color: p.ink }}>
                 {offToday > 0
-                  ? `${offToday} personne${offToday > 1 ? "s" : ""} absente${offToday > 1 ? "s" : ""} aujourd'hui`
-                  : "Effectif complet aujourd'hui"}
+                  ? t("admin.bo.planning.absentToday", { count: offToday })
+                  : t("admin.bo.planning.fullToday")}
               </Text>
               <Text style={{ fontFamily: FONT.body, fontSize: 12, color: p.muted }}>
-                {events.length} congés & absences ce mois-ci
+                {t("admin.bo.planning.monthSummary", { count: events.length })}
               </Text>
             </View>
           </Card>
 
-          <SectionTitle>À venir</SectionTitle>
+          <SectionTitle>{t("admin.bo.planning.upcoming")}</SectionTitle>
           {events.length === 0 ? (
             <Card soft style={{ alignItems: "center", paddingVertical: 22 }}>
               <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted }}>
-                Aucun congé ni absence ce mois-ci.
+                {t("admin.bo.planning.noEvents")}
               </Text>
             </Card>
           ) : (
@@ -269,6 +274,7 @@ export default function PlanningScreen() {
 
 function AddLeaveForm({ onDone }: { onDone: () => void }) {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const create = useCreateLeave();
   const [search, setSearch] = useState("");
   const [emp, setEmp] = useState<AdminEmployee | null>(null);
@@ -287,15 +293,15 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
 
   const submit = () => {
     if (!emp) {
-      Toast.show({ type: "error", text1: "Employé requis", text2: "Sélectionnez un employé." });
+      Toast.show({ type: "error", text1: t("admin.bo.planning.empRequired"), text2: t("admin.bo.planning.empRequiredMsg") });
       return;
     }
     if (!isoOk(start) || !isoOk(end)) {
-      Toast.show({ type: "error", text1: "Dates invalides", text2: "Format attendu : AAAA-MM-JJ." });
+      Toast.show({ type: "error", text1: t("admin.bo.planning.datesInvalid"), text2: t("admin.bo.planning.datesInvalidMsg") });
       return;
     }
     if (new Date(end) < new Date(start)) {
-      Toast.show({ type: "error", text1: "Dates incohérentes", text2: "La fin précède le début." });
+      Toast.show({ type: "error", text1: t("admin.bo.planning.datesOrder"), text2: t("admin.bo.planning.datesOrderMsg") });
       return;
     }
     create.mutate(
@@ -303,13 +309,13 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
       {
         onSuccess: () => {
           onDone();
-          Toast.show({ type: "success", text1: "Congé planifié", text2: `${emp.firstName} ${emp.lastName}` });
+          Toast.show({ type: "success", text1: t("admin.bo.planning.scheduled"), text2: `${emp.firstName} ${emp.lastName}` });
         },
         onError: (e: any) =>
           Toast.show({
             type: "error",
-            text1: "Échec",
-            text2: e?.response?.data?.message ?? "Veuillez réessayer.",
+            text1: t("admin.bo.common.failed"),
+            text2: e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
           }),
       },
     );
@@ -334,7 +340,7 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
       <TextInput
         value={value}
         onChangeText={setter}
-        placeholder="AAAA-MM-JJ"
+        placeholder={t("admin.bo.planning.datePlaceholder")}
         placeholderTextColor={p.muted2}
         autoCapitalize="none"
         style={{
@@ -355,7 +361,7 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
 
   return (
     <View style={{ gap: 15 }}>
-      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>Planifier un congé</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>{t("admin.bo.planning.scheduleLeave")}</Text>
 
       {emp ? (
         <Pressable
@@ -375,14 +381,14 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
             <Text numberOfLines={1} style={{ fontFamily: FONT.bold, fontSize: 14, color: p.ink }}>
               {emp.firstName} {emp.lastName}
             </Text>
-            <Text style={{ fontFamily: FONT.body, fontSize: 12, color: p.muted }}>Changer d&apos;employé</Text>
+            <Text style={{ fontFamily: FONT.body, fontSize: 12, color: p.muted }}>{t("admin.bo.planning.changeEmployee")}</Text>
           </View>
           <AdminIcon name="xmark" size={16} color={p.muted2} />
         </Pressable>
       ) : (
         <View style={{ gap: 9 }}>
-          {label("Employé")}
-          <SearchBar placeholder="Nom ou poste…" value={search} onChange={setSearch} />
+          {label(t("admin.bo.planning.employee"))}
+          <SearchBar placeholder={t("admin.bo.planning.searchEmployee")} value={search} onChange={setSearch} />
           <View style={{ gap: 6, maxHeight: 220 }}>
             {employees.slice(0, 8).map((e) => (
               <Pressable
@@ -418,9 +424,9 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
       )}
 
       <View>
-        {label("Type")}
+        {label(t("admin.bo.planning.type"))}
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 9 }}>
-          {LEAVE_TYPES.map(([k, lbl]) => {
+          {LEAVE_TYPE_KEYS.map((k) => {
             const on = type === k;
             return (
               <Pressable
@@ -435,7 +441,7 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
                   paddingVertical: 9,
                 }}
               >
-                <Text style={{ fontFamily: FONT.bold, fontSize: 12.5, color: on ? p.primary : p.muted }}>{lbl}</Text>
+                <Text style={{ fontFamily: FONT.bold, fontSize: 12.5, color: on ? p.primary : p.muted }}>{t(`leaveTypes.${k}`)}</Text>
               </Pressable>
             );
           })}
@@ -444,11 +450,11 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
 
       <View style={{ flexDirection: "row", gap: 10 }}>
         <View style={{ flex: 1 }}>
-          {label("Début")}
+          {label(t("admin.bo.planning.start"))}
           {dateInput(start, setStart)}
         </View>
         <View style={{ flex: 1 }}>
-          {label("Fin")}
+          {label(t("admin.bo.planning.end"))}
           {dateInput(end, setEnd)}
         </View>
       </View>
@@ -466,7 +472,7 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
         {create.isPending ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Planifier</Text>
+          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>{t("admin.bo.planning.schedule")}</Text>
         )}
       </Pressable>
     </View>

@@ -1,9 +1,11 @@
 import * as Print from "expo-print";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Share, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 
 import { exportReport, type ReportExport } from "~/api/admin";
+import i18n from "~/i18n";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import {
   AdminHeader,
@@ -20,12 +22,12 @@ import { useAdminDepartments, useAdminOverview, useAdminReports } from "~/hooks/
 
 const PERIOD_DAYS: Record<string, number> = { week: 7, month: 30, quarter: 90 };
 
-// Métadonnées présentationnelles ; les chiffres viennent du backend.
-const REPORT_META: Record<string, { name: string; desc: string; icon: string }> = {
-  attendance: { name: "Assiduité", desc: "Présence & ponctualité par employé", icon: "checkCircle" },
-  hours: { name: "Heures travaillées", desc: "Temps de travail et moyennes", icon: "clockSmall" },
-  incidents: { name: "Retards & absences", desc: "Incidents de pointage et motifs", icon: "bell" },
-  leaves: { name: "Congés & RTT", desc: "Demandes, dates et statuts", icon: "calendar" },
+// Icône par type de rapport ; le nom/desc sont traduits au rendu, les chiffres viennent du backend.
+const REPORT_ICON: Record<string, string> = {
+  attendance: "checkCircle",
+  hours: "clockSmall",
+  incidents: "bell",
+  leaves: "calendar",
 };
 
 function reportHtml(r: ReportExport): string {
@@ -41,13 +43,14 @@ function reportHtml(r: ReportExport): string {
     td{padding:7px 10px;border-bottom:1px solid #E5E7EB}
     tr:nth-child(even) td{background:#F7F8FA}
   </style></head><body>
-    <h1>${r.title}</h1><p>${r.rows.length} lignes · export SmartAttendance</p>
+    <h1>${r.title}</h1><p>${i18n.t("admin.bo.reports.htmlSubtitle", { n: r.rows.length })}</p>
     <table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
   </body></html>`;
 }
 
 export default function ReportsScreen() {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const [period, setPeriod] = useState("month");
   const [busy, setBusy] = useState<string | null>(null);
   const days = PERIOD_DAYS[period] ?? 30;
@@ -65,7 +68,7 @@ export default function ReportsScreen() {
     try {
       const r = await exportReport(type, days);
       if (r.rows.length === 0) {
-        Toast.show({ type: "info", text1: r.title, text2: "Aucune donnée sur la période." });
+        Toast.show({ type: "info", text1: r.title, text2: t("admin.bo.reports.noData") });
         return;
       }
       if (fmt === "CSV") {
@@ -74,7 +77,7 @@ export default function ReportsScreen() {
         await Print.printAsync({ html: reportHtml(r) });
       }
     } catch {
-      Toast.show({ type: "error", text1: "Export impossible", text2: "Réessayez plus tard." });
+      Toast.show({ type: "error", text1: t("admin.bo.reports.exportFailed"), text2: t("admin.bo.reports.exportFailedMsg") });
     } finally {
       setBusy(null);
     }
@@ -82,46 +85,46 @@ export default function ReportsScreen() {
 
   return (
     <AdminScrollBody gap={12}>
-      <AdminHeader backLabel="Plus" sub="Exports & analyses" title="Rapports" />
+      <AdminHeader backLabel={t("admin.bo.nav.more")} sub={t("admin.bo.reports.sub")} title={t("admin.bo.reports.title")} />
       <Segmented
         value={period}
         onChange={setPeriod}
         options={[
-          { key: "week", label: "Semaine" },
-          { key: "month", label: "Mois" },
-          { key: "quarter", label: "Trimestre" },
+          { key: "week", label: t("admin.bo.reports.week") },
+          { key: "month", label: t("admin.bo.reports.month") },
+          { key: "quarter", label: t("admin.bo.reports.quarter") },
         ]}
       />
 
       <View style={{ flexDirection: "row", gap: 10 }}>
         <MetricCard
-          label="Heures"
-          value={o ? Math.round(o.totalHours).toLocaleString("fr-FR") : "—"}
+          label={t("admin.bo.reports.hours")}
+          value={o ? Math.round(o.totalHours).toLocaleString(i18n.language?.startsWith("en") ? "en-US" : "fr-FR") : "—"}
           unit="h"
-          foot={<Pill tone="primary">{o ? `${o.avgHoursPerDay} h/j` : "—"}</Pill>}
+          foot={<Pill tone="primary">{o ? t("admin.bo.reports.hoursPerDay", { n: o.avgHoursPerDay }) : "—"}</Pill>}
         />
         <MetricCard
-          label="Assiduité"
+          label={t("admin.bo.reports.attendance")}
           value={o ? `${o.attendanceRate}` : "—"}
           unit="%"
-          foot={<Pill tone={o && o.attendanceRate >= 90 ? "success" : "warning"}>objectif 90%</Pill>}
+          foot={<Pill tone={o && o.attendanceRate >= 90 ? "success" : "warning"}>{t("admin.bo.reports.goal")}</Pill>}
         />
         <MetricCard
-          label="Retards"
+          label={t("admin.bo.reports.late")}
           value={o ? `${o.lateArrivals}` : "—"}
-          foot={<Pill tone="accent">{o ? `${o.punctualityRate}% ponct.` : "—"}</Pill>}
+          foot={<Pill tone="accent">{o ? t("admin.bo.reports.punct", { n: o.punctualityRate }) : "—"}</Pill>}
         />
       </View>
 
       <Card>
-        <SectionTitle>Présence par département</SectionTitle>
+        <SectionTitle>{t("admin.bo.reports.byDept")}</SectionTitle>
         {departments.isLoading ? (
           <View style={{ paddingVertical: 24, alignItems: "center" }}>
             <ActivityIndicator color={p.primary} />
           </View>
         ) : depts.length === 0 ? (
           <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted, marginTop: 12 }}>
-            Aucune donnée de présence.
+            {t("admin.bo.reports.noPresence")}
           </Text>
         ) : (
           <View style={{ gap: 12, marginTop: 14 }}>
@@ -153,10 +156,12 @@ export default function ReportsScreen() {
         )}
       </Card>
 
-      <SectionTitle>Rapports disponibles</SectionTitle>
+      <SectionTitle>{t("admin.bo.reports.available")}</SectionTitle>
       <View style={{ gap: 10 }}>
         {(reports.data ?? []).map((r) => {
-          const meta = REPORT_META[r.type] ?? { name: r.type, desc: "", icon: "doc" };
+          const icon = REPORT_ICON[r.type] ?? "doc";
+          const metaName = REPORT_ICON[r.type] ? t(`admin.bo.reports.${r.type}Name`) : r.type;
+          const metaDesc = REPORT_ICON[r.type] ? t(`admin.bo.reports.${r.type}Desc`) : "";
           return (
             <Card key={r.type} pad={15} style={{ gap: 12 }}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
@@ -170,15 +175,15 @@ export default function ReportsScreen() {
                     justifyContent: "center",
                   }}
                 >
-                  <AdminIcon name={meta.icon} size={20} color={p.primary} />
+                  <AdminIcon name={icon} size={20} color={p.primary} />
                 </View>
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text style={{ fontFamily: FONT.bold, fontSize: 14.5, color: p.ink }}>{meta.name}</Text>
+                  <Text style={{ fontFamily: FONT.bold, fontSize: 14.5, color: p.ink }}>{metaName}</Text>
                   <Text numberOfLines={1} style={{ fontFamily: FONT.body, fontSize: 12, color: p.muted }}>
-                    {meta.desc}
+                    {metaDesc}
                   </Text>
                 </View>
-                <Text style={{ fontFamily: FONT.bold, fontSize: 11, color: p.muted2 }}>{r.rows} lignes</Text>
+                <Text style={{ fontFamily: FONT.bold, fontSize: 11, color: p.muted2 }}>{t("admin.bo.reports.rows", { n: r.rows })}</Text>
               </View>
               <View style={{ flexDirection: "row", gap: 8 }}>
                 {(["CSV", "PDF"] as const).map((fmt) => {

@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Text, View } from "react-native";
 
 import { NotificationsSheet } from "~/components/NotificationsSheet";
@@ -25,6 +26,7 @@ import { useAuthStore } from "~/stores/auth.store";
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const p = useAdminTheme();
   const [notifOpen, setNotifOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
@@ -59,9 +61,9 @@ export default function DashboardScreen() {
     { value: absent, color: p.muted2 },
   ];
   const legend: [string, number, string][] = [
-    ["Au travail", Math.max(0, active - late), p.success],
-    ["En retard", late, p.warning],
-    ["Absent", absent, p.muted2],
+    [t("admin.bo.dashboard.legendAtWork"), Math.max(0, active - late), p.success],
+    [t("admin.bo.dashboard.legendLate"), late, p.warning],
+    [t("admin.bo.dashboard.legendAbsent"), absent, p.muted2],
   ];
 
   // Présence des 7 derniers jours → barres semaine + sparkline arrivées.
@@ -78,7 +80,7 @@ export default function DashboardScreen() {
     <AdminScrollBody>
       <AdminHeader
         sub={user?.department ? `SmartAttendance · ${user.department}` : "SmartAttendance"}
-        title={`Bonjour, ${user?.firstName ?? ""}`.trim()}
+        title={t("admin.bo.dashboard.greeting", { name: user?.firstName ?? "" }).replace(/,\s*$/, "")}
         right={
           <IconBtn
             icon="bell"
@@ -94,28 +96,28 @@ export default function DashboardScreen() {
       {/* KPI grid 2×2 */}
       <View style={{ gap: 10 }}>
         <View style={{ flexDirection: "row", gap: 10 }}>
-          <KPITile icon="users" label="Présents" value={`${active}/${total}`} tone="primary" />
+          <KPITile icon="users" label={t("admin.bo.dashboard.present")} value={`${active}/${total}`} tone="primary" />
           <KPITile
             icon="checkCircle"
-            label="Taux de présence"
+            label={t("admin.bo.dashboard.attendanceRate")}
             value={`${rate}%`}
             tone="success"
-            sub="Objectif 90%"
+            sub={t("admin.bo.dashboard.goal")}
           />
         </View>
         <View style={{ flexDirection: "row", gap: 10 }}>
-          <KPITile icon="clockSmall" label="Retards" value={late} tone="warning" />
-          <KPITile icon="award" label="Ponctualité" value={`${punctuality}%`} tone="accent" />
+          <KPITile icon="clockSmall" label={t("admin.bo.dashboard.late")} value={late} tone="warning" />
+          <KPITile icon="award" label={t("admin.bo.dashboard.punctuality")} value={`${punctuality}%`} tone="accent" />
         </View>
       </View>
 
       {/* Donut présence en direct */}
       <Card>
-        <SectionTitle action="Détail" onAction={() => router.push("/(admin)/presence")}>
-          Présence en direct
+        <SectionTitle action={t("admin.bo.dashboard.detail")} onAction={() => router.push("/(admin)/presence")}>
+          {t("admin.bo.dashboard.livePresence")}
         </SectionTitle>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 18, marginTop: 8 }}>
-          <Donut segments={donutSegments} centerTop={`${rate}%`} centerBottom="au travail" />
+          <Donut segments={donutSegments} centerTop={`${rate}%`} centerBottom={t("admin.bo.dashboard.atWork")} />
           <View style={{ flex: 1, gap: 9 }}>
             {legend.map(([l, v, c]) => (
               <View key={l} style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
@@ -140,11 +142,11 @@ export default function DashboardScreen() {
               textTransform: "uppercase",
             }}
           >
-            Arrivées
+            {t("admin.bo.dashboard.arrivals")}
           </Text>
           <Text style={{ fontFamily: FONT.display, fontSize: 22, color: p.ink, letterSpacing: -0.5 }}>
             {todayArrivals}
-            <Text style={{ fontSize: 12.5, color: p.muted }}> aujourd&apos;hui</Text>
+            <Text style={{ fontSize: 12.5, color: p.muted }}> {t("admin.bo.dashboard.today")}</Text>
           </Text>
           <View style={{ marginTop: 2 }}>
             {arrivals.length > 1 ? (
@@ -165,7 +167,7 @@ export default function DashboardScreen() {
                 textTransform: "uppercase",
               }}
             >
-              Semaine
+              {t("admin.bo.dashboard.week")}
             </Text>
           </View>
           {week.length ? (
@@ -192,31 +194,31 @@ export default function DashboardScreen() {
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontFamily: FONT.display, fontSize: 16, color: p.ink }}>
-            {pendingTotal} demande{pendingTotal > 1 ? "s" : ""} à valider
+            {t("admin.bo.dashboard.toValidate", { count: pendingTotal })}
           </Text>
           <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted }}>
-            {pendingLeaves} congés · {pendingAbsences} absences
+            {t("admin.bo.dashboard.breakdown", { leaves: pendingLeaves, absences: pendingAbsences })}
           </Text>
         </View>
         <AdminIcon name="chevron" size={20} color={p.muted2} />
       </Card>
 
       {/* Alertes du jour (dérivées des compteurs réels) */}
-      <SectionTitle>Alertes du jour</SectionTitle>
+      <SectionTitle>{t("admin.bo.dashboard.alerts")}</SectionTitle>
       <View style={{ gap: 9 }}>
         {late > 0 ? (
-          <AlertRow icon="clockSmall" tone={p.warning} bg="rgba(245,158,11,0.16)" title={`${late} retard${late > 1 ? "s" : ""} aujourd'hui`} body="Pointages après 09:00" />
+          <AlertRow icon="clockSmall" tone={p.warning} bg="rgba(245,158,11,0.16)" title={t("admin.bo.dashboard.alertLate", { count: late })} body={t("admin.bo.dashboard.alertLateBody")} />
         ) : null}
         {pendingTotal > 0 ? (
-          <AlertRow icon="doc" tone={p.primary} bg="rgba(47,91,255,0.12)" title={`${pendingTotal} demandes à valider`} body={`${pendingLeaves} congés · ${pendingAbsences} absences`} />
+          <AlertRow icon="doc" tone={p.primary} bg="rgba(47,91,255,0.12)" title={t("admin.bo.dashboard.alertPending", { count: pendingTotal })} body={t("admin.bo.dashboard.breakdown", { leaves: pendingLeaves, absences: pendingAbsences })} />
         ) : null}
         {absent > 0 ? (
-          <AlertRow icon="bell" tone={p.accent} bg="rgba(255,138,61,0.16)" title={`${absent} employé${absent > 1 ? "s" : ""} non présent${absent > 1 ? "s" : ""}`} body="Sur l'effectif total" />
+          <AlertRow icon="bell" tone={p.accent} bg="rgba(255,138,61,0.16)" title={t("admin.bo.dashboard.alertAbsent", { count: absent })} body={t("admin.bo.dashboard.alertAbsentBody")} />
         ) : null}
         {late === 0 && pendingTotal === 0 && absent === 0 ? (
           <Card soft pad={16}>
             <Text style={{ fontFamily: FONT.body, fontSize: 13, color: p.muted, textAlign: "center" }}>
-              Aucune alerte. Tout est à jour.
+              {t("admin.bo.dashboard.allClear")}
             </Text>
           </Card>
         ) : null}

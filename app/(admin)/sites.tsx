@@ -1,5 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -19,6 +20,7 @@ import { useAdminDevices, useAdminSites, useCreateSite } from "~/hooks/useAdminD
 
 export default function SitesScreen() {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const sites = useAdminSites();
   const devices = useAdminDevices();
   const [addOpen, setAddOpen] = useState(false);
@@ -30,9 +32,9 @@ export default function SitesScreen() {
     <>
     <AdminScrollBody gap={12}>
       <AdminHeader
-        backLabel="Plus"
-        sub="Lieux & pointeuses"
-        title="Sites"
+        backLabel={t("admin.bo.nav.more")}
+        sub={t("admin.bo.sites.sub")}
+        title={t("admin.bo.sites.title")}
         right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}
       />
 
@@ -42,7 +44,7 @@ export default function SitesScreen() {
         </View>
       ) : siteList.length === 0 ? (
         <Card soft style={{ alignItems: "center", paddingVertical: 24 }}>
-          <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted }}>Aucun site configuré.</Text>
+          <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted }}>{t("admin.bo.sites.none")}</Text>
         </Card>
       ) : (
         <View style={{ gap: 12 }}>
@@ -80,7 +82,7 @@ export default function SitesScreen() {
                       backgroundColor: p.surface,
                     }}
                   >
-                    <Text style={{ fontFamily: FONT.bold, fontSize: 11, color: p.muted }}>Rayon {s.geofence} m</Text>
+                    <Text style={{ fontFamily: FONT.bold, fontSize: 11, color: p.muted }}>{t("admin.bo.sites.radius", { m: s.geofence })}</Text>
                   </View>
                 ) : null}
               </LinearGradient>
@@ -102,8 +104,8 @@ export default function SitesScreen() {
                 </View>
 
                 <View style={{ flexDirection: "row", gap: 9 }}>
-                  <StatBox value={`${s.present}/${s.total}`} label="présents" />
-                  <StatBox value={`${s.devices}`} label={`pointeuse${s.devices > 1 ? "s" : ""}`} />
+                  <StatBox value={`${s.present}/${s.total}`} label={t("admin.bo.sites.present")} />
+                  <StatBox value={`${s.devices}`} label={t("admin.bo.sites.terminals", { count: s.devices })} />
                 </View>
               </View>
             </Card>
@@ -111,14 +113,14 @@ export default function SitesScreen() {
         </View>
       )}
 
-      <SectionTitle>Appareils</SectionTitle>
+      <SectionTitle>{t("admin.bo.sites.devices")}</SectionTitle>
       {devices.isLoading ? (
         <View style={{ paddingVertical: 20, alignItems: "center" }}>
           <ActivityIndicator color={p.primary} />
         </View>
       ) : deviceList.length === 0 ? (
         <Card soft style={{ alignItems: "center", paddingVertical: 20 }}>
-          <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted }}>Aucun appareil enregistré.</Text>
+          <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted }}>{t("admin.bo.sites.noDevices")}</Text>
         </Card>
       ) : (
         <Card pad={0} style={{ overflow: "hidden" }}>
@@ -162,7 +164,11 @@ export default function SitesScreen() {
                     style={{ width: 7, height: 7, borderRadius: 999, backgroundColor: online ? p.success : p.muted2 }}
                   />
                   <Text style={{ fontFamily: FONT.bold, fontSize: 11.5, color: online ? p.success : p.muted2 }}>
-                    {online ? "Actif" : d.status === "PENDING" ? "En attente" : "Révoqué"}
+                    {online
+                      ? t("admin.bo.sites.active")
+                      : d.status === "PENDING"
+                        ? t("admin.bo.sites.pending")
+                        : t("admin.bo.sites.revoked")}
                   </Text>
                 </View>
               </View>
@@ -181,6 +187,7 @@ export default function SitesScreen() {
 
 function AddSiteForm({ onDone }: { onDone: () => void }) {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const create = useCreateSite();
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -193,11 +200,11 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
     const latN = Number(lat.replace(",", "."));
     const lngN = Number(lng.replace(",", "."));
     if (!name.trim() || !address.trim()) {
-      Toast.show({ type: "error", text1: "Champs requis", text2: "Nom et adresse sont obligatoires." });
+      Toast.show({ type: "error", text1: t("admin.bo.common.requiredFields"), text2: t("admin.bo.sites.requiredMsg") });
       return;
     }
     if (!Number.isFinite(latN) || !Number.isFinite(lngN) || latN === 0 || lngN === 0) {
-      Toast.show({ type: "error", text1: "Coordonnées invalides", text2: "Renseignez une latitude et une longitude." });
+      Toast.show({ type: "error", text1: t("admin.bo.sites.coordsTitle"), text2: t("admin.bo.sites.coordsMsg") });
       return;
     }
     create.mutate(
@@ -212,13 +219,13 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
       {
         onSuccess: () => {
           onDone();
-          Toast.show({ type: "success", text1: "Site créé", text2: name.trim() });
+          Toast.show({ type: "success", text1: t("admin.bo.sites.createdTitle"), text2: name.trim() });
         },
         onError: (e: any) =>
           Toast.show({
             type: "error",
-            text1: "Création impossible",
-            text2: e?.response?.data?.message ?? "Veuillez réessayer.",
+            text1: t("admin.bo.common.createFailed"),
+            text2: e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
           }),
       },
     );
@@ -267,15 +274,15 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
 
   return (
     <View style={{ gap: 15 }}>
-      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>Nouveau site</Text>
-      {field("Nom", name, setName, "Siège — Casablanca")}
-      {field("Adresse", address, setAddress, "12 rue Hassan II")}
-      {field("Ville", city, setCity, "Casablanca")}
+      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>{t("admin.bo.sites.newSite")}</Text>
+      {field(t("admin.bo.sites.name"), name, setName, "Siège — Casablanca")}
+      {field(t("admin.bo.sites.address"), address, setAddress, "12 rue Hassan II")}
+      {field(t("admin.bo.sites.city"), city, setCity, "Casablanca")}
       <View style={{ flexDirection: "row", gap: 10 }}>
-        {field("Latitude", lat, setLat, "33.5731", true)}
-        {field("Longitude", lng, setLng, "-7.5898", true)}
+        {field(t("admin.bo.sites.latitude"), lat, setLat, "33.5731", true)}
+        {field(t("admin.bo.sites.longitude"), lng, setLng, "-7.5898", true)}
       </View>
-      {field("Rayon de géofencing (m)", radius, setRadius, "100", true)}
+      {field(t("admin.bo.sites.geofenceRadius"), radius, setRadius, "100", true)}
 
       <View
         style={{
@@ -290,7 +297,7 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
       >
         <AdminIcon name="location" size={16} color={p.primary} />
         <Text style={{ flex: 1, fontFamily: FONT.semibold, fontSize: 12.5, color: p.primary }}>
-          Les pointages hors du rayon seront refusés.
+          {t("admin.bo.sites.geofenceInfo")}
         </Text>
       </View>
 
@@ -307,7 +314,7 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
         {create.isPending ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Créer le site</Text>
+          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>{t("admin.bo.sites.create")}</Text>
         )}
       </Pressable>
     </View>

@@ -18,22 +18,23 @@ import { useAdminRoles, useAdminSettings, useUpdateSetting } from "~/hooks/useAd
 import { setLanguage } from "~/i18n";
 
 // Champs texte/numériques de la config de pointage éditables via la feuille.
+// `titleKey`/`placeholder` traduits/affichés au rendu.
 type EditKey = "faceThreshold" | "workHours";
-const EDITABLE: Record<EditKey, { title: string; placeholder: string; numeric?: boolean }> = {
-  faceThreshold: { title: "Seuil de reconnaissance (%)", placeholder: "85", numeric: true },
-  workHours: { title: "Horaires de travail", placeholder: "09:00 - 18:00" },
+const EDITABLE: Record<EditKey, { titleKey: string; placeholder: string; numeric?: boolean }> = {
+  faceThreshold: { titleKey: "editFaceTitle", placeholder: "85", numeric: true },
+  workHours: { titleKey: "editWorkTitle", placeholder: "09:00 - 18:00" },
 };
 
-// Métadonnées présentationnelles du rôle ; l'effectif vient du backend.
-const ROLE_META: Record<RoleSummary["role"], { name: string; desc: string; perms: string[]; tone: Tone; icon: string }> = {
-  ADMIN: { name: "Administrateur", desc: "Accès complet · configuration & sécurité", perms: ["Tout gérer", "Sites & appareils", "Rôles"], tone: "primary", icon: "key" },
-  HR: { name: "Ressources humaines", desc: "Employés, congés, rapports & paie", perms: ["Employés", "Valider congés", "Rapports"], tone: "accent", icon: "briefcase" },
-  EMPLOYEE: { name: "Employé", desc: "Pointage, historique & demandes", perms: ["Pointer", "Ses demandes"], tone: "neutral", icon: "user" },
+// Métadonnées présentationnelles du rôle ; nom/desc/perms traduits, l'effectif vient du backend.
+const ROLE_META: Record<RoleSummary["role"], { descKey: string; permKeys: string[]; tone: Tone; icon: string }> = {
+  ADMIN: { descKey: "adminDesc", permKeys: ["permManageAll", "permSitesDevices", "permRoles"], tone: "primary", icon: "key" },
+  HR: { descKey: "hrDesc", permKeys: ["permEmployees", "permApproveLeave", "permReports"], tone: "accent", icon: "briefcase" },
+  EMPLOYEE: { descKey: "employeeDesc", permKeys: ["permCheckin", "permOwnRequests"], tone: "neutral", icon: "user" },
 };
 
 export default function RolesScreen() {
   const p = useAdminTheme();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const roles = useAdminRoles();
   const settings = useAdminSettings();
   const updateSetting = useUpdateSetting();
@@ -48,7 +49,7 @@ export default function RolesScreen() {
   const toggle = (key: keyof AdminSettings, value: boolean) =>
     updateSetting.mutate(
       { key, value },
-      { onError: () => Toast.show({ type: "error", text1: "Échec", text2: "Paramètre non enregistré." }) },
+      { onError: () => Toast.show({ type: "error", text1: t("admin.bo.common.failed"), text2: t("admin.bo.roles.settingNotSaved") }) },
     );
 
   const openEdit = (key: EditKey) => {
@@ -62,12 +63,12 @@ export default function RolesScreen() {
     if (editKey === "faceThreshold") {
       const n = Number(value);
       if (!Number.isFinite(n) || n < 1 || n > 100) {
-        Toast.show({ type: "error", text1: "Valeur invalide", text2: "Entrez un seuil entre 1 et 100." });
+        Toast.show({ type: "error", text1: t("admin.bo.roles.invalidValue"), text2: t("admin.bo.roles.thresholdRange") });
         return;
       }
       value = String(Math.round(n));
     } else if (!value) {
-      Toast.show({ type: "error", text1: "Champ requis" });
+      Toast.show({ type: "error", text1: t("admin.bo.roles.requiredField") });
       return;
     }
     updateSetting.mutate(
@@ -75,9 +76,9 @@ export default function RolesScreen() {
       {
         onSuccess: () => {
           setEditKey(null);
-          Toast.show({ type: "success", text1: "Paramètre enregistré" });
+          Toast.show({ type: "success", text1: t("admin.bo.roles.settingSaved") });
         },
-        onError: () => Toast.show({ type: "error", text1: "Échec", text2: "Paramètre non enregistré." }),
+        onError: () => Toast.show({ type: "error", text1: t("admin.bo.common.failed"), text2: t("admin.bo.roles.settingNotSaved") }),
       },
     );
   };
@@ -85,7 +86,7 @@ export default function RolesScreen() {
   return (
     <>
     <AdminScrollBody gap={12}>
-      <AdminHeader backLabel="Plus" sub="Accès & configuration" title="Rôles" />
+      <AdminHeader backLabel={t("admin.bo.nav.more")} sub={t("admin.bo.roles.sub")} title={t("admin.bo.roles.title")} />
 
       {roles.isLoading ? (
         <View style={{ paddingTop: 40, alignItems: "center" }}>
@@ -112,22 +113,22 @@ export default function RolesScreen() {
                     <AdminIcon name={meta.icon} size={20} color={toneColor(p, meta.tone)} />
                   </View>
                   <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: p.ink }}>{meta.name}</Text>
+                    <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: p.ink }}>{t(`admin.bo.roleLabels.${r.role}`)}</Text>
                     <Text numberOfLines={1} style={{ fontFamily: FONT.body, fontSize: 12, color: p.muted }}>
-                      {meta.desc}
+                      {t(`admin.bo.roles.${meta.descKey}`)}
                     </Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
                     <Text style={{ fontFamily: FONT.display, fontSize: 18, color: p.ink }}>{r.members}</Text>
                     <Text style={{ fontFamily: FONT.semibold, fontSize: 10.5, color: p.muted2 }}>
-                      membre{r.members > 1 ? "s" : ""}
+                      {t("admin.bo.roles.members", { count: r.members })}
                     </Text>
                   </View>
                 </View>
                 <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                  {meta.perms.map((perm) => (
+                  {meta.permKeys.map((permKey) => (
                     <View
-                      key={perm}
+                      key={permKey}
                       style={{
                         backgroundColor: p.surface2,
                         borderWidth: 1,
@@ -137,7 +138,7 @@ export default function RolesScreen() {
                         paddingVertical: 5,
                       }}
                     >
-                      <Text style={{ fontFamily: FONT.semibold, fontSize: 11.5, color: p.muted }}>{perm}</Text>
+                      <Text style={{ fontFamily: FONT.semibold, fontSize: 11.5, color: p.muted }}>{t(`admin.bo.roles.${permKey}`)}</Text>
                     </View>
                   ))}
                 </View>
@@ -147,37 +148,37 @@ export default function RolesScreen() {
         </View>
       )}
 
-      <SectionTitle>Paramètres de pointage</SectionTitle>
+      <SectionTitle>{t("admin.bo.roles.checkinSettings")}</SectionTitle>
       <Card pad={0} style={{ overflow: "hidden" }}>
         <CfgRow
           icon="face"
-          label="Reconnaissance faciale"
-          detail={s ? `Seuil ${s.faceThreshold}%` : "—"}
+          label={t("admin.bo.roles.faceRecognition")}
+          detail={s ? t("admin.bo.roles.threshold", { n: s.faceThreshold }) : "—"}
           onPress={s ? () => openEdit("faceThreshold") : undefined}
         />
         <CfgRow
           icon="location"
-          label="Géofencing"
+          label={t("admin.bo.roles.geofencing")}
           value={s?.geofencing ?? false}
           onToggle={(v) => toggle("geofencing", v)}
           disabled={!s}
         />
         <CfgRow
           icon="clockSmall"
-          label="Horaires de travail"
+          label={t("admin.bo.roles.workHours")}
           detail={s?.workHours ?? "—"}
           onPress={s ? () => openEdit("workHours") : undefined}
         />
         <CfgRow
           icon="shield"
-          label="Double pointage strict"
+          label={t("admin.bo.roles.strictDouble")}
           value={s?.strictDoubleCheckin ?? false}
           onToggle={(v) => toggle("strictDoubleCheckin", v)}
           disabled={!s}
         />
         <CfgRow
           icon="bell"
-          label="Alertes retards"
+          label={t("admin.bo.roles.lateAlerts")}
           value={s?.lateAlerts ?? false}
           onToggle={(v) => toggle("lateAlerts", v)}
           disabled={!s}
@@ -185,11 +186,11 @@ export default function RolesScreen() {
         />
       </Card>
 
-      <SectionTitle>Préférences</SectionTitle>
+      <SectionTitle>{t("admin.bo.roles.preferences")}</SectionTitle>
       <Card pad={0} style={{ overflow: "hidden" }}>
         <CfgRow
           icon="globe"
-          label="Langue"
+          label={t("admin.bo.roles.language")}
           detail={isEnglish ? "English" : "Français"}
           onPress={() => void setLanguage(isEnglish ? "fr" : "en")}
           last
@@ -201,7 +202,7 @@ export default function RolesScreen() {
         {editKey ? (
           <View style={{ gap: 15 }}>
             <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>
-              {EDITABLE[editKey].title}
+              {t(`admin.bo.roles.${EDITABLE[editKey].titleKey}`)}
             </Text>
             <TextInput
               value={draft}
@@ -232,7 +233,7 @@ export default function RolesScreen() {
                 opacity: updateSetting.isPending ? 0.7 : 1,
               }}
             >
-              <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Enregistrer</Text>
+              <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>{t("common.save")}</Text>
             </Pressable>
           </View>
         ) : null}

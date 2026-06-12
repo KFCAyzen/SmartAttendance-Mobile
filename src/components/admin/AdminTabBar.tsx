@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -23,8 +24,18 @@ const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   plus: 'ellipsis-horizontal',
 };
 
+/** Libellés de la barre traduits (clés admin.bo.nav.*), indépendants des titres du layout. */
+const NAV_KEY: Record<string, string> = {
+  index: 'admin.bo.nav.dashboard',
+  presence: 'admin.bo.nav.presence',
+  pointage: 'admin.bo.nav.checkin',
+  valider: 'admin.bo.nav.validate',
+  plus: 'admin.bo.nav.more',
+};
+
 export function AdminTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const p = useAdminTheme();
   const counts = useAdminPendingCounts();
   const pendingTotal = counts.data?.total ?? 0;
@@ -57,7 +68,11 @@ export function AdminTabBar({ state, descriptors, navigation }: BottomTabBarProp
       {routes.map((route) => {
         const { options } = descriptors[route.key];
         const focused = state.routes[state.index].key === route.key;
-        const label = typeof options.title === 'string' ? options.title : route.name;
+        const label = NAV_KEY[route.name]
+          ? t(NAV_KEY[route.name])
+          : typeof options.title === 'string'
+            ? options.title
+            : route.name;
 
         const onPress = () => {
           if (process.env.EXPO_OS === 'ios') {

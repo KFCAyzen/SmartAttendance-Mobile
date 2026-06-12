@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -22,15 +23,9 @@ import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useCreateEmployee, useEmployeeDepartments, useEmployees } from "~/hooks/useAdminData";
 import { useAuthStore } from "~/stores/auth.store";
 
-const ROLE_LABEL: Record<string, string> = {
-  ADMIN: "Administrateur",
-  HR: "Ressources humaines",
-  MANAGER: "Manager",
-  EMPLOYEE: "Employé",
-};
-
 export default function TeamScreen() {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [dept, setDept] = useState("all");
   const [selected, setSelected] = useState<AdminEmployee | null>(null);
@@ -52,18 +47,18 @@ export default function TeamScreen() {
     return ["all", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
   }, [departmentsQuery.data, dept, items]);
 
-  const chips = depts.map((d) => ({ key: d, label: d === "all" ? "Tous" : d }));
+  const chips = depts.map((d) => ({ key: d, label: d === "all" ? t("admin.bo.equipe.all") : d }));
 
   return (
     <>
       <AdminScrollBody gap={12}>
         <AdminHeader
-          backLabel="Plus"
-          sub={`${query.data?.pages?.[0]?.meta?.total ?? items.length} employés`}
-          title="Équipe"
+          backLabel={t("admin.bo.nav.more")}
+          sub={t("admin.bo.equipe.count", { count: query.data?.pages?.[0]?.meta?.total ?? items.length })}
+          title={t("admin.bo.equipe.title")}
           right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}
         />
-        <SearchBar placeholder="Nom ou poste…" value={search} onChange={setSearch} />
+        <SearchBar placeholder={t("admin.bo.equipe.search")} value={search} onChange={setSearch} />
         <FilterChips options={chips} value={dept} onChange={setDept} />
 
         {query.isLoading ? (
@@ -73,7 +68,7 @@ export default function TeamScreen() {
         ) : items.length === 0 ? (
           <Card soft pad={20}>
             <Text style={{ fontFamily: FONT.body, fontSize: 13, color: p.muted, textAlign: "center" }}>
-              Aucun employé trouvé.
+              {t("admin.bo.equipe.noResults")}
             </Text>
           </Card>
         ) : (
@@ -85,7 +80,7 @@ export default function TeamScreen() {
                   first: e.firstName,
                   last: e.lastName,
                   initials: initialsOf(e.firstName, e.lastName),
-                  role: e.position ?? ROLE_LABEL[e.role] ?? e.role,
+                  role: e.position ?? t(`admin.bo.roleLabels.${e.role}`),
                   dept: e.department ?? "—",
                 }}
                 onPress={() => setSelected(e)}
@@ -93,15 +88,15 @@ export default function TeamScreen() {
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
                     {e.isPending ? (
                       <Pill tone="warning" dot>
-                        En attente
+                        {t("admin.bo.equipe.pending")}
                       </Pill>
                     ) : e.isActive ? (
                       <Pill tone="success" dot>
-                        Actif
+                        {t("admin.bo.equipe.active")}
                       </Pill>
                     ) : (
                       <Pill tone="neutral" dot>
-                        Inactif
+                        {t("admin.bo.equipe.inactive")}
                       </Pill>
                     )}
                     <AdminIcon name="chevron" size={17} color={p.muted2} />
@@ -115,7 +110,7 @@ export default function TeamScreen() {
                   <ActivityIndicator color={p.primary} />
                 ) : (
                   <Text style={{ fontFamily: FONT.bold, fontSize: 13.5, color: p.primary }}>
-                    Charger plus
+                    {t("admin.bo.equipe.loadMore")}
                   </Text>
                 )}
               </Card>
@@ -140,6 +135,7 @@ export default function TeamScreen() {
 
 function EmpDetail({ emp }: { emp: AdminEmployee }) {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const name = `${emp.firstName} ${emp.lastName}`;
   const contacts: { icon: string; value: string }[] = [
     { icon: "mail", value: emp.email },
@@ -154,14 +150,14 @@ function EmpDetail({ emp }: { emp: AdminEmployee }) {
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={{ fontFamily: FONT.display, fontSize: 20, color: p.ink }}>{name}</Text>
           <Text style={{ fontFamily: FONT.body, fontSize: 13, color: p.muted }}>
-            {emp.position ?? ROLE_LABEL[emp.role] ?? emp.role}
+            {emp.position ?? t(`admin.bo.roleLabels.${emp.role}`)}
           </Text>
           <View style={{ flexDirection: "row", gap: 6, marginTop: 7 }}>
             {emp.department ? <Pill tone="neutral">{emp.department}</Pill> : null}
             {emp.isPending ? (
-              <Pill tone="warning">En attente</Pill>
+              <Pill tone="warning">{t("admin.bo.equipe.pending")}</Pill>
             ) : (
-              <Pill tone="success">Actif</Pill>
+              <Pill tone="success">{t("admin.bo.equipe.active")}</Pill>
             )}
           </View>
         </View>
@@ -169,9 +165,9 @@ function EmpDetail({ emp }: { emp: AdminEmployee }) {
 
       <View style={{ flexDirection: "row", gap: 9 }}>
         {[
-          ["Rôle", ROLE_LABEL[emp.role] ?? emp.role],
-          ["Équipe", emp.team?.name ?? "—"],
-          ["Pointages", String(emp._count?.attendances ?? 0)],
+          [t("admin.bo.equipe.role"), t(`admin.bo.roleLabels.${emp.role}`)],
+          [t("admin.bo.equipe.team"), emp.team?.name ?? "—"],
+          [t("admin.bo.equipe.checkins"), String(emp._count?.attendances ?? 0)],
         ].map(([l, v]) => (
           <View
             key={l}
@@ -238,17 +234,18 @@ function AddEmployeeForm({
   onDone: () => void;
 }) {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const create = useCreateEmployee();
   const myRole = useAuthStore((s) => s.user?.role);
   // Côté serveur, seul un ADMIN peut créer des comptes HR/ADMIN ; on masque ces options aux HR.
   const roleOptions = (
     myRole === "ADMIN"
       ? ([
-          ["EMPLOYEE", "Employé"],
-          ["HR", "RH"],
-          ["ADMIN", "Admin"],
+          ["EMPLOYEE", t("admin.bo.equipe.roleEmployee")],
+          ["HR", t("admin.bo.equipe.roleHR")],
+          ["ADMIN", t("admin.bo.equipe.roleAdmin")],
         ] as const)
-      : ([["EMPLOYEE", "Employé"]] as const)
+      : ([["EMPLOYEE", t("admin.bo.equipe.roleEmployee")]] as const)
   );
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
@@ -259,7 +256,7 @@ function AddEmployeeForm({
 
   const submit = () => {
     if (!first.trim() || !last.trim() || !email.trim()) {
-      Toast.show({ type: "error", text1: "Champs requis", text2: "Prénom, nom et e-mail sont obligatoires." });
+      Toast.show({ type: "error", text1: t("admin.bo.common.requiredFields"), text2: t("admin.bo.equipe.requiredMsg") });
       return;
     }
     create.mutate(
@@ -276,16 +273,16 @@ function AddEmployeeForm({
           onDone();
           Toast.show({
             type: "success",
-            text1: "Employé créé",
-            text2: `Mot de passe temporaire : ${u.tempPassword}`,
+            text1: t("admin.bo.equipe.createdTitle"),
+            text2: t("admin.bo.equipe.tempPassword", { pwd: u.tempPassword }),
             visibilityTime: 8000,
           });
         },
         onError: (e: any) => {
           Toast.show({
             type: "error",
-            text1: "Création impossible",
-            text2: e?.response?.data?.message ?? "Veuillez réessayer.",
+            text1: t("admin.bo.common.createFailed"),
+            text2: e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
           });
         },
       },
@@ -333,13 +330,13 @@ function AddEmployeeForm({
 
   return (
     <View style={{ gap: 15 }}>
-      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>Nouvel employé</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>{t("admin.bo.equipe.newEmployee")}</Text>
       <View style={{ flexDirection: "row", gap: 10 }}>
-        {field("Prénom", first, setFirst, "Salim")}
-        {field("Nom", last, setLast, "Mansouri")}
+        {field(t("admin.bo.equipe.firstName"), first, setFirst, "Salim")}
+        {field(t("admin.bo.equipe.lastName"), last, setLast, "Mansouri")}
       </View>
-      {field("E-mail", email, setEmail, "salim@exemple.com")}
-      {field("Poste", position, setPosition, "Ingénieur logiciel")}
+      {field(t("admin.bo.equipe.email"), email, setEmail, "salim@exemple.com")}
+      {field(t("admin.bo.equipe.position"), position, setPosition, t("admin.bo.equipe.positionPlaceholder"))}
 
       {departments.length ? (
         <View>
@@ -352,7 +349,7 @@ function AddEmployeeForm({
               textTransform: "uppercase",
             }}
           >
-            Département
+            {t("admin.bo.equipe.department")}
           </Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 9 }}>
             {departments.map((d) => {
@@ -390,7 +387,7 @@ function AddEmployeeForm({
             textTransform: "uppercase",
           }}
         >
-          Rôle d&apos;accès
+          {t("admin.bo.equipe.accessRole")}
         </Text>
         <View style={{ flexDirection: "row", gap: 8, marginTop: 9 }}>
           {roleOptions.map(([k, lbl]) => {
@@ -431,7 +428,7 @@ function AddEmployeeForm({
       >
         <AdminIcon name="sparkle" size={16} color={p.primary} />
         <Text style={{ flex: 1, fontFamily: FONT.semibold, fontSize: 12.5, color: p.primary }}>
-          Une invitation au pointage facial sera envoyée par e-mail.
+          {t("admin.bo.equipe.inviteInfo")}
         </Text>
       </View>
 
@@ -448,7 +445,7 @@ function AddEmployeeForm({
         {create.isPending ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>Ajouter &amp; inviter</Text>
+          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>{t("admin.bo.equipe.addInvite")}</Text>
         )}
       </Pressable>
     </View>

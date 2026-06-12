@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Text, View } from "react-native";
 
 import type { LivePresenceEntry, LivePresenceState } from "~/api/admin";
@@ -17,16 +18,17 @@ import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useLivePresence } from "~/hooks/useAdminData";
 
 // Statut du jour réel renvoyé par /admin/presence → métadonnées d'affichage.
+// `labelKey` pointe vers admin.bo.status.* (traduit au rendu).
 const STATE_META: Record<
   LivePresenceState,
-  { label: string; tone: Tone; status: PresenceStatus }
+  { labelKey: string; tone: Tone; status: PresenceStatus }
 > = {
-  present: { label: "Présent", tone: "success", status: "present" },
-  late: { label: "En retard", tone: "warning", status: "late" },
-  out: { label: "Parti", tone: "primary", status: "present" },
-  leave: { label: "En congé", tone: "accent", status: "leave" },
-  absent: { label: "Absent", tone: "danger", status: "absent" },
-  pending: { label: "Non pointé", tone: "neutral", status: "absent" },
+  present: { labelKey: "present", tone: "success", status: "present" },
+  late: { labelKey: "late", tone: "warning", status: "late" },
+  out: { labelKey: "out", tone: "primary", status: "present" },
+  leave: { labelKey: "leave", tone: "accent", status: "leave" },
+  absent: { labelKey: "absent", tone: "danger", status: "absent" },
+  pending: { labelKey: "pending", tone: "neutral", status: "absent" },
 };
 
 type Filter = "all" | "present" | "late" | "leave" | "absent";
@@ -48,6 +50,7 @@ function inFilter(st: LivePresenceState, f: Filter): boolean {
 
 export default function PresenceScreen() {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const query = useLivePresence();
@@ -77,25 +80,25 @@ export default function PresenceScreen() {
   }, [items, filter, search]);
 
   const strip: [string, number, string][] = [
-    ["Présents", counts.present, p.success],
-    ["Retards", counts.late, p.warning],
-    ["Congé", counts.leave, p.accent],
-    ["Absents", counts.absent, p.muted2],
+    [t("admin.bo.presence.present"), counts.present, p.success],
+    [t("admin.bo.presence.late"), counts.late, p.warning],
+    [t("admin.bo.presence.leave"), counts.leave, p.accent],
+    [t("admin.bo.presence.absent"), counts.absent, p.muted2],
   ];
 
   const chips = [
-    { key: "all", label: "Tous", count: counts.all },
-    { key: "present", label: "Présents", count: counts.present, dot: p.success },
-    { key: "late", label: "Retards", count: counts.late, dot: p.warning },
-    { key: "leave", label: "Congé", count: counts.leave, dot: p.accent },
-    { key: "absent", label: "Absents", count: counts.absent, dot: p.muted2 },
+    { key: "all", label: t("admin.bo.presence.all"), count: counts.all },
+    { key: "present", label: t("admin.bo.presence.present"), count: counts.present, dot: p.success },
+    { key: "late", label: t("admin.bo.presence.late"), count: counts.late, dot: p.warning },
+    { key: "leave", label: t("admin.bo.presence.leave"), count: counts.leave, dot: p.accent },
+    { key: "absent", label: t("admin.bo.presence.absent"), count: counts.absent, dot: p.muted2 },
   ];
 
   return (
     <AdminScrollBody gap={12}>
       <AdminHeader
-        sub="En direct"
-        title="Présence"
+        sub={t("admin.bo.presence.sub")}
+        title={t("admin.bo.presence.title")}
         right={
           <View
             style={{
@@ -124,7 +127,7 @@ export default function PresenceScreen() {
         ))}
       </View>
 
-      <SearchBar placeholder="Rechercher un employé…" value={search} onChange={setSearch} />
+      <SearchBar placeholder={t("admin.bo.presence.search")} value={search} onChange={setSearch} />
       <FilterChips options={chips} value={filter} onChange={(k) => setFilter(k as Filter)} />
 
       {query.isLoading ? (
@@ -146,7 +149,7 @@ export default function PresenceScreen() {
                 color: p.muted2,
               }}
             >
-              Aucun employé dans ce filtre.
+              {t("admin.bo.presence.emptyFilter")}
             </Text>
           ) : null}
         </View>
@@ -157,6 +160,7 @@ export default function PresenceScreen() {
 
 function PresenceRow({ e }: { e: LivePresenceEntry }) {
   const p = useAdminTheme();
+  const { t } = useTranslation();
   const meta = STATE_META[e.state];
   const since = e.since ? shortTime(new Date(e.since)) : null;
   return (
@@ -171,7 +175,7 @@ function PresenceRow({ e }: { e: LivePresenceEntry }) {
       }}
       right={
         <View style={{ alignItems: "flex-end", gap: 3 }}>
-          <Pill tone={meta.tone}>{meta.label}</Pill>
+          <Pill tone={meta.tone}>{t(`admin.bo.status.${meta.labelKey}`)}</Pill>
           {since ? (
             <Text style={{ fontFamily: FONT.semibold, fontSize: 10.5, color: p.muted2 }}>{since}</Text>
           ) : null}
