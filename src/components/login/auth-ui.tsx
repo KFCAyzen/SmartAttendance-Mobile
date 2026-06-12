@@ -83,17 +83,18 @@ export function BackButton({ onPress }: { onPress: () => void }) {
       accessibilityRole="button"
       onPress={onPress}
       hitSlop={8}
-      style={({ pressed }) => ({
+      android_ripple={{ color: 'rgba(255,255,255,0.16)', borderless: false }}
+      style={{
         width: 44,
         height: 44,
         borderRadius: 14,
+        overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: C.glass,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
-        opacity: pressed ? 0.7 : 1,
-      })}
+      }}
     >
       <Ionicons name="chevron-back" size={22} color={C.white} />
     </Pressable>
@@ -262,21 +263,23 @@ export function PrimaryButton({
       accessibilityRole="button"
       onPress={onPress}
       disabled={loading || disabled}
-      style={({ pressed }) => ({
+      android_ripple={{ color: 'rgba(255,255,255,0.22)', borderless: false }}
+      style={{
         height: 56,
         borderRadius: 20,
+        overflow: 'hidden',
         backgroundColor: C.primary,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 10,
-        opacity: disabled ? 0.5 : pressed ? 0.9 : 1,
+        opacity: disabled ? 0.5 : 1,
         shadowColor: C.primary,
         shadowOpacity: 0.45,
         shadowRadius: 15,
         shadowOffset: { width: 0, height: 14 },
         elevation: 8,
-      })}
+      }}
     >
       {loading ? (
         <ActivityIndicator color={C.white} />
@@ -296,16 +299,17 @@ export function GhostButton({ label, onPress }: { label: string; onPress: () => 
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => ({
+      android_ripple={{ color: 'rgba(255,255,255,0.16)', borderless: false }}
+      style={{
         height: 52,
         borderRadius: 18,
+        overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: C.glass,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
-        opacity: pressed ? 0.7 : 1,
-      })}
+      }}
     >
       <Text style={{ fontFamily: FONT.bold, fontSize: 14.5, color: C.w70 }}>{label}</Text>
     </Pressable>
