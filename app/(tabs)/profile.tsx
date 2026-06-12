@@ -5,7 +5,7 @@ import { useRouter, useSegments } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActionSheetIOS, Alert, Platform, Pressable, Switch, Text, View } from 'react-native';
+import { Alert, Pressable, Switch, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 import { humanizeApiError } from '~/api/client';
@@ -26,7 +26,7 @@ export default function ProfileScreen() {
   const isAdmin = useIsAdmin();
   const { user, logout } = useAuth();
   const { colorScheme, toggleColorScheme } = useColorScheme();
-  const { photo, isLoading, upload, pickAndUpload, pickFromLibraryAndUpload } = useReferencePhoto();
+  const { photo, isLoading, upload, pickAndUpload } = useReferencePhoto();
   const { count: unreadCount } = useUnreadCount();
 
   const isEnglish = i18n.language?.startsWith('en');
@@ -58,26 +58,9 @@ export default function ProfileScreen() {
     }
   };
 
-  const showPicker = () => {
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: [t('common.cancel'), t('justifyAbsence.cameraSource'), t('profile.gallery')],
-          cancelButtonIndex: 0,
-        },
-        (i) => {
-          if (i === 1) void run(() => pickAndUpload(mode));
-          if (i === 2) void run(() => pickFromLibraryAndUpload(mode));
-        },
-      );
-    } else {
-      Alert.alert(t('profile.referencePhoto'), t('profile.chooseSource'), [
-        { text: t('profile.camera'), onPress: () => void run(() => pickAndUpload(mode)) },
-        { text: t('profile.gallery'), onPress: () => void run(() => pickFromLibraryAndUpload(mode)) },
-        { text: t('common.cancel'), style: 'cancel' },
-      ]);
-    }
-  };
+  // La photo de référence doit être prise en direct (anti-usurpation) : on ouvre
+  // la caméra frontale, jamais la galerie/fichiers.
+  const capturePhoto = () => void run(() => pickAndUpload(mode));
 
   const confirmLogout = () => {
     Alert.alert(t('common.logout'), t('profile.logoutMessage'), [
@@ -159,7 +142,7 @@ export default function ProfileScreen() {
             </Text>
             <Pressable
               accessibilityRole="button"
-              onPress={showPicker}
+              onPress={capturePhoto}
               disabled={upload.isPending || isLoading}
               className={`flex-row items-center gap-1.5 self-start rounded-full bg-primary/10 px-4 py-2 active:opacity-80 ${
                 upload.isPending ? 'opacity-60' : ''
