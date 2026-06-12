@@ -22,6 +22,7 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import "react-native-reanimated";
 import Toast from "react-native-toast-message";
@@ -39,6 +40,7 @@ void SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { i18n } = useTranslation();
   const router = useRouter();
   const segments = useSegments();
   const status = useAuthStore((s) => s.status);
@@ -121,7 +123,10 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Providers>
-        <Stack>
+        {/* La key sur la langue remonte tout l'arbre de navigation au changement
+            de langue : les écrans à onglets gelés/détachés (qui ratent l'event
+            languageChanged) sont reconstruits dans la nouvelle langue. */}
+        <Stack key={i18n.language}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(admin)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
