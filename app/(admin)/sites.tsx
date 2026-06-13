@@ -1,3 +1,5 @@
+import NetInfo from "@react-native-community/netinfo";
+import * as Location from "expo-location";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,6 +19,7 @@ import { Sheet } from "~/components/admin/Sheet";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useAdminDevices, useAdminSites, useCreateSite } from "~/hooks/useAdminData";
+import { useLocation } from "~/hooks/useLocation";
 
 export default function SitesScreen() {
   const p = useAdminTheme();
@@ -189,12 +192,53 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
   const p = useAdminTheme();
   const { t } = useTranslation();
   const create = useCreateSite();
+  const { fetchCoords } = useLocation();
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
   const [radius, setRadius] = useState("100");
+  const [wifiSsid, setWifiSsid] = useState("");
+  const [wifiBssid, setWifiBssid] = useState("");
+  const [locating, setLocating] = useState(false);
+  const [scanning, setScanning] = useState(false);
+
+  const detectLocation = async () => {
+    setLocating(true);
+    try {
+      const c = await fetchCoords();
+      if (!c) {
+        Toast.show({ type: "error", text1: t("admin.bo.sites.locTitle"), text2: t("admin.bo.sites.locFailed") });
+        return;
+      }
+      setLat(String(c.latitude));
+      setLng(String(c.longitude));
+    } finally {
+      setLocating(false);
+    }
+  };
+
+  const detectWifi = async () => {
+    setScanning(true);
+    try {
+      // Android exige la permission localisation pour lire le SSID du réseau courant.
+      await Location.requestForegroundPermissionsAsync();
+      const state = await NetInfo.fetch();
+      const d = (state.type === "wifi" ? state.details : null) as
+        | { ssid?: string | null; bssid?: string | null }
+        | null;
+      const ssid = d?.ssid?.replace(/^"|"$/g, "") ?? "";
+      if (!ssid || ssid === "<unknown ssid>") {
+        Toast.show({ type: "error", text1: t("admin.bo.sites.wifiTitle"), text2: t("admin.bo.sites.wifiFailed") });
+        return;
+      }
+      setWifiSsid(ssid);
+      setWifiBssid(d?.bssid ?? "");
+    } finally {
+      setScanning(false);
+    }
+  };
 
   const submit = () => {
     const latN = Number(lat.replace(",", "."));
@@ -215,6 +259,8 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
         latitude: latN,
         longitude: lngN,
         radius: Number(radius) || 100,
+        wifiSSID: wifiSsid.trim() || undefined,
+        wifiBSSID: wifiBssid.trim() || undefined,
       },
       {
         onSuccess: () => {
@@ -272,6 +318,32 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
     </View>
   );
 
+  const detectBtn = (label: string, icon: string, onPress: () => void, busy: boolean) => (
+    <Pressable
+      onPress={busy ? undefined : onPress}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 7,
+        paddingVertical: 11,
+        paddingHorizontal: 12,
+        borderRadius: RADIUS.base,
+        borderWidth: 1,
+        borderColor: withAlpha(p.primary, 0.4),
+        backgroundColor: withAlpha(p.primary, 0.08),
+        opacity: busy ? 0.6 : 1,
+      }}
+    >
+      {busy ? (
+        <ActivityIndicator size="small" color={p.primary} />
+      ) : (
+        <AdminIcon name={icon as any} size={15} color={p.primary} />
+      )}
+      <Text style={{ fontFamily: FONT.bold, fontSize: 12.5, color: p.primary }}>{label}</Text>
+    </Pressable>
+  );
+
   return (
     <View style={{ gap: 15 }}>
       <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>{t("admin.bo.sites.newSite")}</Text>
@@ -282,7 +354,13 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
         {field(t("admin.bo.sites.latitude"), lat, setLat, "33.5731", true)}
         {field(t("admin.bo.sites.longitude"), lng, setLng, "-7.5898", true)}
       </View>
+      {detectBtn(t("admin.bo.sites.detectLocation"), "location", detectLocation, locating)}
       {field(t("admin.bo.sites.geofenceRadius"), radius, setRadius, "100", true)}
+
+      <View style={{ gap: 8 }}>
+        {field(t("admin.bo.sites.wifi"), wifiSsid, setWifiSsid, t("admin.bo.sites.wifiPlaceholder"))}
+        {detectBtn(t("admin.bo.sites.detectWifi"), "wifi", detectWifi, scanning)}
+      </View>
 
       <View
         style={{

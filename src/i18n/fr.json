@@ -374,7 +374,15 @@
         "requiredMsg": "Nom et adresse sont obligatoires.",
         "coordsTitle": "Coordonnées invalides",
         "coordsMsg": "Renseignez une latitude et une longitude.",
-        "createdTitle": "Site créé"
+        "createdTitle": "Site créé",
+        "detectLocation": "Détecter ma position",
+        "locTitle": "Localisation indisponible",
+        "locFailed": "Impossible d'obtenir la position. Activez le GPS et autorisez l'accès.",
+        "wifi": "Réseau Wi-Fi",
+        "wifiPlaceholder": "Détecté automatiquement",
+        "detectWifi": "Détecter le Wi-Fi",
+        "wifiTitle": "Wi-Fi indisponible",
+        "wifiFailed": "Connectez-vous au Wi-Fi du site et autorisez la localisation."
       },
       "valider": {
         "sub": "File d'approbation",

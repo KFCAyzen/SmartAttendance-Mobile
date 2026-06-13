@@ -374,7 +374,15 @@
         "requiredMsg": "Name and address are required.",
         "coordsTitle": "Invalid coordinates",
         "coordsMsg": "Provide a latitude and a longitude.",
-        "createdTitle": "Site created"
+        "createdTitle": "Site created",
+        "detectLocation": "Detect my location",
+        "locTitle": "Location unavailable",
+        "locFailed": "Could not get your position. Enable GPS and grant access.",
+        "wifi": "Wi-Fi network",
+        "wifiPlaceholder": "Detected automatically",
+        "detectWifi": "Detect Wi-Fi",
+        "wifiTitle": "Wi-Fi unavailable",
+        "wifiFailed": "Connect to the site's Wi-Fi and allow location."
       },
       "valider": {
         "sub": "Approval queue",

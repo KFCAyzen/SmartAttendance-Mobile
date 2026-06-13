@@ -10,7 +10,13 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.smartattendance.mobile"
+      "bundleIdentifier": "com.smartattendance.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Votre position permet de valider votre site de pointage et de détecter le réseau Wi-Fi."
+      },
+      "entitlements": {
+        "com.apple.developer.networking.wifi-info": true
+      }
     },
     "android": {
       "package": "com.smartattendance.mobile",

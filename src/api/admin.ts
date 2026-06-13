@@ -288,6 +288,8 @@ export interface CreateSiteInput {
   latitude: number;
   longitude: number;
   radius?: number;
+  wifiSSID?: string;
+  wifiBSSID?: string;
 }
 
 export async function createSite(input: CreateSiteInput): Promise<AdminSite> {
