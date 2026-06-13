@@ -75,14 +75,25 @@ export interface AdminPresencePoint {
   late: number;
 }
 
+export type EmployeeAssignment = 'this' | 'unassigned' | 'other';
+
 export async function getEmployees(
   page = 1,
   limit = 20,
   search?: string,
   department?: string,
+  siteId?: string,
+  assignment?: EmployeeAssignment,
 ): Promise<PagedResponse<AdminEmployee>> {
   const { data } = await api.get<PagedResponse<AdminEmployee>>('/admin/employees', {
-    params: { page, limit, search: search || undefined, department: department || undefined },
+    params: {
+      page,
+      limit,
+      search: search || undefined,
+      department: department || undefined,
+      siteId: siteId || undefined,
+      assignment: assignment || undefined,
+    },
   });
   return data;
 }

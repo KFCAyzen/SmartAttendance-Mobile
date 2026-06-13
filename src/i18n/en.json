@@ -400,7 +400,12 @@
         "assignEmpty": "No employee found.",
         "assignSelected_one": "{{count}} selected",
         "assignSelected_other": "{{count}} selected",
-        "assignOtherSite": "Other site"
+        "assignOtherSite": "Other site",
+        "filterAll": "All",
+        "filterUnassigned": "Unassigned",
+        "filterThisSite": "This site",
+        "filterOther": "Other site",
+        "filterDeptAll": "All depts"
       },
       "valider": {
         "sub": "Approval queue",

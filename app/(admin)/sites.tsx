@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Switch, Text, TextInput, View } from "react-native";
 
-import type { AdminSite } from "~/api/admin";
+import type { AdminSite, EmployeeAssignment } from "~/api/admin";
 import { feedback } from "~/components/feedback";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import {
@@ -13,6 +13,7 @@ import {
   AdminScrollBody,
   Card,
   EmpAvatar,
+  FilterChips,
   IconBtn,
   Pill,
   SearchBar,
@@ -25,6 +26,7 @@ import {
   useAdminDevices,
   useAdminSites,
   useCreateSite,
+  useEmployeeDepartments,
   useEmployees,
   useSetSiteMembers,
   useSiteMembers,
@@ -513,7 +515,13 @@ function AssignStaffSheet({ site, onDone }: { site: AdminSite; onDone: () => voi
   const members = useSiteMembers(site.id);
   const setMembers = useSetSiteMembers();
   const [search, setSearch] = useState("");
-  const employees = useEmployees(search);
+  const [assignment, setAssignment] = useState<"all" | EmployeeAssignment>("all");
+  const [dept, setDept] = useState("all");
+  const employees = useEmployees(search, dept === "all" ? undefined : dept, {
+    siteId: site.id,
+    assignment: assignment === "all" ? undefined : assignment,
+  });
+  const departmentsQuery = useEmployeeDepartments(search);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [seeded, setSeeded] = useState(false);
 
@@ -529,6 +537,27 @@ function AssignStaffSheet({ site, onDone }: { site: AdminSite; onDone: () => voi
     () => employees.data?.pages.flatMap((pg) => pg.data ?? pg.items ?? []) ?? [],
     [employees.data],
   );
+
+  const deptChips = useMemo(() => {
+    const set = new Set<string>(departmentsQuery.data);
+    rows.forEach((e) => {
+      if (e.department) set.add(e.department);
+    });
+    if (dept !== "all") set.add(dept);
+    return [
+      { key: "all", label: t("admin.bo.sites.filterDeptAll") },
+      ...Array.from(set)
+        .sort((a, b) => a.localeCompare(b))
+        .map((d) => ({ key: d, label: d })),
+    ];
+  }, [departmentsQuery.data, rows, dept, t]);
+
+  const assignmentChips = [
+    { key: "all", label: t("admin.bo.sites.filterAll") },
+    { key: "this", label: t("admin.bo.sites.filterThisSite") },
+    { key: "unassigned", label: t("admin.bo.sites.filterUnassigned") },
+    { key: "other", label: t("admin.bo.sites.filterOther") },
+  ];
 
   const toggle = (id: string) =>
     setSelected((prev) => {
@@ -566,6 +595,14 @@ function AssignStaffSheet({ site, onDone }: { site: AdminSite; onDone: () => voi
       </View>
 
       <SearchBar placeholder={t("admin.bo.sites.assignSearch")} value={search} onChange={setSearch} />
+      <FilterChips
+        options={assignmentChips}
+        value={assignment}
+        onChange={(k) => setAssignment(k as "all" | EmployeeAssignment)}
+      />
+      {deptChips.length > 1 ? (
+        <FilterChips options={deptChips} value={dept} onChange={setDept} />
+      ) : null}
 
       {loading ? (
         <View style={{ paddingVertical: 30, alignItems: "center" }}>

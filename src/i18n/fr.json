@@ -400,7 +400,12 @@
         "assignEmpty": "Aucun employé trouvé.",
         "assignSelected_one": "{{count}} sélectionné",
         "assignSelected_other": "{{count}} sélectionnés",
-        "assignOtherSite": "Autre site"
+        "assignOtherSite": "Autre site",
+        "filterAll": "Tous",
+        "filterUnassigned": "Non affectés",
+        "filterThisSite": "Ce site",
+        "filterOther": "Autre site",
+        "filterDeptAll": "Tous services"
       },
       "valider": {
         "sub": "File d'approbation",

@@ -34,6 +34,7 @@ import {
   type CreateEmployeeInput,
   type CreateLeaveInput,
   type CreateSiteInput,
+  type EmployeeAssignment,
   type UpdateSiteInput,
 } from "../api/admin";
 import { useAuthStore } from "../stores/auth.store";
@@ -145,11 +146,18 @@ export function useCreateLeave() {
   });
 }
 
-export function useEmployees(search: string, department?: string) {
+export function useEmployees(
+  search: string,
+  department?: string,
+  filters?: { siteId?: string; assignment?: EmployeeAssignment },
+) {
   const isAdmin = useIsAdmin();
+  const siteId = filters?.siteId;
+  const assignment = filters?.assignment;
   return useInfiniteQuery({
-    queryKey: [...root, "employees", search, department ?? "all"],
-    queryFn: ({ pageParam = 1 }) => getEmployees(pageParam, 20, search, department),
+    queryKey: [...root, "employees", search, department ?? "all", siteId ?? "all", assignment ?? "all"],
+    queryFn: ({ pageParam = 1 }) =>
+      getEmployees(pageParam, 20, search, department, siteId, assignment),
     initialPageParam: 1,
     enabled: isAdmin,
     getNextPageParam: (last) => {
