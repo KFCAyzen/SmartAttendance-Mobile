@@ -382,7 +382,10 @@
         "wifiPlaceholder": "Detected automatically",
         "detectWifi": "Detect Wi-Fi",
         "wifiTitle": "Wi-Fi unavailable",
-        "wifiFailed": "Connect to the site's Wi-Fi and allow location."
+        "wifiFailed": "Connect to the site's Wi-Fi and allow location.",
+        "wifiPermDenied": "Allow location access to detect the Wi-Fi.",
+        "wifiLocationOff": "Turn on the device's location (GPS) to read the Wi-Fi network.",
+        "wifiNotConnected": "No active Wi-Fi network. Connect to the site's Wi-Fi."
       },
       "valider": {
         "sub": "Approval queue",

@@ -5,11 +5,11 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
-import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
 import { changePassword } from '~/api/auth';
 import { humanizeApiError } from '~/api/client';
+import { feedback } from '~/components/feedback';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
@@ -49,11 +49,11 @@ export default function ChangePasswordScreen() {
     mutationFn: (values: FormValues) =>
       changePassword(values.currentPassword, values.newPassword),
     onSuccess: () => {
-      Toast.show({ type: 'success', text1: t('changePassword.success') });
+      feedback.success(t('changePassword.success'));
       router.back();
     },
     onError: (error) => {
-      Toast.show({ type: 'error', text1: humanizeApiError(error) });
+      feedback.error(humanizeApiError(error));
     },
   });
 

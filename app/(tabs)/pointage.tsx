@@ -18,11 +18,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
 
 import { humanizeApiError } from '~/api/client';
 import { getHistory } from '~/api/attendance';
 import type { FaceCheckInResponse } from '~/api/types';
+import { feedback } from '~/components/feedback';
 import { Card } from '~/components/ui/Card';
 import { useFaceCheckIn } from '~/hooks/useFaceCheckIn';
 import { useLocation } from '~/hooks/useLocation';
@@ -168,16 +168,12 @@ export default function PointageScreen() {
       } else {
         // Offline queued (or no identity) — info toast, back to idle.
         setPhase('idle');
-        Toast.show({ type: 'success', text1: result.message ?? t('checkin.queued') });
+        feedback.success(result.message ?? t('checkin.queued'));
       }
     } catch (error) {
       setLastResult(null);
       setPhase('idle');
-      Toast.show({
-        type: 'error',
-        text1: t('checkin.rejected'),
-        text2: humanizeApiError(error),
-      });
+      feedback.error(t('checkin.rejected'), humanizeApiError(error));
     } finally {
       setCapturing(false);
     }

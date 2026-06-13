@@ -7,17 +7,16 @@ import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Pressable,
   RefreshControl,
   Text,
   View,
 } from "react-native";
-import Toast from "react-native-toast-message";
 
 import type { AdminLeave } from "~/api/admin";
 import { humanizeApiError } from "~/api/client";
+import { feedback } from "~/components/feedback";
 import { RoleGate } from "~/components/RoleGate";
 import { useAdminActions, usePendingLeaves } from "~/hooks/useAdminData";
 import { getLeaveTypeLabel } from "~/lib/leaves";
@@ -44,34 +43,31 @@ function LeavesContent() {
 
   const approve = (id: string) => {
     approveLeaveMutation.mutate(id, {
-      onSuccess: () =>
-        Toast.show({ type: "success", text1: t("admin.leaveApproved") }),
-      onError: (error) =>
-        Toast.show({ type: "error", text1: humanizeApiError(error) }),
+      onSuccess: () => feedback.success(t("admin.leaveApproved")),
+      onError: (error) => feedback.error(humanizeApiError(error)),
     });
   };
 
+  // Rejet réversible : on diffère l'appel réseau le temps de la snackbar ; un tap
+  // sur ANNULER annule l'envoi (pattern Gmail), ce qui couvre le risque d'erreur
+  // sans bloquer l'utilisateur avec une confirmation modale.
   const reject = (id: string) => {
-    Alert.alert(t("admin.rejectLeaveTitle"), t("admin.rejectLeaveMessage"), [
-      { text: t("common.cancel"), style: "cancel" },
-      {
-        text: t("admin.reject"),
-        style: "destructive",
-        onPress: () =>
-          rejectLeaveMutation.mutate(
-            { id, comment: t("admin.rejectedFromMobile") },
-            {
-              onSuccess: () =>
-                Toast.show({
-                  type: "success",
-                  text1: t("admin.leaveRejected"),
-                }),
-              onError: (error) =>
-                Toast.show({ type: "error", text1: humanizeApiError(error) }),
-            },
-          ),
+    let cancelled = false;
+    feedback.undo({
+      title: t("admin.leaveRejected"),
+      actionLabel: t("common.cancel"),
+      onUndo: () => {
+        cancelled = true;
       },
-    ]);
+      duration: 5000,
+    });
+    setTimeout(() => {
+      if (cancelled) return;
+      rejectLeaveMutation.mutate(
+        { id, comment: t("admin.rejectedFromMobile") },
+        { onError: (error) => feedback.error(humanizeApiError(error)) },
+      );
+    }, 5000);
   };
 
   return (

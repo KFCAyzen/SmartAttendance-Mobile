@@ -18,11 +18,11 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
 import { getMe } from '~/api/auth';
 import { humanizeApiError } from '~/api/client';
+import { feedback } from '~/components/feedback';
 import {
   AuthField,
   AuthScreen,
@@ -209,7 +209,7 @@ function FaceAuth({ onNeedCredentials }: { onNeedCredentials: () => void }) {
       const ok = await promptBiometric(t('auth.face.reason'), t('auth.face.cancel'));
       if (!ok) {
         setPhase('idle');
-        Toast.show({ type: 'error', text1: t('auth.face.failed') });
+        feedback.error(t('auth.face.failed'));
         return;
       }
       // Restore + validate the stored token before committing the session.
@@ -222,7 +222,7 @@ function FaceAuth({ onNeedCredentials }: { onNeedCredentials: () => void }) {
       setPhase('idle');
       await clearBiometricSession();
       await clearAuth();
-      Toast.show({ type: 'error', text1: t('auth.face.expired'), text2: humanizeApiError(error) });
+      feedback.error(t('auth.face.expired'), humanizeApiError(error));
       onNeedCredentials();
     }
   };
@@ -443,11 +443,7 @@ function CredForm() {
       else await clearBiometricSession();
       // Navigation handled by the root auth gate (device verification result).
     } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: t('auth.errors.invalidCredentials'),
-        text2: humanizeApiError(error),
-      });
+      feedback.error(t('auth.errors.invalidCredentials'), humanizeApiError(error));
     }
   });
 

@@ -7,17 +7,16 @@ import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Pressable,
   RefreshControl,
   Text,
   View,
 } from "react-native";
-import Toast from "react-native-toast-message";
 
 import type { AdminAbsence } from "~/api/admin";
 import { humanizeApiError } from "~/api/client";
+import { feedback } from "~/components/feedback";
 import { RoleGate } from "~/components/RoleGate";
 import { useAdminActions, usePendingAbsences } from "~/hooks/useAdminData";
 import { getAbsenceTypeLabel } from "~/lib/absences";
@@ -46,39 +45,31 @@ function AbsencesContent() {
     approveAbsenceMutation.mutate(
       { id, comment: t("admin.approvedFromMobile") },
       {
-        onSuccess: () =>
-          Toast.show({ type: "success", text1: t("admin.absenceApproved") }),
-        onError: (error) =>
-          Toast.show({ type: "error", text1: humanizeApiError(error) }),
+        onSuccess: () => feedback.success(t("admin.absenceApproved")),
+        onError: (error) => feedback.error(humanizeApiError(error)),
       },
     );
   };
 
+  // Rejet réversible (cf. admin-leaves) : l'envoi réseau est différé le temps de la
+  // snackbar ; ANNULER annule l'effet, ce qui remplace la confirmation modale.
   const reject = (id: string) => {
-    Alert.alert(
-      t("admin.rejectAbsenceTitle"),
-      t("admin.rejectAbsenceMessage"),
-      [
-        { text: t("common.cancel"), style: "cancel" },
-        {
-          text: t("admin.reject"),
-          style: "destructive",
-          onPress: () =>
-            rejectAbsenceMutation.mutate(
-              { id, comment: t("admin.rejectedFromMobile") },
-              {
-                onSuccess: () =>
-                  Toast.show({
-                    type: "success",
-                    text1: t("admin.absenceRejected"),
-                  }),
-                onError: (error) =>
-                  Toast.show({ type: "error", text1: humanizeApiError(error) }),
-              },
-            ),
-        },
-      ],
-    );
+    let cancelled = false;
+    feedback.undo({
+      title: t("admin.absenceRejected"),
+      actionLabel: t("common.cancel"),
+      onUndo: () => {
+        cancelled = true;
+      },
+      duration: 5000,
+    });
+    setTimeout(() => {
+      if (cancelled) return;
+      rejectAbsenceMutation.mutate(
+        { id, comment: t("admin.rejectedFromMobile") },
+        { onError: (error) => feedback.error(humanizeApiError(error)) },
+      );
+    }, 5000);
   };
 
   return (

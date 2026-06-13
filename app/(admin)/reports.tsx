@@ -2,11 +2,11 @@ import * as Print from "expo-print";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Share, Text, View } from "react-native";
-import Toast from "react-native-toast-message";
 
 import { exportReport, type ReportExport } from "~/api/admin";
 import i18n from "~/i18n";
 import { AdminIcon } from "~/components/admin/AdminIcon";
+import { feedback } from "~/components/feedback";
 import {
   AdminHeader,
   AdminScrollBody,
@@ -68,7 +68,7 @@ export default function ReportsScreen() {
     try {
       const r = await exportReport(type, days);
       if (r.rows.length === 0) {
-        Toast.show({ type: "info", text1: r.title, text2: t("admin.bo.reports.noData") });
+        feedback.info(r.title, t("admin.bo.reports.noData"));
         return;
       }
       if (fmt === "CSV") {
@@ -77,7 +77,7 @@ export default function ReportsScreen() {
         await Print.printAsync({ html: reportHtml(r) });
       }
     } catch {
-      Toast.show({ type: "error", text1: t("admin.bo.reports.exportFailed"), text2: t("admin.bo.reports.exportFailedMsg") });
+      feedback.error(t("admin.bo.reports.exportFailed"), t("admin.bo.reports.exportFailedMsg"));
     } finally {
       setBusy(null);
     }

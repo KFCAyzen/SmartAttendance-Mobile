@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
-import Toast from "react-native-toast-message";
 
 import type { AdminEmployee } from "~/api/admin";
+import { feedback } from "~/components/feedback";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import { initialsOf } from "~/components/admin/format";
 import {
@@ -256,7 +256,7 @@ function AddEmployeeForm({
 
   const submit = () => {
     if (!first.trim() || !last.trim() || !email.trim()) {
-      Toast.show({ type: "error", text1: t("admin.bo.common.requiredFields"), text2: t("admin.bo.equipe.requiredMsg") });
+      feedback.error(t("admin.bo.common.requiredFields"), t("admin.bo.equipe.requiredMsg"));
       return;
     }
     create.mutate(
@@ -271,19 +271,18 @@ function AddEmployeeForm({
       {
         onSuccess: (u) => {
           onDone();
-          Toast.show({
+          feedback.toast({
             type: "success",
-            text1: t("admin.bo.equipe.createdTitle"),
-            text2: t("admin.bo.equipe.tempPassword", { pwd: u.tempPassword }),
-            visibilityTime: 8000,
+            title: t("admin.bo.equipe.createdTitle"),
+            message: t("admin.bo.equipe.tempPassword", { pwd: u.tempPassword }),
+            duration: 8000,
           });
         },
         onError: (e: any) => {
-          Toast.show({
-            type: "error",
-            text1: t("admin.bo.common.createFailed"),
-            text2: e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
-          });
+          feedback.error(
+            t("admin.bo.common.createFailed"),
+            e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+          );
         },
       },
     );

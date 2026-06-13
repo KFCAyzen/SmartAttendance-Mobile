@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.smartattendance.mobile",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Votre position permet de valider votre site de pointage et de détecter le réseau Wi-Fi."
+        "NSLocationWhenInUseUsageDescription": "Votre position permet de valider votre site de pointage et de détecter le réseau Wi-Fi.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "entitlements": {
         "com.apple.developer.networking.wifi-info": true

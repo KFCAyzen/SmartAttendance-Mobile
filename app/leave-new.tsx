@@ -4,11 +4,11 @@ import { Stack, useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Text, TextInput, View } from 'react-native';
-import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
 import { humanizeApiError } from '~/api/client';
 import { createLeave, type LeaveType } from '~/api/leaves';
+import { feedback } from '~/components/feedback';
 import { Button } from '~/components/ui/Button';
 import { DateField } from '~/components/ui/DateField';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
@@ -65,14 +65,10 @@ export default function LeaveNewScreen() {
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['leaves'] });
-      Toast.show({
-        type: 'success',
-        text1: t('leaveNew.sentTitle'),
-        text2: t('leaveNew.sentMessage'),
-      });
+      feedback.success(t('leaveNew.sentTitle'), t('leaveNew.sentMessage'));
       router.back();
     },
-    onError: (e) => Toast.show({ type: 'error', text1: humanizeApiError(e) }),
+    onError: (e) => feedback.error(humanizeApiError(e)),
   });
 
   return (

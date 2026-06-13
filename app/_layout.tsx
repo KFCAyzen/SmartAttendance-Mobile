@@ -24,12 +24,13 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
-import Toast from "react-native-toast-message";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { setUnauthorizedHandler } from "~/api/client";
 import { Providers } from "~/components/Providers";
+import { FeedbackProvider } from "~/components/feedback";
 import { useAuthStore } from "~/stores/auth.store";
 
 export const unstable_settings = {
@@ -123,14 +124,16 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Providers>
-        {/* La key sur la langue remonte tout l'arbre de navigation au changement
-            de langue : les écrans à onglets gelés/détachés (qui ratent l'event
-            languageChanged) sont reconstruits dans la nouvelle langue. */}
-        <Stack key={i18n.language}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        </Stack>
+        <FeedbackProvider>
+          {/* La key sur la langue remonte tout l'arbre de navigation au changement
+              de langue : les écrans à onglets gelés/détachés (qui ratent l'event
+              languageChanged) sont reconstruits dans la nouvelle langue. */}
+          <Stack key={i18n.language}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
+        </FeedbackProvider>
       </Providers>
       <StatusBar style="auto" />
     </ThemeProvider>
@@ -139,9 +142,8 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <RootLayoutNav />
-      <Toast />
-    </>
+    </GestureHandlerRootView>
   );
 }

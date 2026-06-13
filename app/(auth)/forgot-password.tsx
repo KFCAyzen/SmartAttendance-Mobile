@@ -4,10 +4,10 @@ import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
 import { api, humanizeApiError } from '~/api/client';
+import { feedback } from '~/components/feedback';
 import {
   AuthField,
   AuthScreen,
@@ -32,14 +32,10 @@ export default function ForgotPasswordScreen() {
   const onSubmit = handleSubmit(async ({ email }) => {
     try {
       await api.post('/auth/forgot-password', { email });
-      Toast.show({
-        type: 'success',
-        text1: t('auth.forgotPassword.sentTitle'),
-        text2: t('auth.forgotPassword.sentMessage'),
-      });
+      feedback.success(t('auth.forgotPassword.sentTitle'), t('auth.forgotPassword.sentMessage'));
       router.back();
     } catch (error) {
-      Toast.show({ type: 'error', text1: humanizeApiError(error) });
+      feedback.error(humanizeApiError(error));
     }
   });
 

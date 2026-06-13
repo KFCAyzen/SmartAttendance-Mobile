@@ -2,9 +2,9 @@ import NetInfo from '@react-native-community/netinfo';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import Toast from 'react-native-toast-message';
 
 import { faceCheckIn } from '../api/attendance';
+import { feedback } from '../components/feedback';
 import { humanizeApiError, isNetworkError } from '../api/client';
 import { useOfflineQueueStore } from '../stores/offline-queue.store';
 import { useAuthStore } from '../stores/auth.store';
@@ -34,15 +34,11 @@ export function useOfflineSync() {
       });
       pop();
       void queryClient.invalidateQueries({ queryKey: ['attendance'] });
-      Toast.show({ type: 'success', text1: t('checkin.synced') });
+      feedback.success(t('checkin.synced'));
     } catch (error) {
       if (!isNetworkError(error)) {
         pop();
-        Toast.show({
-          type: 'error',
-          text1: t('checkin.offlineRejected'),
-          text2: humanizeApiError(error),
-        });
+        feedback.error(t('checkin.offlineRejected'), humanizeApiError(error));
       }
     } finally {
       syncingRef.current = false;

@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
-import Toast from "react-native-toast-message";
 
 import type { AdminEmployee, PlanningEvent } from "~/api/admin";
 import type { LeaveType } from "~/api/leaves";
+import { feedback } from "~/components/feedback";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import { initialsOf } from "~/components/admin/format";
 import {
@@ -293,15 +293,15 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
 
   const submit = () => {
     if (!emp) {
-      Toast.show({ type: "error", text1: t("admin.bo.planning.empRequired"), text2: t("admin.bo.planning.empRequiredMsg") });
+      feedback.error(t("admin.bo.planning.empRequired"), t("admin.bo.planning.empRequiredMsg"));
       return;
     }
     if (!isoOk(start) || !isoOk(end)) {
-      Toast.show({ type: "error", text1: t("admin.bo.planning.datesInvalid"), text2: t("admin.bo.planning.datesInvalidMsg") });
+      feedback.error(t("admin.bo.planning.datesInvalid"), t("admin.bo.planning.datesInvalidMsg"));
       return;
     }
     if (new Date(end) < new Date(start)) {
-      Toast.show({ type: "error", text1: t("admin.bo.planning.datesOrder"), text2: t("admin.bo.planning.datesOrderMsg") });
+      feedback.error(t("admin.bo.planning.datesOrder"), t("admin.bo.planning.datesOrderMsg"));
       return;
     }
     create.mutate(
@@ -309,14 +309,13 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
       {
         onSuccess: () => {
           onDone();
-          Toast.show({ type: "success", text1: t("admin.bo.planning.scheduled"), text2: `${emp.firstName} ${emp.lastName}` });
+          feedback.success(t("admin.bo.planning.scheduled"), `${emp.firstName} ${emp.lastName}`);
         },
         onError: (e: any) =>
-          Toast.show({
-            type: "error",
-            text1: t("admin.bo.common.failed"),
-            text2: e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
-          }),
+          feedback.error(
+            t("admin.bo.common.failed"),
+            e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+          ),
       },
     );
   };

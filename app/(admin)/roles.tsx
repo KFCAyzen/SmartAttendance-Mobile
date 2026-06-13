@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Switch, Text, TextInput, View } from "react-native";
-import Toast from "react-native-toast-message";
 
 import type { AdminSettings, RoleSummary } from "~/api/admin";
 import { AdminIcon } from "~/components/admin/AdminIcon";
+import { feedback } from "~/components/feedback";
 import {
   AdminHeader,
   AdminScrollBody,
@@ -49,7 +49,7 @@ export default function RolesScreen() {
   const toggle = (key: keyof AdminSettings, value: boolean) =>
     updateSetting.mutate(
       { key, value },
-      { onError: () => Toast.show({ type: "error", text1: t("admin.bo.common.failed"), text2: t("admin.bo.roles.settingNotSaved") }) },
+      { onError: () => feedback.error(t("admin.bo.common.failed"), t("admin.bo.roles.settingNotSaved")) },
     );
 
   const openEdit = (key: EditKey) => {
@@ -63,12 +63,12 @@ export default function RolesScreen() {
     if (editKey === "faceThreshold") {
       const n = Number(value);
       if (!Number.isFinite(n) || n < 1 || n > 100) {
-        Toast.show({ type: "error", text1: t("admin.bo.roles.invalidValue"), text2: t("admin.bo.roles.thresholdRange") });
+        feedback.error(t("admin.bo.roles.invalidValue"), t("admin.bo.roles.thresholdRange"));
         return;
       }
       value = String(Math.round(n));
     } else if (!value) {
-      Toast.show({ type: "error", text1: t("admin.bo.roles.requiredField") });
+      feedback.error(t("admin.bo.roles.requiredField"));
       return;
     }
     updateSetting.mutate(
@@ -76,9 +76,9 @@ export default function RolesScreen() {
       {
         onSuccess: () => {
           setEditKey(null);
-          Toast.show({ type: "success", text1: t("admin.bo.roles.settingSaved") });
+          feedback.success(t("admin.bo.roles.settingSaved"));
         },
-        onError: () => Toast.show({ type: "error", text1: t("admin.bo.common.failed"), text2: t("admin.bo.roles.settingNotSaved") }),
+        onError: () => feedback.error(t("admin.bo.common.failed"), t("admin.bo.roles.settingNotSaved")),
       },
     );
   };

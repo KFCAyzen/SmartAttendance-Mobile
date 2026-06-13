@@ -1,9 +1,9 @@
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Pressable, Text, View } from "react-native";
-import Toast from "react-native-toast-message";
 
 import { AdminIcon } from "~/components/admin/AdminIcon";
+import { feedback } from "~/components/feedback";
 import { initialsOf } from "~/components/admin/format";
 import {
   AdminHeader,
@@ -43,7 +43,7 @@ export default function MoreScreen() {
 
   const onItem = (it: HubItem) => {
     if (it.soon || !it.route) {
-      Toast.show({ type: "info", text1: t(`admin.bo.plus.${it.key}Label`), text2: t("admin.bo.plus.soonToast") });
+      feedback.info(t(`admin.bo.plus.${it.key}Label`), t("admin.bo.plus.soonToast"));
       return;
     }
     router.push(it.route as never);

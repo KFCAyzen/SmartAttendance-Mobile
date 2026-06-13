@@ -382,7 +382,10 @@
         "wifiPlaceholder": "Détecté automatiquement",
         "detectWifi": "Détecter le Wi-Fi",
         "wifiTitle": "Wi-Fi indisponible",
-        "wifiFailed": "Connectez-vous au Wi-Fi du site et autorisez la localisation."
+        "wifiFailed": "Connectez-vous au Wi-Fi du site et autorisez la localisation.",
+        "wifiPermDenied": "Autorisez l'accès à la localisation pour détecter le Wi-Fi.",
+        "wifiLocationOff": "Activez la localisation (GPS) de l'appareil pour lire le réseau Wi-Fi.",
+        "wifiNotConnected": "Aucun réseau Wi-Fi actif. Connectez-vous au Wi-Fi du site."
       },
       "valider": {
         "sub": "File d'approbation",

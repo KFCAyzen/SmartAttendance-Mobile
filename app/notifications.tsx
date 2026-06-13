@@ -13,10 +13,10 @@ import {
   Text,
   View,
 } from 'react-native';
-import Toast from 'react-native-toast-message';
 
 import { humanizeApiError } from '~/api/client';
 import type { Notification } from '~/api/notifications';
+import { feedback } from '~/components/feedback';
 import { useNotificationActions, useNotificationsList } from '~/hooks/useNotifications';
 import { notificationVisual } from '~/lib/notifications';
 
@@ -44,7 +44,7 @@ export default function NotificationsScreen() {
     try {
       await readAll.mutateAsync();
     } catch (e) {
-      Toast.show({ type: 'error', text1: humanizeApiError(e) });
+      feedback.error(humanizeApiError(e));
     }
   };
 

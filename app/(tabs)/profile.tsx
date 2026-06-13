@@ -6,10 +6,10 @@ import { useColorScheme } from 'nativewind';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, Switch, Text, View } from 'react-native';
-import Toast from 'react-native-toast-message';
 
 import { humanizeApiError } from '~/api/client';
 import { buildPhotoUrl } from '~/api/users';
+import { feedback } from '~/components/feedback';
 import { Card } from '~/components/ui/Card';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { StatusPill } from '~/components/ui/StatusPill';
@@ -45,16 +45,14 @@ export default function ProfileScreen() {
     try {
       const result = await action();
       if (!result) return; // user cancelled
-      Toast.show({
-        type: 'success',
-        text1: t('profile.photoSaved'),
-        text2:
-          mode === 'request' && !(result as { autoApproved?: boolean }).autoApproved
-            ? t('profile.photoPending')
-            : t('profile.photoReady'),
-      });
+      feedback.success(
+        t('profile.photoSaved'),
+        mode === 'request' && !(result as { autoApproved?: boolean }).autoApproved
+          ? t('profile.photoPending')
+          : t('profile.photoReady'),
+      );
     } catch (error) {
-      Toast.show({ type: 'error', text1: humanizeApiError(error) });
+      feedback.error(humanizeApiError(error));
     }
   };
 

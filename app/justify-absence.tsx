@@ -6,10 +6,10 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, Text, TextInput, View } from 'react-native';
-import Toast from 'react-native-toast-message';
 
 import { justifyAbsence } from '~/api/absences';
 import { humanizeApiError } from '~/api/client';
+import { feedback } from '~/components/feedback';
 import { Button } from '~/components/ui/Button';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
 
@@ -43,10 +43,10 @@ export default function JustifyAbsenceScreen() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['absences'] });
-      Toast.show({ type: 'success', text1: t('justifyAbsence.sent') });
+      feedback.success(t('justifyAbsence.sent'));
       router.back();
     },
-    onError: (e) => Toast.show({ type: 'error', text1: humanizeApiError(e) }),
+    onError: (e) => feedback.error(humanizeApiError(e)),
   });
 
   const pickDocument = async () => {

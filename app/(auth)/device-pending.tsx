@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import Toast from 'react-native-toast-message';
 
 import { humanizeApiError } from '~/api/client';
+import { feedback } from '~/components/feedback';
 import {
   AuthScreen,
   C,
@@ -29,23 +29,15 @@ export default function DevicePendingScreen() {
     try {
       const next = await verifyDevice();
       if (next === 'ACTIVE') {
-        Toast.show({ type: 'success', text1: t('auth.device.approved') });
+        feedback.success(t('auth.device.approved'));
       } else if (next === null) {
         // Technical failure (network/server) — not a genuine pending device.
-        Toast.show({
-          type: 'error',
-          text1: t('auth.device.errorTitle'),
-          text2: t('auth.device.errorMessage'),
-        });
+        feedback.error(t('auth.device.errorTitle'), t('auth.device.errorMessage'));
       } else {
-        Toast.show({
-          type: 'info',
-          text1: t('auth.device.stillPending'),
-          text2: t('auth.device.stillPendingMessage'),
-        });
+        feedback.info(t('auth.device.stillPending'), t('auth.device.stillPendingMessage'));
       }
     } catch (error) {
-      Toast.show({ type: 'error', text1: humanizeApiError(error) });
+      feedback.error(humanizeApiError(error));
     } finally {
       setVerifying(false);
     }

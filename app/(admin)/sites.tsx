@@ -4,8 +4,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
-import Toast from "react-native-toast-message";
 
+import { feedback } from "~/components/feedback";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import {
   AdminHeader,
@@ -209,7 +209,7 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
     try {
       const c = await fetchCoords();
       if (!c) {
-        Toast.show({ type: "error", text1: t("admin.bo.sites.locTitle"), text2: t("admin.bo.sites.locFailed") });
+        feedback.error(t("admin.bo.sites.locTitle"), t("admin.bo.sites.locFailed"));
         return;
       }
       setLat(String(c.latitude));
@@ -222,15 +222,33 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
   const detectWifi = async () => {
     setScanning(true);
     try {
-      // Android exige la permission localisation pour lire le SSID du réseau courant.
-      await Location.requestForegroundPermissionsAsync();
-      const state = await NetInfo.fetch();
-      const d = (state.type === "wifi" ? state.details : null) as
-        | { ssid?: string | null; bssid?: string | null }
-        | null;
+      const fail = (msg: string) =>
+        feedback.error(t("admin.bo.sites.wifiTitle"), msg);
+
+      // Android n'expose le SSID que si la permission de localisation est accordée
+      // ET que les services de localisation (GPS) sont activés sur l'appareil.
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        fail(t("admin.bo.sites.wifiPermDenied"));
+        return;
+      }
+      if (!(await Location.hasServicesEnabledAsync())) {
+        fail(t("admin.bo.sites.wifiLocationOff"));
+        return;
+      }
+
+      // Par défaut NetInfo ne lit pas le SSID/BSSID (coûteux + permission) : il faut
+      // l'activer explicitement, puis forcer une lecture native fraîche via refresh().
+      NetInfo.configure({ shouldFetchWiFiSSID: true });
+      const state = await NetInfo.refresh();
+      if (state.type !== "wifi") {
+        fail(t("admin.bo.sites.wifiNotConnected"));
+        return;
+      }
+      const d = state.details as { ssid?: string | null; bssid?: string | null } | null;
       const ssid = d?.ssid?.replace(/^"|"$/g, "") ?? "";
       if (!ssid || ssid === "<unknown ssid>") {
-        Toast.show({ type: "error", text1: t("admin.bo.sites.wifiTitle"), text2: t("admin.bo.sites.wifiFailed") });
+        fail(t("admin.bo.sites.wifiFailed"));
         return;
       }
       setWifiSsid(ssid);
@@ -244,11 +262,11 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
     const latN = Number(lat.replace(",", "."));
     const lngN = Number(lng.replace(",", "."));
     if (!name.trim() || !address.trim()) {
-      Toast.show({ type: "error", text1: t("admin.bo.common.requiredFields"), text2: t("admin.bo.sites.requiredMsg") });
+      feedback.error(t("admin.bo.common.requiredFields"), t("admin.bo.sites.requiredMsg"));
       return;
     }
     if (!Number.isFinite(latN) || !Number.isFinite(lngN) || latN === 0 || lngN === 0) {
-      Toast.show({ type: "error", text1: t("admin.bo.sites.coordsTitle"), text2: t("admin.bo.sites.coordsMsg") });
+      feedback.error(t("admin.bo.sites.coordsTitle"), t("admin.bo.sites.coordsMsg"));
       return;
     }
     create.mutate(
@@ -265,14 +283,13 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
       {
         onSuccess: () => {
           onDone();
-          Toast.show({ type: "success", text1: t("admin.bo.sites.createdTitle"), text2: name.trim() });
+          feedback.success(t("admin.bo.sites.createdTitle"), name.trim());
         },
         onError: (e: any) =>
-          Toast.show({
-            type: "error",
-            text1: t("admin.bo.common.createFailed"),
-            text2: e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
-          }),
+          feedback.error(
+            t("admin.bo.common.createFailed"),
+            e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+          ),
       },
     );
   };
