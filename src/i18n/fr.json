@@ -385,7 +385,22 @@
         "wifiFailed": "Connectez-vous au Wi-Fi du site et autorisez la localisation.",
         "wifiPermDenied": "Autorisez l'accès à la localisation pour détecter le Wi-Fi.",
         "wifiLocationOff": "Activez la localisation (GPS) de l'appareil pour lire le réseau Wi-Fi.",
-        "wifiNotConnected": "Aucun réseau Wi-Fi actif. Connectez-vous au Wi-Fi du site."
+        "wifiNotConnected": "Aucun réseau Wi-Fi actif. Connectez-vous au Wi-Fi du site.",
+        "editBtn": "Modifier",
+        "staffBtn": "Personnel",
+        "editSite": "Modifier le site",
+        "save": "Enregistrer",
+        "updatedTitle": "Site mis à jour",
+        "activeLabel": "Site actif",
+        "activeHint": "Désactivez pour suspendre les pointages sur ce site.",
+        "assignTitle": "Affecter le personnel",
+        "assignSearch": "Rechercher un employé…",
+        "assignSave": "Enregistrer l'affectation",
+        "assignSaved": "Personnel mis à jour",
+        "assignEmpty": "Aucun employé trouvé.",
+        "assignSelected_one": "{{count}} sélectionné",
+        "assignSelected_other": "{{count}} sélectionnés",
+        "assignOtherSite": "Autre site"
       },
       "valider": {
         "sub": "File d'approbation",

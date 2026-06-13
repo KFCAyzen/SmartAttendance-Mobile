@@ -23,14 +23,18 @@ import {
   getReports,
   getRoles,
   getSettings,
+  getSiteMembers,
   getSites,
   rejectLeave,
+  setSiteMembers,
   updateAbsenceStatus,
   updateSetting,
+  updateSite,
   type AdminSettings,
   type CreateEmployeeInput,
   type CreateLeaveInput,
   type CreateSiteInput,
+  type UpdateSiteInput,
 } from "../api/admin";
 import { useAuthStore } from "../stores/auth.store";
 
@@ -96,6 +100,37 @@ export function useCreateSite() {
   return useMutation({
     mutationFn: (input: CreateSiteInput) => createSite(input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [...root, "sites"] }),
+  });
+}
+
+export function useUpdateSite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateSiteInput }) => updateSite(id, input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [...root, "sites"] }),
+  });
+}
+
+export function useSiteMembers(siteId: string | null) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "sites", siteId, "members"],
+    queryFn: () => getSiteMembers(siteId as string),
+    enabled: isAdmin && !!siteId,
+  });
+}
+
+export function useSetSiteMembers() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ siteId, userIds }: { siteId: string; userIds: string[] }) =>
+      setSiteMembers(siteId, userIds),
+    onSuccess: (_data, { siteId }) => {
+      queryClient.invalidateQueries({ queryKey: [...root, "sites"] });
+      queryClient.invalidateQueries({ queryKey: [...root, "sites", siteId, "members"] });
+      queryClient.invalidateQueries({ queryKey: [...root, "employees"] });
+      queryClient.invalidateQueries({ queryKey: [...root, "live-presence"] });
+    },
   });
 }
 

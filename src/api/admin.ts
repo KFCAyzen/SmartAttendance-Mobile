@@ -269,8 +269,14 @@ export interface AdminSite {
   name: string;
   address: string;
   city?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  radius?: number | null;
   geofence: number;
+  isActive?: boolean;
   status: string;
+  wifiSSID?: string | null;
+  wifiBSSID?: string | null;
   total: number;
   present: number;
   devices: number;
@@ -294,6 +300,33 @@ export interface CreateSiteInput {
 
 export async function createSite(input: CreateSiteInput): Promise<AdminSite> {
   const { data } = await api.post<AdminSite>('/admin/sites', input);
+  return data;
+}
+
+export type UpdateSiteInput = Partial<CreateSiteInput> & { isActive?: boolean };
+
+export async function updateSite(id: string, input: UpdateSiteInput): Promise<AdminSite> {
+  const { data } = await api.put<AdminSite>(`/admin/sites/${id}`, input);
+  return data;
+}
+
+export interface SiteMember {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  position?: string | null;
+  department?: string | null;
+  photoUrl?: string | null;
+}
+
+export async function getSiteMembers(siteId: string): Promise<SiteMember[]> {
+  const { data } = await api.get<SiteMember[]>(`/admin/sites/${siteId}/members`);
+  return data;
+}
+
+export async function setSiteMembers(siteId: string, userIds: string[]): Promise<{ count: number }> {
+  const { data } = await api.put<{ count: number }>(`/admin/sites/${siteId}/members`, { userIds });
   return data;
 }
 

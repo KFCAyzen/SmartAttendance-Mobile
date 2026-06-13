@@ -1,25 +1,39 @@
 import NetInfo from "@react-native-community/netinfo";
 import * as Location from "expo-location";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, Switch, Text, TextInput, View } from "react-native";
 
+import type { AdminSite } from "~/api/admin";
 import { feedback } from "~/components/feedback";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import {
   AdminHeader,
   AdminScrollBody,
   Card,
+  EmpAvatar,
   IconBtn,
   Pill,
+  SearchBar,
   SectionTitle,
 } from "~/components/admin/primitives";
 import { Sheet } from "~/components/admin/Sheet";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
-import { useAdminDevices, useAdminSites, useCreateSite } from "~/hooks/useAdminData";
+import {
+  useAdminDevices,
+  useAdminSites,
+  useCreateSite,
+  useEmployees,
+  useSetSiteMembers,
+  useSiteMembers,
+  useUpdateSite,
+} from "~/hooks/useAdminData";
 import { useLocation } from "~/hooks/useLocation";
+
+const initialsOf = (first?: string, last?: string) =>
+  `${(first || "").charAt(0)}${(last || "").charAt(0)}`.toUpperCase() || "–";
 
 export default function SitesScreen() {
   const p = useAdminTheme();
@@ -27,6 +41,8 @@ export default function SitesScreen() {
   const sites = useAdminSites();
   const devices = useAdminDevices();
   const [addOpen, setAddOpen] = useState(false);
+  const [editSite, setEditSite] = useState<AdminSite | null>(null);
+  const [staffSite, setStaffSite] = useState<AdminSite | null>(null);
 
   const siteList = sites.data ?? [];
   const deviceList = devices.data ?? [];
@@ -110,6 +126,19 @@ export default function SitesScreen() {
                   <StatBox value={`${s.present}/${s.total}`} label={t("admin.bo.sites.present")} />
                   <StatBox value={`${s.devices}`} label={t("admin.bo.sites.terminals", { count: s.devices })} />
                 </View>
+
+                <View style={{ flexDirection: "row", gap: 9 }}>
+                  <CardActionBtn
+                    icon="edit"
+                    label={t("admin.bo.sites.editBtn")}
+                    onPress={() => setEditSite(s)}
+                  />
+                  <CardActionBtn
+                    icon="users"
+                    label={t("admin.bo.sites.staffBtn")}
+                    onPress={() => setStaffSite(s)}
+                  />
+                </View>
               </View>
             </Card>
           ))}
@@ -182,27 +211,40 @@ export default function SitesScreen() {
     </AdminScrollBody>
 
     <Sheet open={addOpen} onClose={() => setAddOpen(false)}>
-      <AddSiteForm onDone={() => setAddOpen(false)} />
+      <SiteForm onDone={() => setAddOpen(false)} />
+    </Sheet>
+
+    <Sheet open={!!editSite} onClose={() => setEditSite(null)}>
+      {editSite ? <SiteForm site={editSite} onDone={() => setEditSite(null)} /> : null}
+    </Sheet>
+
+    <Sheet open={!!staffSite} onClose={() => setStaffSite(null)}>
+      {staffSite ? <AssignStaffSheet site={staffSite} onDone={() => setStaffSite(null)} /> : null}
     </Sheet>
     </>
   );
 }
 
-function AddSiteForm({ onDone }: { onDone: () => void }) {
+function SiteForm({ site, onDone }: { site?: AdminSite; onDone: () => void }) {
   const p = useAdminTheme();
   const { t } = useTranslation();
   const create = useCreateSite();
+  const update = useUpdateSite();
   const { fetchCoords } = useLocation();
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [lat, setLat] = useState("");
-  const [lng, setLng] = useState("");
-  const [radius, setRadius] = useState("100");
-  const [wifiSsid, setWifiSsid] = useState("");
-  const [wifiBssid, setWifiBssid] = useState("");
+  const editing = !!site;
+  const [name, setName] = useState(site?.name ?? "");
+  const [address, setAddress] = useState(site?.address ?? "");
+  const [city, setCity] = useState(site?.city ?? "");
+  const [lat, setLat] = useState(site?.latitude != null ? String(site.latitude) : "");
+  const [lng, setLng] = useState(site?.longitude != null ? String(site.longitude) : "");
+  const [radius, setRadius] = useState(String(site?.radius ?? site?.geofence ?? 100));
+  const [wifiSsid, setWifiSsid] = useState(site?.wifiSSID ?? "");
+  const [wifiBssid, setWifiBssid] = useState(site?.wifiBSSID ?? "");
+  const [active, setActive] = useState(site?.isActive ?? true);
   const [locating, setLocating] = useState(false);
   const [scanning, setScanning] = useState(false);
+
+  const pending = create.isPending || update.isPending;
 
   const detectLocation = async () => {
     setLocating(true);
@@ -269,29 +311,46 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
       feedback.error(t("admin.bo.sites.coordsTitle"), t("admin.bo.sites.coordsMsg"));
       return;
     }
-    create.mutate(
-      {
-        name: name.trim(),
-        address: address.trim(),
-        city: city.trim() || undefined,
-        latitude: latN,
-        longitude: lngN,
-        radius: Number(radius) || 100,
-        wifiSSID: wifiSsid.trim() || undefined,
-        wifiBSSID: wifiBssid.trim() || undefined,
-      },
-      {
-        onSuccess: () => {
-          onDone();
-          feedback.success(t("admin.bo.sites.createdTitle"), name.trim());
+    const payload = {
+      name: name.trim(),
+      address: address.trim(),
+      city: city.trim() || undefined,
+      latitude: latN,
+      longitude: lngN,
+      radius: Number(radius) || 100,
+      wifiSSID: wifiSsid.trim() || undefined,
+      wifiBSSID: wifiBssid.trim() || undefined,
+    };
+
+    if (editing) {
+      update.mutate(
+        { id: site!.id, input: { ...payload, isActive: active } },
+        {
+          onSuccess: () => {
+            onDone();
+            feedback.success(t("admin.bo.sites.updatedTitle"), name.trim());
+          },
+          onError: (e: any) =>
+            feedback.error(
+              t("admin.bo.common.createFailed"),
+              e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+            ),
         },
-        onError: (e: any) =>
-          feedback.error(
-            t("admin.bo.common.createFailed"),
-            e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
-          ),
+      );
+      return;
+    }
+
+    create.mutate(payload, {
+      onSuccess: () => {
+        onDone();
+        feedback.success(t("admin.bo.sites.createdTitle"), name.trim());
       },
-    );
+      onError: (e: any) =>
+        feedback.error(
+          t("admin.bo.common.createFailed"),
+          e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+        ),
+    });
   };
 
   const field = (
@@ -363,7 +422,9 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
 
   return (
     <View style={{ gap: 15 }}>
-      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>{t("admin.bo.sites.newSite")}</Text>
+      <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>
+        {editing ? t("admin.bo.sites.editSite") : t("admin.bo.sites.newSite")}
+      </Text>
       {field(t("admin.bo.sites.name"), name, setName, "Siège — Casablanca")}
       {field(t("admin.bo.sites.address"), address, setAddress, "12 rue Hassan II")}
       {field(t("admin.bo.sites.city"), city, setCity, "Casablanca")}
@@ -378,6 +439,34 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
         {field(t("admin.bo.sites.wifi"), wifiSsid, setWifiSsid, t("admin.bo.sites.wifiPlaceholder"))}
         {detectBtn(t("admin.bo.sites.detectWifi"), "wifi", detectWifi, scanning)}
       </View>
+
+      {editing ? (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 12,
+            backgroundColor: p.surface2,
+            borderRadius: RADIUS.base,
+            borderWidth: 1,
+            borderColor: p.line,
+            padding: 14,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontFamily: FONT.bold, fontSize: 13.5, color: p.ink }}>{t("admin.bo.sites.activeLabel")}</Text>
+            <Text style={{ fontFamily: FONT.body, fontSize: 11.5, color: p.muted, marginTop: 2 }}>
+              {t("admin.bo.sites.activeHint")}
+            </Text>
+          </View>
+          <Switch
+            value={active}
+            onValueChange={setActive}
+            trackColor={{ false: p.line, true: withAlpha(p.primary, 0.5) }}
+            thumbColor={active ? p.primary : p.surface}
+          />
+        </View>
+      ) : null}
 
       <View
         style={{
@@ -397,22 +486,207 @@ function AddSiteForm({ onDone }: { onDone: () => void }) {
       </View>
 
       <Pressable
-        onPress={create.isPending ? undefined : submit}
+        onPress={pending ? undefined : submit}
         style={{
           backgroundColor: p.primary,
           borderRadius: RADIUS.base,
           paddingVertical: 16,
           alignItems: "center",
-          opacity: create.isPending ? 0.7 : 1,
+          opacity: pending ? 0.7 : 1,
         }}
       >
-        {create.isPending ? (
+        {pending ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>{t("admin.bo.sites.create")}</Text>
+          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>
+            {editing ? t("admin.bo.sites.save") : t("admin.bo.sites.create")}
+          </Text>
         )}
       </Pressable>
     </View>
+  );
+}
+
+function AssignStaffSheet({ site, onDone }: { site: AdminSite; onDone: () => void }) {
+  const p = useAdminTheme();
+  const { t } = useTranslation();
+  const members = useSiteMembers(site.id);
+  const setMembers = useSetSiteMembers();
+  const [search, setSearch] = useState("");
+  const employees = useEmployees(search);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [seeded, setSeeded] = useState(false);
+
+  // Initialise la sélection à partir des membres actuels (une seule fois).
+  useEffect(() => {
+    if (!seeded && members.data) {
+      setSelected(new Set(members.data.map((m) => m.id)));
+      setSeeded(true);
+    }
+  }, [members.data, seeded]);
+
+  const rows = useMemo(
+    () => employees.data?.pages.flatMap((pg) => pg.data ?? pg.items ?? []) ?? [],
+    [employees.data],
+  );
+
+  const toggle = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+  const save = () => {
+    setMembers.mutate(
+      { siteId: site.id, userIds: [...selected] },
+      {
+        onSuccess: () => {
+          onDone();
+          feedback.success(t("admin.bo.sites.assignSaved"), site.name);
+        },
+        onError: (e: any) =>
+          feedback.error(
+            t("admin.bo.common.createFailed"),
+            e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+          ),
+      },
+    );
+  };
+
+  const loading = members.isLoading || (employees.isLoading && rows.length === 0);
+
+  return (
+    <View style={{ gap: 14 }}>
+      <View style={{ gap: 3 }}>
+        <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>{t("admin.bo.sites.assignTitle")}</Text>
+        <Text style={{ fontFamily: FONT.semibold, fontSize: 12.5, color: p.muted }}>
+          {site.name} · {t("admin.bo.sites.assignSelected", { count: selected.size })}
+        </Text>
+      </View>
+
+      <SearchBar placeholder={t("admin.bo.sites.assignSearch")} value={search} onChange={setSearch} />
+
+      {loading ? (
+        <View style={{ paddingVertical: 30, alignItems: "center" }}>
+          <ActivityIndicator color={p.primary} />
+        </View>
+      ) : rows.length === 0 ? (
+        <View style={{ paddingVertical: 24, alignItems: "center" }}>
+          <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted }}>{t("admin.bo.sites.assignEmpty")}</Text>
+        </View>
+      ) : (
+        <View style={{ gap: 8 }}>
+          {rows.map((emp) => {
+            const on = selected.has(emp.id);
+            const otherSite = emp.site && emp.site.id !== site.id;
+            return (
+              <Pressable
+                key={emp.id}
+                onPress={() => toggle(emp.id)}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 12,
+                  paddingVertical: 11,
+                  paddingHorizontal: 13,
+                  borderRadius: RADIUS.base,
+                  borderWidth: 1.5,
+                  borderColor: on ? p.primary : p.line,
+                  backgroundColor: on ? withAlpha(p.primary, 0.07) : p.surface,
+                }}
+              >
+                <EmpAvatar
+                  name={`${emp.firstName} ${emp.lastName}`}
+                  initials={initialsOf(emp.firstName, emp.lastName)}
+                  size={40}
+                />
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text numberOfLines={1} style={{ fontFamily: FONT.bold, fontSize: 14, color: p.ink }}>
+                    {emp.firstName} {emp.lastName}
+                  </Text>
+                  <Text numberOfLines={1} style={{ fontFamily: FONT.body, fontSize: 11.5, color: p.muted }}>
+                    {emp.position || emp.department || emp.email}
+                    {otherSite ? ` · ${emp.site?.name ?? t("admin.bo.sites.assignOtherSite")}` : ""}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 8,
+                    borderWidth: 1.5,
+                    borderColor: on ? p.primary : p.line,
+                    backgroundColor: on ? p.primary : "transparent",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {on ? <AdminIcon name="check" size={15} color="#fff" /> : null}
+                </View>
+              </Pressable>
+            );
+          })}
+          {employees.hasNextPage ? (
+            <Pressable
+              onPress={() => employees.fetchNextPage()}
+              disabled={employees.isFetchingNextPage}
+              style={{ paddingVertical: 12, alignItems: "center" }}
+            >
+              {employees.isFetchingNextPage ? (
+                <ActivityIndicator size="small" color={p.primary} />
+              ) : (
+                <Text style={{ fontFamily: FONT.bold, fontSize: 13, color: p.primary }}>
+                  {t("admin.bo.common.loadMore")}
+                </Text>
+              )}
+            </Pressable>
+          ) : null}
+        </View>
+      )}
+
+      <Pressable
+        onPress={setMembers.isPending ? undefined : save}
+        style={{
+          backgroundColor: p.primary,
+          borderRadius: RADIUS.base,
+          paddingVertical: 16,
+          alignItems: "center",
+          opacity: setMembers.isPending ? 0.7 : 1,
+        }}
+      >
+        {setMembers.isPending ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={{ fontFamily: FONT.bold, fontSize: 15, color: "#fff" }}>{t("admin.bo.sites.assignSave")}</Text>
+        )}
+      </Pressable>
+    </View>
+  );
+}
+
+function CardActionBtn({ icon, label, onPress }: { icon: string; label: string; onPress: () => void }) {
+  const p = useAdminTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      android_ripple={{ color: withAlpha(p.primary, 0.08) }}
+      style={{
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 7,
+        paddingVertical: 11,
+        borderRadius: RADIUS.base,
+        borderWidth: 1,
+        borderColor: p.line,
+        backgroundColor: p.surface2,
+      }}
+    >
+      <AdminIcon name={icon as any} size={15} color={p.primary} />
+      <Text style={{ fontFamily: FONT.bold, fontSize: 12.5, color: p.ink }}>{label}</Text>
+    </Pressable>
   );
 }
 

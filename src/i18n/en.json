@@ -385,7 +385,22 @@
         "wifiFailed": "Connect to the site's Wi-Fi and allow location.",
         "wifiPermDenied": "Allow location access to detect the Wi-Fi.",
         "wifiLocationOff": "Turn on the device's location (GPS) to read the Wi-Fi network.",
-        "wifiNotConnected": "No active Wi-Fi network. Connect to the site's Wi-Fi."
+        "wifiNotConnected": "No active Wi-Fi network. Connect to the site's Wi-Fi.",
+        "editBtn": "Edit",
+        "staffBtn": "Staff",
+        "editSite": "Edit site",
+        "save": "Save",
+        "updatedTitle": "Site updated",
+        "activeLabel": "Site active",
+        "activeHint": "Disable to suspend check-ins at this site.",
+        "assignTitle": "Assign staff",
+        "assignSearch": "Search an employee…",
+        "assignSave": "Save assignment",
+        "assignSaved": "Staff updated",
+        "assignEmpty": "No employee found.",
+        "assignSelected_one": "{{count}} selected",
+        "assignSelected_other": "{{count}} selected",
+        "assignOtherSite": "Other site"
       },
       "valider": {
         "sub": "Approval queue",
