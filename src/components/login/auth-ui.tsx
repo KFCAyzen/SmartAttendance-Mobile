@@ -1,10 +1,10 @@
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -106,16 +106,11 @@ export function BrandMark() {
   const { t } = useTranslation();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-      <LinearGradient
-        colors={[C.primary, '#6E5BFF']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <View
         style={{
           width: 46,
           height: 46,
           borderRadius: 15,
-          alignItems: 'center',
-          justifyContent: 'center',
           shadowColor: C.primary,
           shadowOpacity: 0.45,
           shadowRadius: 13,
@@ -123,8 +118,11 @@ export function BrandMark() {
           elevation: 8,
         }}
       >
-        <MaterialCommunityIcons name="line-scan" size={25} color={C.white} />
-      </LinearGradient>
+        <Image
+          source={require('../../../assets/images/icon.png')}
+          style={{ width: 46, height: 46, borderRadius: 15 }}
+        />
+      </View>
       <View style={{ gap: 1 }}>
         <Text style={{ fontFamily: FONT.display, fontSize: 18, color: C.white, letterSpacing: -0.2 }}>
           SmartAttendance
