@@ -1,3 +1,4 @@
+import { API_BASE_URL } from './base-url';
 import { api } from './client';
 import type { User } from './types';
 
@@ -49,7 +50,7 @@ export async function getMyProfile(): Promise<User> {
  */
 export function buildPhotoUrl(photoUrl: string | null | undefined): string | null {
   if (!photoUrl) return null;
-  const baseURL = (process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3001').replace(/\/$/, '');
+  const baseURL = API_BASE_URL.replace(/\/$/, '');
   const path = photoUrl.startsWith('/') ? photoUrl : `/${photoUrl}`;
   return `${baseURL}/uploads${path}`;
 }

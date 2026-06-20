@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "go": "expo start --go",
     "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev.ps1",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",

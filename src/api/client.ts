@@ -2,12 +2,11 @@ import axios, { AxiosError, type AxiosInstance } from 'axios';
 import i18n from '../i18n';
 
 import { getItem, setItem, StorageKeys } from '../lib/secure-storage';
+import { API_BASE_URL } from './base-url';
 import type { ApiError } from './types';
 
-const baseURL = process.env.EXPO_PUBLIC_API_URL ?? 'http://10.0.2.2:3001';
-
 export const api: AxiosInstance = axios.create({
-  baseURL,
+  baseURL: API_BASE_URL,
   timeout: 30_000,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
