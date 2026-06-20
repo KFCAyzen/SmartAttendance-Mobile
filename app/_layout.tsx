@@ -21,7 +21,7 @@ import {
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -29,6 +29,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { setUnauthorizedHandler } from "~/api/client";
+import { AnimatedSplash } from "~/components/AnimatedSplash";
 import { Providers } from "~/components/Providers";
 import { FeedbackProvider } from "~/components/feedback";
 import { useAuthStore } from "~/stores/auth.store";
@@ -49,6 +50,7 @@ function RootLayoutNav() {
   const hydrate = useAuthStore((s) => s.hydrate);
   const navState = useRootNavigationState();
   const navReady = Boolean(navState?.key);
+  const [splashFinished, setSplashFinished] = useState(false);
 
   const [fontsLoaded] = useFonts({
     BricolageGrotesque_700Bold,
@@ -58,9 +60,11 @@ function RootLayoutNav() {
     PlusJakartaSans_700Bold,
   });
 
-  useEffect(() => {
-    if (fontsLoaded) void SplashScreen.hideAsync();
-  }, [fontsLoaded]);
+  // L'app est prête quand les polices sont chargées et la session résolue.
+  // Le splash animé (qui contrôle le hand-off depuis le splash natif) reste
+  // affiché tant que ce n'est pas le cas et que sa séquence n'est pas terminée.
+  const appReady =
+    fontsLoaded && status !== "idle" && status !== "loading";
 
   useEffect(() => {
     void hydrate();
@@ -109,34 +113,45 @@ function RootLayoutNav() {
   }, [navReady, status, isAdmin, segments, router]);
 
   if (!fontsLoaded) {
-    // Splash reste affiché tant que les polices ne sont pas chargées.
+    // Splash natif reste affiché tant que les polices ne sont pas chargées.
     return null;
   }
 
-  if (status === "idle" || status === "loading") {
-    return (
+  // Le contenu de l'app se monte sous le splash animé dès que les polices sont
+  // prêtes ; le splash le recouvre jusqu'à la fin de sa séquence.
+  const body =
+    status === "idle" || status === "loading" ? (
       <View className="flex-1 items-center justify-center bg-surface-light dark:bg-surface-dark">
         <ActivityIndicator color="#2F5BFF" />
       </View>
+    ) : (
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Providers>
+          <FeedbackProvider>
+            {/* La key sur la langue remonte tout l'arbre de navigation au changement
+                de langue : les écrans à onglets gelés/détachés (qui ratent l'event
+                languageChanged) sont reconstruits dans la nouvelle langue. */}
+            <Stack key={i18n.language}>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            </Stack>
+          </FeedbackProvider>
+        </Providers>
+        <StatusBar style="auto" />
+      </ThemeProvider>
     );
-  }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Providers>
-        <FeedbackProvider>
-          {/* La key sur la langue remonte tout l'arbre de navigation au changement
-              de langue : les écrans à onglets gelés/détachés (qui ratent l'event
-              languageChanged) sont reconstruits dans la nouvelle langue. */}
-          <Stack key={i18n.language}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          </Stack>
-        </FeedbackProvider>
-      </Providers>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <>
+      {body}
+      {!splashFinished ? (
+        <AnimatedSplash
+          appReady={appReady}
+          onFinish={() => setSplashFinished(true)}
+        />
+      ) : null}
+    </>
   );
 }
 
