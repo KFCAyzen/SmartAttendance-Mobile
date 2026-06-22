@@ -29,14 +29,14 @@ export default function LeaveNewScreen() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  const typeOptions = (['VACATION', 'SICK', 'PERSONAL', 'MATERNITY', 'PATERNITY', 'UNPAID'] as LeaveType[]).map((type) => ({
+  const typeOptions = (['PAID_LEAVE', 'RTT', 'SICK_LEAVE', 'UNPAID_LEAVE', 'OTHER'] as LeaveType[]).map((type) => ({
     value: type,
     label: getLeaveTypeLabel(t, type),
   }));
-  
+
   const schema = z
     .object({
-      type: z.enum(['VACATION', 'SICK', 'PERSONAL', 'MATERNITY', 'PATERNITY', 'UNPAID']),
+      type: z.enum(['PAID_LEAVE', 'RTT', 'SICK_LEAVE', 'UNPAID_LEAVE', 'OTHER']),
       startDate: z.date(),
       endDate: z.date(),
       reason: z.string().optional(),
@@ -52,7 +52,7 @@ export default function LeaveNewScreen() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { type: 'VACATION', startDate: today, endDate: today, reason: '' },
+    defaultValues: { type: 'PAID_LEAVE', startDate: today, endDate: today, reason: '' },
   });
 
   const create = useMutation({

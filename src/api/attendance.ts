@@ -15,6 +15,7 @@ export interface CheckOutPayload {
 
 export interface AttendanceHistoryItem {
   id: string;
+  userId?: string;
   type: 'CHECK_IN' | 'CHECK_OUT';
   timestamp: string;
   latitude?: number | null;
@@ -25,6 +26,7 @@ export interface AttendanceHistoryItem {
   faceMatch?: boolean;
   faceConfidence?: number | null;
   hoursWorked?: number | null;
+  overtimeHours?: number | null;
 }
 
 export interface AttendanceHistoryResponse {

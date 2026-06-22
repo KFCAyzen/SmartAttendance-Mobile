@@ -217,11 +217,11 @@ function LeaveCard({ leave }: { leave: Leave }) {
           {leave.reason}
         </Text>
       ) : null}
-      {leave.rejectionReason ? (
+      {leave.adminComment ? (
         <View className="flex-row items-start gap-1.5 rounded-xl bg-danger/[0.09] px-3 py-2">
           <Ionicons name="alert-circle-outline" size={14} color="#EF4444" style={{ marginTop: 1 }} />
           <Text className="flex-1 font-body text-[12px] text-danger">
-            {t('requests.rejectionReason', { reason: leave.rejectionReason })}
+            {t('requests.rejectionReason', { reason: leave.adminComment })}
           </Text>
         </View>
       ) : null}

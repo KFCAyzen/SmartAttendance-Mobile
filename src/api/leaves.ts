@@ -1,23 +1,29 @@
 import { api } from './client';
 
-export type LeaveType = 'VACATION' | 'SICK' | 'PERSONAL' | 'MATERNITY' | 'PATERNITY' | 'UNPAID';
+// Doit refléter l'enum Prisma `LeaveType` (source de vérité : base PostgreSQL).
+export type LeaveType = 'PAID_LEAVE' | 'RTT' | 'SICK_LEAVE' | 'UNPAID_LEAVE' | 'OTHER';
 export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'INTERRUPTED';
 
 export interface Leave {
   id: string;
+  userId: string;
   type: LeaveType;
   status: LeaveStatus;
   startDate: string;
   endDate: string;
+  days: number;
   reason?: string | null;
   attachmentUrl?: string | null;
-  rejectionReason?: string | null;
+  adminComment?: string | null;
+  approvedBy?: string | null;
+  approvedAt?: string | null;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface LeaveBalance {
   type: LeaveType;
-  year: number;
+  year?: number;
   total: number;
   used: number;
   remaining: number;

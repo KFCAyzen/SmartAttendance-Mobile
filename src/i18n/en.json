@@ -559,13 +559,7 @@
     "RTT": "RTT",
     "SICK_LEAVE": "Sick leave",
     "UNPAID_LEAVE": "Unpaid leave",
-    "OTHER": "Other",
-    "VACATION": "Paid leave",
-    "SICK": "Sick leave",
-    "PERSONAL": "Personal",
-    "MATERNITY": "Maternity",
-    "PATERNITY": "Paternity",
-    "UNPAID": "Unpaid"
+    "OTHER": "Other"
   },
   "leaveStatuses": {
     "PENDING": "Pending",

@@ -42,8 +42,6 @@ export interface AdminUserSummary {
 export interface AdminLeave extends Omit<Leave, 'type' | 'status'> {
   type: LeaveType;
   status: LeaveStatus;
-  days?: number;
-  adminComment?: string | null;
   user?: AdminUserSummary;
 }
 

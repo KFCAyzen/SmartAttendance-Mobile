@@ -21,7 +21,7 @@ import { FONT, RADIUS, toneColor, withAlpha, type Tone } from "~/components/admi
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useAdminPlanning, useCreateLeave, useEmployees } from "~/hooks/useAdminData";
 
-const LEAVE_TYPE_KEYS: LeaveType[] = ["VACATION", "SICK", "PERSONAL", "UNPAID", "MATERNITY", "PATERNITY"];
+const LEAVE_TYPE_KEYS: LeaveType[] = ["PAID_LEAVE", "RTT", "SICK_LEAVE", "UNPAID_LEAVE", "OTHER"];
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -278,7 +278,7 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
   const create = useCreateLeave();
   const [search, setSearch] = useState("");
   const [emp, setEmp] = useState<AdminEmployee | null>(null);
-  const [type, setType] = useState<LeaveType>("VACATION");
+  const [type, setType] = useState<LeaveType>("PAID_LEAVE");
   const today = new Date().toISOString().slice(0, 10);
   const [start, setStart] = useState(today);
   const [end, setEnd] = useState(today);
