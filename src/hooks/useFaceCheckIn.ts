@@ -13,6 +13,7 @@ interface CheckInArgs {
   photoUri: string;
   coords?: Coordinates | null;
   wifiSSID?: string;
+  wifiBSSID?: string;
 }
 
 export function useFaceCheckIn() {
@@ -20,7 +21,7 @@ export function useFaceCheckIn() {
   const queryClient = useQueryClient();
 
   return useMutation<FaceCheckInResponse, unknown, CheckInArgs>({
-    mutationFn: async ({ photoUri, coords, wifiSSID }) => {
+    mutationFn: async ({ photoUri, coords, wifiSSID, wifiBSSID }) => {
       const [deviceId, photo] = await Promise.all([
         getOrCreateDeviceId(),
         compressForUpload(photoUri),
@@ -32,6 +33,7 @@ export function useFaceCheckIn() {
           latitude: coords?.latitude,
           longitude: coords?.longitude,
           wifiSSID,
+          wifiBSSID,
         });
       } catch (error) {
         if (!isNetworkError(error)) throw error;
@@ -43,6 +45,7 @@ export function useFaceCheckIn() {
           latitude: coords?.latitude,
           longitude: coords?.longitude,
           wifiSSID,
+          wifiBSSID,
           timestamp: Date.now(),
           attempts: 0,
         });

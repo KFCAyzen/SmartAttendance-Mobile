@@ -9,6 +9,7 @@ export interface PendingCheckIn {
   latitude?: number;
   longitude?: number;
   wifiSSID?: string;
+  wifiBSSID?: string;
   timestamp: number;
   attempts: number;
 }

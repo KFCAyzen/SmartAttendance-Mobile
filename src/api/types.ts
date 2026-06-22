@@ -26,6 +26,7 @@ export interface FaceCheckInPayload {
   latitude?: number;
   longitude?: number;
   wifiSSID?: string;
+  wifiBSSID?: string;
 }
 
 export interface FaceCheckInResponse {

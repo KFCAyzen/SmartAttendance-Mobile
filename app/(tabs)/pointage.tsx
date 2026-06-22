@@ -27,6 +27,7 @@ import { Card } from '~/components/ui/Card';
 import { useFaceCheckIn } from '~/hooks/useFaceCheckIn';
 import { useLocation } from '~/hooks/useLocation';
 import { formatTime } from '~/lib/date';
+import { scanWifi } from '~/lib/wifi';
 import { useAuthStore } from '~/stores/auth.store';
 
 type Phase = 'idle' | 'scanning' | 'success';
@@ -148,9 +149,11 @@ export default function PointageScreen() {
     setPhase('scanning');
     setCapturing(true);
     try {
-      // Kick off location in parallel — it doesn't depend on the photo and is
-      // the slowest step, so racing it with the capture cuts total wait time.
+      // Kick off location + Wi-Fi scan in parallel — neither depends on the
+      // photo and both are slow, so racing them with the capture cuts wait time.
+      // Both are optional signals: a miss must never block the check-in.
       const coordsPromise = fetchCoords();
+      const wifiPromise = scanWifi();
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.7,
         skipProcessing: true,
@@ -158,7 +161,13 @@ export default function PointageScreen() {
       });
       if (!photo?.uri) throw new Error(t('checkin.captureFailed'));
       const coords = await coordsPromise;
-      const result = await checkIn.mutateAsync({ photoUri: photo.uri, coords });
+      const wifi = await wifiPromise;
+      const result = await checkIn.mutateAsync({
+        photoUri: photo.uri,
+        coords,
+        wifiSSID: wifi.ok ? wifi.wifi.ssid : undefined,
+        wifiBSSID: wifi.ok ? wifi.wifi.bssid : undefined,
+      });
       if (result.user) {
         setLastResult(result);
         setPhase('success');

@@ -31,6 +31,7 @@ export function useOfflineSync() {
         latitude: item.latitude,
         longitude: item.longitude,
         wifiSSID: item.wifiSSID,
+        wifiBSSID: item.wifiBSSID,
       });
       pop();
       void queryClient.invalidateQueries({ queryKey: ['attendance'] });

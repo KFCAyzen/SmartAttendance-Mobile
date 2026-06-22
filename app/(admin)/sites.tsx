@@ -1,5 +1,3 @@
-import NetInfo from "@react-native-community/netinfo";
-import * as Location from "expo-location";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -33,6 +31,7 @@ import {
   useUpdateSite,
 } from "~/hooks/useAdminData";
 import { useLocation } from "~/hooks/useLocation";
+import { scanWifi } from "~/lib/wifi";
 
 const initialsOf = (first?: string, last?: string) =>
   `${(first || "").charAt(0)}${(last || "").charAt(0)}`.toUpperCase() || "–";
@@ -266,37 +265,19 @@ function SiteForm({ site, onDone }: { site?: AdminSite; onDone: () => void }) {
   const detectWifi = async () => {
     setScanning(true);
     try {
-      const fail = (msg: string) =>
-        feedback.error(t("admin.bo.sites.wifiTitle"), msg);
-
-      // Android n'expose le SSID que si la permission de localisation est accordée
-      // ET que les services de localisation (GPS) sont activés sur l'appareil.
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        fail(t("admin.bo.sites.wifiPermDenied"));
+      const result = await scanWifi();
+      if (!result.ok) {
+        const msg: Record<typeof result.reason, string> = {
+          permission: t("admin.bo.sites.wifiPermDenied"),
+          "location-off": t("admin.bo.sites.wifiLocationOff"),
+          "not-wifi": t("admin.bo.sites.wifiNotConnected"),
+          unavailable: t("admin.bo.sites.wifiFailed"),
+        };
+        feedback.error(t("admin.bo.sites.wifiTitle"), msg[result.reason]);
         return;
       }
-      if (!(await Location.hasServicesEnabledAsync())) {
-        fail(t("admin.bo.sites.wifiLocationOff"));
-        return;
-      }
-
-      // Par défaut NetInfo ne lit pas le SSID/BSSID (coûteux + permission) : il faut
-      // l'activer explicitement, puis forcer une lecture native fraîche via refresh().
-      NetInfo.configure({ shouldFetchWiFiSSID: true });
-      const state = await NetInfo.refresh();
-      if (state.type !== "wifi") {
-        fail(t("admin.bo.sites.wifiNotConnected"));
-        return;
-      }
-      const d = state.details as { ssid?: string | null; bssid?: string | null } | null;
-      const ssid = d?.ssid?.replace(/^"|"$/g, "") ?? "";
-      if (!ssid || ssid === "<unknown ssid>") {
-        fail(t("admin.bo.sites.wifiFailed"));
-        return;
-      }
-      setWifiSsid(ssid);
-      setWifiBssid(d?.bssid ?? "");
+      setWifiSsid(result.wifi.ssid ?? "");
+      setWifiBssid(result.wifi.bssid ?? "");
     } finally {
       setScanning(false);
     }
@@ -439,6 +420,7 @@ function SiteForm({ site, onDone }: { site?: AdminSite; onDone: () => void }) {
 
       <View style={{ gap: 8 }}>
         {field(t("admin.bo.sites.wifi"), wifiSsid, setWifiSsid, t("admin.bo.sites.wifiPlaceholder"))}
+        {field(t("admin.bo.sites.wifiBssid"), wifiBssid, setWifiBssid, t("admin.bo.sites.wifiBssidPlaceholder"))}
         {detectBtn(t("admin.bo.sites.detectWifi"), "wifi", detectWifi, scanning)}
       </View>
 
