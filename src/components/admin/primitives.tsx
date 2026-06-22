@@ -156,11 +156,13 @@ export function AdminHeader({
   sub,
   right,
   backLabel,
+  onBack,
 }: {
   title: string;
   sub?: string;
   right?: ReactNode;
   backLabel?: string;
+  onBack?: () => void;
 }) {
   const p = useAdminTheme();
   const router = useRouter();
@@ -168,7 +170,7 @@ export function AdminHeader({
     <View style={{ gap: backLabel ? 10 : 0 }}>
       {backLabel ? (
         <Pressable
-          onPress={() => router.replace('/(admin)/plus' as never)}
+          onPress={() => (onBack ? onBack() : router.replace('/(admin)/plus' as never))}
           android_ripple={{ color: withAlpha(p.primary, 0.08), borderless: false }}
           style={{
             alignSelf: 'flex-start',

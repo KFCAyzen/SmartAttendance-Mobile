@@ -60,8 +60,11 @@ export interface AdminEmployee {
   department?: string | null;
   position?: string | null;
   phone?: string | null;
+  address?: string | null;
+  emergencyContact?: string | null;
   isActive: boolean;
   isPending: boolean;
+  mustChangePassword?: boolean;
   team?: { id: string; name: string } | null;
   site?: { id: string; name: string } | null;
   _count?: { attendances: number };
@@ -82,6 +85,8 @@ export async function getEmployees(
   department?: string,
   siteId?: string,
   assignment?: EmployeeAssignment,
+  role?: string,
+  status?: string,
 ): Promise<PagedResponse<AdminEmployee>> {
   const { data } = await api.get<PagedResponse<AdminEmployee>>('/admin/employees', {
     params: {
@@ -91,6 +96,8 @@ export async function getEmployees(
       department: department || undefined,
       siteId: siteId || undefined,
       assignment: assignment || undefined,
+      role: role && role !== 'all' ? role : undefined,
+      status: status && status !== 'all' ? status : undefined,
     },
   });
   return data;
@@ -103,6 +110,8 @@ export interface CreateEmployeeInput {
   position?: string;
   department?: string;
   phone?: string;
+  address?: string;
+  emergencyContact?: string;
   role?: 'EMPLOYEE' | 'HR' | 'ADMIN';
 }
 
@@ -113,6 +122,109 @@ export interface CreatedEmployee extends AdminEmployee {
 
 export async function createEmployee(input: CreateEmployeeInput): Promise<CreatedEmployee> {
   const { data } = await api.post<CreatedEmployee>('/admin/employees', input);
+  return data;
+}
+
+export interface UpdateEmployeeInput {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  position?: string | null;
+  department?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  emergencyContact?: string | null;
+  role?: 'EMPLOYEE' | 'HR' | 'ADMIN';
+  /** Bascule actif/inactif (le back garde l'historique de pointage). */
+  isActive?: boolean;
+}
+
+export async function updateEmployee(
+  id: string,
+  input: UpdateEmployeeInput,
+): Promise<AdminEmployee> {
+  const { data } = await api.put<AdminEmployee>(`/admin/employees/${id}`, input);
+  return data;
+}
+
+/** Suppression définitive (réservée ADMIN côté serveur). */
+export async function deleteEmployee(id: string): Promise<{ message: string }> {
+  const { data } = await api.delete<{ message: string }>(`/admin/employees/${id}`);
+  return data;
+}
+
+/** Valide un employé en attente (isPending → false). */
+export async function validateEmployee(id: string): Promise<AdminEmployee> {
+  const { data } = await api.post<AdminEmployee>(`/admin/employees/${id}/validate`);
+  return data;
+}
+
+/** Réinitialise le mot de passe : renvoie un mot de passe temporaire à transmettre. */
+export async function resetEmployeePassword(
+  id: string,
+): Promise<{ temporaryPassword: string }> {
+  const { data } = await api.post<{ success: boolean; temporaryPassword: string }>(
+    `/admin/users/${id}/reset-password`,
+  );
+  return data;
+}
+
+// ── Profil employé (fiche détaillée + statistiques) ─────────────────────────
+export interface EmployeeProfileStats {
+  totalCheckIns: number;
+  totalCheckOuts: number;
+  totalHours: number;
+  lateCount: number;
+  absences: number;
+  attendanceScore: number;
+}
+
+export interface EmployeeProfile {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
+  department?: string | null;
+  position?: string | null;
+  phone?: string | null;
+  dateOfBirth?: string | null;
+  hireDate?: string | null;
+  address?: string | null;
+  bio?: string | null;
+  gender?: string | null;
+  educationLevel?: string | null;
+  emergencyContact?: string | null;
+  photoUrl?: string | null;
+  team?: { id: string; name: string } | null;
+  site?: { id: string; name: string } | null;
+  createdAt?: string;
+  stats: EmployeeProfileStats;
+}
+
+export interface UpdateEmployeeProfileInput {
+  position?: string | null;
+  phone?: string | null;
+  department?: string | null;
+  dateOfBirth?: string | null;
+  hireDate?: string | null;
+  address?: string | null;
+  bio?: string | null;
+  gender?: string | null;
+  educationLevel?: string | null;
+  emergencyContact?: string | null;
+}
+
+export async function getEmployeeProfile(id: string): Promise<EmployeeProfile> {
+  const { data } = await api.get<EmployeeProfile>(`/employees/${id}/profile`);
+  return data;
+}
+
+export async function updateEmployeeProfile(
+  id: string,
+  input: UpdateEmployeeProfileInput,
+): Promise<{ success: boolean }> {
+  const { data } = await api.patch<{ success: boolean }>(`/employees/${id}/profile`, input);
   return data;
 }
 

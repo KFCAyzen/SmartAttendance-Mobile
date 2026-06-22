@@ -10,6 +10,11 @@ import {
   createEmployee,
   createLeaveRequest,
   createSite,
+  deleteEmployee,
+  getEmployeeProfile,
+  resetEmployeePassword,
+  updateEmployeeProfile,
+  validateEmployee,
   getAdminOverview,
   getAdminPendingCounts,
   getAnalyticsDepartments,
@@ -28,6 +33,7 @@ import {
   rejectLeave,
   setSiteMembers,
   updateAbsenceStatus,
+  updateEmployee,
   updateSetting,
   updateSite,
   type AdminSettings,
@@ -35,6 +41,8 @@ import {
   type CreateLeaveInput,
   type CreateSiteInput,
   type EmployeeAssignment,
+  type UpdateEmployeeInput,
+  type UpdateEmployeeProfileInput,
   type UpdateSiteInput,
 } from "../api/admin";
 import { useAuthStore } from "../stores/auth.store";
@@ -96,6 +104,64 @@ export function useCreateEmployee() {
   });
 }
 
+function invalidateEmployees(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: [...root, "employees"] });
+  queryClient.invalidateQueries({ queryKey: [...root, "roles"] });
+  queryClient.invalidateQueries({ queryKey: [...root, "live-presence"] });
+  queryClient.invalidateQueries({ queryKey: [...root, "pending-counts"] });
+}
+
+export function useUpdateEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateEmployeeInput }) =>
+      updateEmployee(id, input),
+    onSuccess: () => invalidateEmployees(queryClient),
+  });
+}
+
+export function useDeleteEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteEmployee(id),
+    onSuccess: () => invalidateEmployees(queryClient),
+  });
+}
+
+export function useValidateEmployee() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => validateEmployee(id),
+    onSuccess: () => invalidateEmployees(queryClient),
+  });
+}
+
+export function useResetEmployeePassword() {
+  return useMutation({
+    mutationFn: (id: string) => resetEmployeePassword(id),
+  });
+}
+
+export function useEmployeeProfile(id?: string) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "employee-profile", id],
+    queryFn: () => getEmployeeProfile(id!),
+    enabled: isAdmin && !!id,
+  });
+}
+
+export function useUpdateEmployeeProfile(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: UpdateEmployeeProfileInput) => updateEmployeeProfile(id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...root, "employee-profile", id] });
+      queryClient.invalidateQueries({ queryKey: [...root, "employees"] });
+    },
+  });
+}
+
 export function useCreateSite() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -149,15 +215,31 @@ export function useCreateLeave() {
 export function useEmployees(
   search: string,
   department?: string,
-  filters?: { siteId?: string; assignment?: EmployeeAssignment },
+  filters?: {
+    siteId?: string;
+    assignment?: EmployeeAssignment;
+    role?: string;
+    status?: string;
+  },
 ) {
   const isAdmin = useIsAdmin();
   const siteId = filters?.siteId;
   const assignment = filters?.assignment;
+  const role = filters?.role;
+  const status = filters?.status;
   return useInfiniteQuery({
-    queryKey: [...root, "employees", search, department ?? "all", siteId ?? "all", assignment ?? "all"],
+    queryKey: [
+      ...root,
+      "employees",
+      search,
+      department ?? "all",
+      siteId ?? "all",
+      assignment ?? "all",
+      role ?? "all",
+      status ?? "all",
+    ],
     queryFn: ({ pageParam = 1 }) =>
-      getEmployees(pageParam, 20, search, department, siteId, assignment),
+      getEmployees(pageParam, 20, search, department, siteId, assignment, role, status),
     initialPageParam: 1,
     enabled: isAdmin,
     getNextPageParam: (last) => {

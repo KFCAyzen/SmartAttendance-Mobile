@@ -19,6 +19,7 @@ export default function AdminLayout() {
       <Tabs.Screen name="demandes" options={{ title: "Demandes", href: null }} />
       <Tabs.Screen name="historique" options={{ title: "Historique", href: null }} />
       <Tabs.Screen name="equipe" options={{ title: "Équipe", href: null }} />
+      <Tabs.Screen name="employe" options={{ title: "Fiche employé", href: null }} />
       <Tabs.Screen name="planning" options={{ title: "Planning", href: null }} />
       <Tabs.Screen name="reports" options={{ title: "Rapports", href: null }} />
       <Tabs.Screen name="sites" options={{ title: "Sites", href: null }} />
