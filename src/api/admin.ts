@@ -112,6 +112,7 @@ export interface CreateEmployeeInput {
   phone?: string;
   address?: string;
   emergencyContact?: string;
+  teamId?: string | null;
   role?: 'EMPLOYEE' | 'HR' | 'ADMIN';
 }
 
@@ -134,6 +135,7 @@ export interface UpdateEmployeeInput {
   phone?: string | null;
   address?: string | null;
   emergencyContact?: string | null;
+  teamId?: string | null;
   role?: 'EMPLOYEE' | 'HR' | 'ADMIN';
   /** Bascule actif/inactif (le back garde l'historique de pointage). */
   isActive?: boolean;
@@ -510,6 +512,85 @@ export async function approvePhotoRequest(userId: string): Promise<{ success?: b
 export async function rejectPhotoRequest(userId: string): Promise<{ success?: boolean }> {
   const { data } = await api.post<{ success?: boolean }>('/admin/photo-requests/reject', {
     userId,
+  });
+  return data;
+}
+
+// ── Équipes ─────────────────────────────────────────────────────────────────
+export interface AdminTeam {
+  id: string;
+  name: string;
+  description?: string | null;
+  managerId?: string | null;
+  isActive?: boolean;
+  manager?: { id: string; firstName: string; lastName: string } | null;
+  _count?: { members: number };
+}
+
+export interface CreateTeamInput {
+  name: string;
+  description?: string | null;
+  managerId?: string | null;
+}
+
+export type UpdateTeamInput = Partial<CreateTeamInput> & { isActive?: boolean };
+
+export async function getTeams(): Promise<AdminTeam[]> {
+  const { data } = await api.get<AdminTeam[]>('/admin/teams');
+  return data;
+}
+
+export async function createTeam(input: CreateTeamInput): Promise<AdminTeam> {
+  const { data } = await api.post<AdminTeam>('/admin/teams', input);
+  return data;
+}
+
+export async function updateTeam(id: string, input: UpdateTeamInput): Promise<AdminTeam> {
+  const { data } = await api.put<AdminTeam>(`/admin/teams/${id}`, input);
+  return data;
+}
+
+export async function deleteTeam(id: string): Promise<{ message: string }> {
+  const { data } = await api.delete<{ message: string }>(`/admin/teams/${id}`);
+  return data;
+}
+
+// ── Historique admin (pointages & congés, tous employés) ────────────────────
+export interface AdminAttendanceRow {
+  id: string;
+  type: 'CHECK_IN' | 'CHECK_OUT';
+  timestamp: string;
+  hoursWorked?: number | null;
+  user?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    department?: string | null;
+  } | null;
+}
+
+export async function getAdminAttendances(limit = 100): Promise<AdminAttendanceRow[]> {
+  const { data } = await api.get<AdminAttendanceRow[]>('/admin/attendances', {
+    params: { limit },
+  });
+  return data;
+}
+
+export interface AdminLeaveRow {
+  id: string;
+  type: LeaveType;
+  status: LeaveStatus;
+  startDate: string;
+  endDate: string;
+  reason?: string | null;
+  createdAt?: string;
+  user?: { name: string; email: string } | null;
+}
+
+export async function getAdminLeaves(status?: string): Promise<AdminLeaveRow[]> {
+  const { data } = await api.get<AdminLeaveRow[]>('/admin/leaves', {
+    params: { status: status && status !== 'all' ? status : undefined },
   });
   return data;
 }

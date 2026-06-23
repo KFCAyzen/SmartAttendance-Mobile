@@ -43,6 +43,12 @@ export async function getMyProfile(): Promise<User> {
   return data;
 }
 
+/** RGPD : export des données personnelles de l'utilisateur (objet JSON). */
+export async function exportMyData(locale: 'fr' | 'en' = 'fr'): Promise<unknown> {
+  const { data } = await api.get('/user/export-data', { params: { locale } });
+  return data;
+}
+
 /**
  * Backend stores photos under `uploads/photos/` and serves them at `/uploads/`.
  * Returned photoUrl is e.g. `/photos/abc.jpg`, so the absolute URL is

@@ -26,7 +26,9 @@ interface HubItem {
 const ITEMS: HubItem[] = [
   { key: "espace", icon: "user", route: "/(admin)/espace" },
   { key: "equipe", icon: "users", route: "/(admin)/equipe" },
+  { key: "equipes", icon: "grid", route: "/(admin)/equipes" },
   { key: "planning", icon: "calendar", route: "/(admin)/planning" },
+  { key: "historique", icon: "clock", route: "/(admin)/historique" },
   { key: "reports", icon: "bars", route: "/(admin)/reports" },
   { key: "sites", icon: "building", route: "/(admin)/sites" },
   { key: "roles", icon: "key", route: "/(admin)/roles" },

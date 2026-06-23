@@ -27,6 +27,7 @@ import {
   useEmployeeDepartments,
   useEmployees,
   useResetEmployeePassword,
+  useTeams,
   useUpdateEmployee,
   useValidateEmployee,
 } from "~/hooks/useAdminData";
@@ -526,6 +527,8 @@ function EmployeeForm({
   const [address, setAddress] = useState(emp?.address ?? "");
   const [emergencyContact, setEmergencyContact] = useState(emp?.emergencyContact ?? "");
   const [dept, setDept] = useState(emp?.department ?? departments[0] ?? "");
+  const [teamId, setTeamId] = useState<string | null>(emp?.team?.id ?? null);
+  const teams = useTeams();
   const [role, setRole] = useState<"EMPLOYEE" | "HR" | "ADMIN">(initialRole);
   // En édition, on n'envoie le rôle que si l'admin l'a explicitement changé,
   // pour ne jamais rétrograder un MANAGER (rôle absent du sélecteur).
@@ -558,6 +561,7 @@ function EmployeeForm({
             phone: phone.trim() || null,
             address: address.trim() || null,
             emergencyContact: emergencyContact.trim() || null,
+            teamId,
             ...(roleTouched ? { role } : {}),
           },
         },
@@ -582,6 +586,7 @@ function EmployeeForm({
         phone: phone.trim() || undefined,
         address: address.trim() || undefined,
         emergencyContact: emergencyContact.trim() || undefined,
+        teamId: teamId || undefined,
         role,
       },
       {
@@ -693,6 +698,47 @@ function EmployeeForm({
                 </Pressable>
               );
             })}
+          </View>
+        </View>
+      ) : null}
+
+      {(teams.data?.length ?? 0) > 0 ? (
+        <View>
+          <Text
+            style={{
+              fontFamily: FONT.bold,
+              fontSize: 11.5,
+              color: p.muted,
+              letterSpacing: 0.3,
+              textTransform: "uppercase",
+            }}
+          >
+            {t("admin.bo.equipe.team")}
+          </Text>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 9 }}>
+            {[{ id: null as string | null, name: t("admin.bo.equipe.noTeam") }, ...(teams.data ?? [])].map(
+              (tm) => {
+                const on = teamId === tm.id;
+                return (
+                  <Pressable
+                    key={tm.id ?? "none"}
+                    onPress={() => setTeamId(tm.id)}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: on ? p.primary : p.line,
+                      backgroundColor: on ? withAlpha(p.primary, 0.12) : p.surface2,
+                      borderRadius: 999,
+                      paddingHorizontal: 13,
+                      paddingVertical: 9,
+                    }}
+                  >
+                    <Text style={{ fontFamily: FONT.bold, fontSize: 12.5, color: on ? p.primary : p.muted }}>
+                      {tm.name}
+                    </Text>
+                  </Pressable>
+                );
+              },
+            )}
           </View>
         </View>
       ) : null}

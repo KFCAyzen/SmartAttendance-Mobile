@@ -3,12 +3,12 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useSegments } from 'expo-router';
 import { useColorScheme } from 'nativewind';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, Share, Switch, Text, View } from 'react-native';
 
 import { humanizeApiError } from '~/api/client';
-import { buildPhotoUrl } from '~/api/users';
+import { buildPhotoUrl, exportMyData } from '~/api/users';
 import { feedback } from '~/components/feedback';
 import { Card } from '~/components/ui/Card';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
@@ -65,6 +65,24 @@ export default function ProfileScreen() {
       { text: t('common.cancel'), style: 'cancel' },
       { text: t('common.logout'), style: 'destructive', onPress: () => void logout() },
     ]);
+  };
+
+  const [exporting, setExporting] = useState(false);
+  // RGPD : l'utilisateur récupère ses données personnelles (droit d'accès/portabilité).
+  const exportData = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const data = await exportMyData(isEnglish ? 'en' : 'fr');
+      await Share.share({
+        title: t('profile.exportData'),
+        message: JSON.stringify(data, null, 2),
+      });
+    } catch (error) {
+      feedback.error(humanizeApiError(error));
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -197,6 +215,12 @@ export default function ProfileScreen() {
           icon="shield-checkmark-outline"
           label={t('profile.security')}
           onPress={() => router.push('/change-password')}
+        />
+        <SettingRow
+          icon="download-outline"
+          label={t('profile.exportData')}
+          onPress={exportData}
+          control={exporting ? <ActivityIndicator size="small" color="#2F5BFF" /> : undefined}
           last
         />
       </Card>

@@ -12,13 +12,19 @@ import {
   createEmployee,
   createLeaveRequest,
   createSite,
+  createTeam,
   deleteEmployee,
+  deleteTeam,
+  getAdminAttendances,
+  getAdminLeaves,
   getEmployeeProfile,
   getPhotoRequests,
+  getTeams,
   rejectPhotoRequest,
   resetEmployeePassword,
   revokeDevice,
   updateEmployeeProfile,
+  updateTeam,
   validateEmployee,
   getAdminOverview,
   getAdminPendingCounts,
@@ -45,10 +51,12 @@ import {
   type CreateEmployeeInput,
   type CreateLeaveInput,
   type CreateSiteInput,
+  type CreateTeamInput,
   type EmployeeAssignment,
   type UpdateEmployeeInput,
   type UpdateEmployeeProfileInput,
   type UpdateSiteInput,
+  type UpdateTeamInput,
 } from "../api/admin";
 import { useAuthStore } from "../stores/auth.store";
 
@@ -412,6 +420,64 @@ export function useRejectPhotoRequest() {
   return useMutation({
     mutationFn: (userId: string) => rejectPhotoRequest(userId),
     onSuccess: () => invalidatePhotos(queryClient),
+  });
+}
+
+// ── Équipes ──────────────────────────────────────────────────────────────────
+export function useTeams() {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "teams"],
+    queryFn: getTeams,
+    enabled: isAdmin,
+  });
+}
+
+function invalidateTeams(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: [...root, "teams"] });
+  queryClient.invalidateQueries({ queryKey: [...root, "employees"] });
+}
+
+export function useCreateTeam() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateTeamInput) => createTeam(input),
+    onSuccess: () => invalidateTeams(queryClient),
+  });
+}
+
+export function useUpdateTeam() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateTeamInput }) => updateTeam(id, input),
+    onSuccess: () => invalidateTeams(queryClient),
+  });
+}
+
+export function useDeleteTeam() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteTeam(id),
+    onSuccess: () => invalidateTeams(queryClient),
+  });
+}
+
+// ── Historique admin (pointages & congés) ────────────────────────────────────
+export function useAdminAttendances(limit = 100) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "admin-attendances", limit],
+    queryFn: () => getAdminAttendances(limit),
+    enabled: isAdmin,
+  });
+}
+
+export function useAdminLeaves(status?: string) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "admin-leaves", status ?? "all"],
+    queryFn: () => getAdminLeaves(status),
+    enabled: isAdmin,
   });
 }
 
