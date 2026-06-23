@@ -54,6 +54,8 @@ export default function DashboardScreen() {
   const pendingTotal = counts.data?.total ?? 0;
   const pendingLeaves = counts.data?.leaves ?? 0;
   const pendingAbsences = counts.data?.absences ?? 0;
+  const pendingDevices = counts.data?.devices ?? 0;
+  const pendingPhotos = counts.data?.photos ?? 0;
 
   const donutSegments = [
     { value: Math.max(0, active - late), color: p.success },
@@ -197,7 +199,7 @@ export default function DashboardScreen() {
             {t("admin.bo.dashboard.toValidate", { count: pendingTotal })}
           </Text>
           <Text style={{ fontFamily: FONT.body, fontSize: 12.5, color: p.muted }}>
-            {t("admin.bo.dashboard.breakdown", { leaves: pendingLeaves, absences: pendingAbsences })}
+            {t("admin.bo.dashboard.breakdown", { leaves: pendingLeaves, absences: pendingAbsences, devices: pendingDevices, photos: pendingPhotos })}
           </Text>
         </View>
         <AdminIcon name="chevron" size={20} color={p.muted2} />
@@ -210,7 +212,7 @@ export default function DashboardScreen() {
           <AlertRow icon="clockSmall" tone={p.warning} bg="rgba(245,158,11,0.16)" title={t("admin.bo.dashboard.alertLate", { count: late })} body={t("admin.bo.dashboard.alertLateBody")} />
         ) : null}
         {pendingTotal > 0 ? (
-          <AlertRow icon="doc" tone={p.primary} bg="rgba(47,91,255,0.12)" title={t("admin.bo.dashboard.alertPending", { count: pendingTotal })} body={t("admin.bo.dashboard.breakdown", { leaves: pendingLeaves, absences: pendingAbsences })} />
+          <AlertRow icon="doc" tone={p.primary} bg="rgba(47,91,255,0.12)" title={t("admin.bo.dashboard.alertPending", { count: pendingTotal })} body={t("admin.bo.dashboard.breakdown", { leaves: pendingLeaves, absences: pendingAbsences, devices: pendingDevices, photos: pendingPhotos })} />
         ) : null}
         {absent > 0 ? (
           <AlertRow icon="bell" tone={p.accent} bg="rgba(255,138,61,0.16)" title={t("admin.bo.dashboard.alertAbsent", { count: absent })} body={t("admin.bo.dashboard.alertAbsentBody")} />

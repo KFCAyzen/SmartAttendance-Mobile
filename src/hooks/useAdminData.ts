@@ -6,13 +6,18 @@ import {
 } from "@tanstack/react-query";
 
 import {
+  approveDevice,
   approveLeave,
+  approvePhotoRequest,
   createEmployee,
   createLeaveRequest,
   createSite,
   deleteEmployee,
   getEmployeeProfile,
+  getPhotoRequests,
+  rejectPhotoRequest,
   resetEmployeePassword,
+  revokeDevice,
   updateEmployeeProfile,
   validateEmployee,
   getAdminOverview,
@@ -356,6 +361,57 @@ export function useAdminDevices() {
     queryKey: [...root, "devices"],
     queryFn: getDevices,
     enabled: isAdmin,
+  });
+}
+
+function invalidateDevices(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: [...root, "devices"] });
+  queryClient.invalidateQueries({ queryKey: [...root, "pending-counts"] });
+}
+
+export function useApproveDevice() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => approveDevice(id),
+    onSuccess: () => invalidateDevices(queryClient),
+  });
+}
+
+export function useRevokeDevice() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => revokeDevice(id),
+    onSuccess: () => invalidateDevices(queryClient),
+  });
+}
+
+export function usePhotoRequests() {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "photo-requests"],
+    queryFn: getPhotoRequests,
+    enabled: isAdmin,
+  });
+}
+
+function invalidatePhotos(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: [...root, "photo-requests"] });
+  queryClient.invalidateQueries({ queryKey: [...root, "pending-counts"] });
+}
+
+export function useApprovePhotoRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => approvePhotoRequest(userId),
+    onSuccess: () => invalidatePhotos(queryClient),
+  });
+}
+
+export function useRejectPhotoRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => rejectPhotoRequest(userId),
+    onSuccess: () => invalidatePhotos(queryClient),
   });
 }
 

@@ -470,6 +470,50 @@ export async function getDevices(): Promise<AdminDevice[]> {
   return data;
 }
 
+/** Approuve un appareil en attente (PENDING → ACTIVE). Réservé ADMIN. */
+export async function approveDevice(id: string): Promise<AdminDevice> {
+  const { data } = await api.post<AdminDevice>(`/admin/devices/${id}/approve`);
+  return data;
+}
+
+/** Révoque un appareil (→ REVOKED). Réservé ADMIN. */
+export async function revokeDevice(id: string): Promise<AdminDevice> {
+  const { data } = await api.post<AdminDevice>(`/admin/devices/${id}/revoke`);
+  return data;
+}
+
+// ── Demandes de changement de photo de référence ────────────────────────────
+export interface PhotoRequest {
+  /** id = userId du demandeur. */
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  photoUrl?: string | null;
+  newPhotoUrl?: string | null;
+}
+
+export async function getPhotoRequests(): Promise<PhotoRequest[]> {
+  const { data } = await api.get<{ requests: PhotoRequest[] }>('/admin/photo-requests');
+  return data.requests ?? [];
+}
+
+/** Valide la nouvelle photo (devient la photo de référence). Réservé ADMIN. */
+export async function approvePhotoRequest(userId: string): Promise<{ success?: boolean }> {
+  const { data } = await api.post<{ success?: boolean }>('/admin/photo-requests/approve', {
+    userId,
+  });
+  return data;
+}
+
+/** Rejette la demande de nouvelle photo. Réservé ADMIN. */
+export async function rejectPhotoRequest(userId: string): Promise<{ success?: boolean }> {
+  const { data } = await api.post<{ success?: boolean }>('/admin/photo-requests/reject', {
+    userId,
+  });
+  return data;
+}
+
 // ── Analytics par département (présence) ────────────────────────────────────
 export interface AdminDeptStat {
   department: string;

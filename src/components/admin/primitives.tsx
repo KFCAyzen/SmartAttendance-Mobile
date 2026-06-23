@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useRouter } from 'expo-router';
 import {
   Pressable,
+  RefreshControl,
   ScrollView,
   Text,
   TextInput,
@@ -31,9 +32,13 @@ import { useAdminTheme } from './useAdminTheme';
 export function AdminScrollBody({
   children,
   gap = 13,
+  refreshing,
+  onRefresh,
 }: {
   children: ReactNode;
   gap?: number;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }) {
   const p = useAdminTheme();
   return (
@@ -43,6 +48,16 @@ export function AdminScrollBody({
         contentContainerStyle={{ padding: 18, paddingTop: 12, paddingBottom: 28, gap }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={!!refreshing}
+              onRefresh={onRefresh}
+              tintColor={p.primary}
+              colors={[p.primary]}
+            />
+          ) : undefined
+        }
       >
         {children}
       </ScrollView>
@@ -412,28 +427,37 @@ export function Segmented({
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 6,
+                gap: 5,
                 backgroundColor: on ? p.surface : 'transparent',
                 borderRadius: RADIUS.base - 6,
                 paddingVertical: 9,
-                paddingHorizontal: 6,
+                paddingHorizontal: 4,
               },
               on ? cardShadow : null,
             ]}
           >
-            <Text style={{ fontFamily: FONT.bold, fontSize: 13, color: on ? p.ink : p.muted }}>
+            <Text
+              numberOfLines={1}
+              style={{
+                flexShrink: 1,
+                fontFamily: FONT.bold,
+                fontSize: 12.5,
+                color: on ? p.ink : p.muted,
+              }}
+            >
               {o.label}
             </Text>
-            {o.count != null ? (
+            {/* Pastille affichée uniquement s'il y a des éléments en attente : déclutter + place pour le label. */}
+            {o.count != null && o.count > 0 ? (
               <View
                 style={{
                   backgroundColor: on ? withAlpha(p.primary, 0.12) : p.line,
                   borderRadius: 999,
-                  paddingHorizontal: 7,
+                  paddingHorizontal: 6,
                   paddingVertical: 1,
                 }}
               >
-                <Text style={{ fontFamily: FONT.bold, fontSize: 11, color: on ? p.primary : p.muted }}>
+                <Text style={{ fontFamily: FONT.bold, fontSize: 10.5, color: on ? p.primary : p.muted }}>
                   {o.count}
                 </Text>
               </View>

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Pressable, Text, TextInput, View } from "react-native";
 
-import type { AdminAbsence, AdminLeave } from "~/api/admin";
+import type { AdminAbsence, AdminDevice, AdminLeave, PhotoRequest } from "~/api/admin";
+import { buildPhotoUrl } from "~/api/users";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import {
   AdminHeader,
@@ -13,14 +14,22 @@ import {
   Segmented,
 } from "~/components/admin/primitives";
 import { Sheet } from "~/components/admin/Sheet";
+import { feedback } from "~/components/feedback";
 import { initialsOf } from "~/components/admin/format";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
+import { useAuthStore } from "~/stores/auth.store";
 import i18n from "~/i18n";
 import {
   useAdminActions,
+  useAdminDevices,
+  useApproveDevice,
+  useApprovePhotoRequest,
   usePendingAbsences,
   usePendingLeaves,
+  usePhotoRequests,
+  useRejectPhotoRequest,
+  useRevokeDevice,
 } from "~/hooks/useAdminData";
 
 const REJECT_PRESET_KEYS = ["presetBalance", "presetBusy", "presetMissingDoc", "presetConflict"] as const;
@@ -35,28 +44,72 @@ function dayCount(start: string, end: string): number {
   return Math.max(1, Math.round(ms / 86_400_000) + 1);
 }
 
+type ValidTab = "leave" | "absence" | "device" | "photo";
+
 export default function ValidationScreen() {
   const p = useAdminTheme();
   const { t } = useTranslation();
-  const [tab, setTab] = useState<"leave" | "absence">("leave");
+  const [tab, setTab] = useState<ValidTab>("leave");
+  // Appareils & photos : endpoints réservés ADMIN côté serveur (un HR aurait un 403).
+  const isAdmin = useAuthStore((s) => s.user?.role === "ADMIN");
   const leaves = usePendingLeaves();
   const absences = usePendingAbsences();
+  const devices = useAdminDevices();
+  const photos = usePhotoRequests();
 
   const leaveItems = (leaves.data?.pages ?? []).flatMap((pg) => pg.data ?? pg.items ?? []);
   const absenceItems = (absences.data?.pages ?? []).flatMap((pg) => pg.data ?? pg.items ?? []);
+  // Seuls les appareils en attente nécessitent une action de validation.
+  const deviceItems = (devices.data ?? []).filter((d) => d.status === "PENDING");
+  const photoItems = photos.data ?? [];
 
-  const loading = tab === "leave" ? leaves.isLoading : absences.isLoading;
-  const items = tab === "leave" ? leaveItems : absenceItems;
+  const loading =
+    tab === "leave"
+      ? leaves.isLoading
+      : tab === "absence"
+        ? absences.isLoading
+        : tab === "device"
+          ? devices.isLoading
+          : photos.isLoading;
+
+  const count =
+    tab === "leave"
+      ? leaveItems.length
+      : tab === "absence"
+        ? absenceItems.length
+        : tab === "device"
+          ? deviceItems.length
+          : photoItems.length;
+
+  const refreshing =
+    leaves.isRefetching ||
+    absences.isRefetching ||
+    devices.isRefetching ||
+    photos.isRefetching;
+  const onRefresh = () => {
+    leaves.refetch();
+    absences.refetch();
+    if (isAdmin) {
+      devices.refetch();
+      photos.refetch();
+    }
+  };
 
   return (
-    <AdminScrollBody gap={12}>
+    <AdminScrollBody gap={12} refreshing={refreshing} onRefresh={onRefresh}>
       <AdminHeader sub={t("admin.bo.valider.sub")} title={t("admin.bo.valider.title")} />
       <Segmented
         value={tab}
-        onChange={(k) => setTab(k as "leave" | "absence")}
+        onChange={(k) => setTab(k as ValidTab)}
         options={[
           { key: "leave", label: t("admin.bo.valider.leaves"), count: leaveItems.length },
           { key: "absence", label: t("admin.bo.valider.absences"), count: absenceItems.length },
+          ...(isAdmin
+            ? [
+                { key: "device", label: t("admin.bo.valider.devices"), count: deviceItems.length },
+                { key: "photo", label: t("admin.bo.valider.photos"), count: photoItems.length },
+              ]
+            : []),
         ]}
       />
 
@@ -64,7 +117,7 @@ export default function ValidationScreen() {
         <View style={{ paddingTop: 60, alignItems: "center" }}>
           <ActivityIndicator color={p.primary} />
         </View>
-      ) : items.length === 0 ? (
+      ) : count === 0 ? (
         <Card soft style={{ alignItems: "center", gap: 8, paddingVertical: 26 }}>
           <View
             style={{
@@ -87,7 +140,11 @@ export default function ValidationScreen() {
         <View style={{ gap: 11 }}>
           {tab === "leave"
             ? leaveItems.map((it) => <LeaveCard key={it.id} item={it} />)
-            : absenceItems.map((it) => <AbsenceCard key={it.id} item={it} />)}
+            : tab === "absence"
+              ? absenceItems.map((it) => <AbsenceCard key={it.id} item={it} />)
+              : tab === "device"
+                ? deviceItems.map((it) => <DeviceCard key={it.id} item={it} />)
+                : photoItems.map((it) => <PhotoCard key={it.id} item={it} />)}
         </View>
       )}
     </AdminScrollBody>
@@ -450,6 +507,224 @@ function AbsenceCard({ item }: { item: AdminAbsence }) {
           )
         }
       />
+    </ApprovalShell>
+  );
+}
+
+function DeviceCard({ item }: { item: AdminDevice }) {
+  const { t } = useTranslation();
+  const approve = useApproveDevice();
+  const revoke = useRevokeDevice();
+  const [done, setDone] = useState<null | boolean>(null);
+  const name = item.user
+    ? `${item.user.firstName} ${item.user.lastName}`
+    : t("admin.bo.common.employee");
+  const initials = initialsOf(item.user?.firstName, item.user?.lastName);
+  const busy = approve.isPending || revoke.isPending;
+
+  if (done !== null) return <Resolved name={name} approved={done} />;
+
+  const onApprove = () =>
+    approve.mutate(item.id, {
+      onSuccess: () => {
+        setDone(true);
+        feedback.success(t("admin.bo.valider.deviceApproved"), name);
+      },
+      onError: () => feedback.error(t("admin.bo.common.failed")),
+    });
+
+  const onReject = () =>
+    Alert.alert(
+      t("admin.bo.valider.deviceRejectConfirm"),
+      t("admin.bo.valider.deviceRejectMessage", { name }),
+      [
+        { text: t("admin.bo.common.cancel"), style: "cancel" },
+        {
+          text: t("admin.bo.valider.reject"),
+          style: "destructive",
+          onPress: () =>
+            revoke.mutate(item.id, {
+              onSuccess: () => setDone(false),
+              onError: () => feedback.error(t("admin.bo.common.failed")),
+            }),
+        },
+      ],
+    );
+
+  return (
+    <ApprovalShell
+      name={name}
+      initials={initials}
+      dept={item.user?.site?.name ?? item.platform}
+      typeLabel={item.platform}
+      typeTone="primary"
+    >
+      <InfoBox
+        icon="cpu"
+        line1={item.deviceName}
+        line2={
+          item.lastUsedAt
+            ? t("admin.bo.valider.lastUsed", { date: fmtDay(item.lastUsedAt) })
+            : t("admin.bo.valider.newDevice")
+        }
+      />
+      <ActionRow pending={busy} onApprove={onApprove} onReject={onReject} />
+    </ApprovalShell>
+  );
+}
+
+function PhotoCompare({
+  label,
+  uri,
+  highlight,
+  onPress,
+}: {
+  label: string;
+  uri: string | null;
+  highlight?: boolean;
+  onPress?: () => void;
+}) {
+  const p = useAdminTheme();
+  return (
+    <View style={{ flex: 1, gap: 6 }}>
+      <Text
+        style={{
+          fontFamily: FONT.bold,
+          fontSize: 10.5,
+          color: p.muted2,
+          textTransform: "uppercase",
+          letterSpacing: 0.2,
+        }}
+      >
+        {label}
+      </Text>
+      {uri ? (
+        <Pressable onPress={onPress}>
+          <Image
+            source={{ uri }}
+            style={{
+              width: "100%",
+              height: 150,
+              borderRadius: RADIUS.base,
+              borderWidth: highlight ? 2 : 1,
+              borderColor: highlight ? p.primary : p.line,
+              backgroundColor: p.surface2,
+            }}
+          />
+          <View
+            style={{
+              position: "absolute",
+              right: 6,
+              bottom: 6,
+              width: 24,
+              height: 24,
+              borderRadius: 12,
+              backgroundColor: "rgba(0,0,0,0.55)",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <AdminIcon name="search" size={13} color="#fff" />
+          </View>
+        </Pressable>
+      ) : (
+        <View
+          style={{
+            width: "100%",
+            height: 150,
+            borderRadius: RADIUS.base,
+            borderWidth: 1,
+            borderColor: p.line,
+            backgroundColor: p.surface2,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <AdminIcon name="user" size={28} color={p.muted2} />
+        </View>
+      )}
+    </View>
+  );
+}
+
+function PhotoCard({ item }: { item: PhotoRequest }) {
+  const p = useAdminTheme();
+  const { t } = useTranslation();
+  const approve = useApprovePhotoRequest();
+  const reject = useRejectPhotoRequest();
+  const [done, setDone] = useState<null | boolean>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const name = `${item.firstName} ${item.lastName}`;
+  const initials = initialsOf(item.firstName, item.lastName);
+  const busy = approve.isPending || reject.isPending;
+  const current = buildPhotoUrl(item.photoUrl);
+  const next = buildPhotoUrl(item.newPhotoUrl);
+
+  if (done !== null) return <Resolved name={name} approved={done} />;
+
+  const onApprove = () =>
+    approve.mutate(item.id, {
+      onSuccess: () => {
+        setDone(true);
+        feedback.success(t("admin.bo.valider.photoApproved"), name);
+      },
+      onError: () => feedback.error(t("admin.bo.common.failed")),
+    });
+
+  const onReject = () =>
+    Alert.alert(
+      t("admin.bo.valider.photoRejectConfirm"),
+      t("admin.bo.valider.photoRejectMessage", { name }),
+      [
+        { text: t("admin.bo.common.cancel"), style: "cancel" },
+        {
+          text: t("admin.bo.valider.reject"),
+          style: "destructive",
+          onPress: () =>
+            reject.mutate(item.id, {
+              onSuccess: () => setDone(false),
+              onError: () => feedback.error(t("admin.bo.common.failed")),
+            }),
+        },
+      ],
+    );
+
+  return (
+    <ApprovalShell
+      name={name}
+      initials={initials}
+      dept={item.email}
+      typeLabel={t("admin.bo.valider.photoTag")}
+      typeTone="warning"
+    >
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+        <PhotoCompare
+          label={t("admin.bo.valider.photoCurrent")}
+          uri={current}
+          onPress={() => current && setPreview(current)}
+        />
+        <AdminIcon name="chevron" size={18} color={p.muted2} />
+        <PhotoCompare
+          label={t("admin.bo.valider.photoNew")}
+          uri={next}
+          highlight
+          onPress={() => next && setPreview(next)}
+        />
+      </View>
+      <ActionRow pending={busy} onApprove={onApprove} onReject={onReject} />
+
+      <Sheet open={!!preview} onClose={() => setPreview(null)}>
+        {preview ? (
+          <View style={{ gap: 12 }}>
+            <Text style={{ fontFamily: FONT.display, fontSize: 18, color: p.ink }}>{name}</Text>
+            <Image
+              source={{ uri: preview }}
+              resizeMode="contain"
+              style={{ width: "100%", height: 360, borderRadius: RADIUS.base, backgroundColor: p.surface2 }}
+            />
+          </View>
+        ) : null}
+      </Sheet>
     </ApprovalShell>
   );
 }
