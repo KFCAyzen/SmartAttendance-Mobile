@@ -48,3 +48,7 @@ app-example
 
 # local dev scripts (machine-specific)
 start-dev.ps1
+
+# build/run logs & captures (local only)
+*.log
+splash_recording.mp4
