@@ -14,7 +14,7 @@ import {
   Pill,
   Segmented,
 } from "~/components/admin/primitives";
-import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
+import { FONT, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import i18n from "~/i18n";
 import { useAdminAttendances, useAdminLeaves } from "~/hooks/useAdminData";

@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
             Oops!
           </Text>
           <Text className="mb-6 text-center text-text-light/70 dark:text-text-dark/70">
-            Une erreur inattendue s'est produite.
+            Une erreur inattendue s&apos;est produite.
           </Text>
           {__DEV__ && this.state.error && (
             <Text className="mb-4 text-xs text-danger">{this.state.error.message}</Text>
