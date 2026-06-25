@@ -8,21 +8,29 @@
   On détecte l'IP réellement utilisée pour sortir du PC (Wi-Fi LAN ou partage
   de connexion iPhone) et on la passe à Metro via REACT_NATIVE_PACKAGER_HOSTNAME.
 
-  Au démarrage, un job de fond PRÉ-CHAUFFE le bundle (iOS + Android) : le 1er
-  build prend ~45 s à cause de React Compiler + Hermes (bundle ~16 Mo), et Expo
-  Go coupe avant la fin (« request timeout »). En lançant le build dès que Metro
-  répond, le cache est chaud avant la 1re ouverture sur le téléphone.
+  Au démarrage, un job de fond PRÉ-CHAUFFE le bundle iOS : le 1er build prend
+  ~45 s à cause de React Compiler + Hermes (bundle ~16 Mo), et Expo Go coupe
+  avant la fin (« request timeout »). En lançant le build dès que Metro répond,
+  le cache est chaud avant la 1re ouverture sur le téléphone.
+
+  ⚠ On ne pré-chauffe QU'UNE plateforme (iOS par défaut). Pré-chauffer Android
+  en parallèle sature les workers Metro (~66 s de transform) pile quand le
+  téléphone réclame les polices d'icônes (Ionicons.ttf, téléchargées à la volée)
+  → « Unable to download asset » et icônes manquantes. Utilise -WarmAndroid pour
+  pré-chauffer Android à la place (ex. test sur émulateur).
 
 .USAGE
   npm run go
-  npm run go -- -Clean     # vide le cache Metro
-  npm run go -- -Tunnel    # passe par un tunnel (si le LAN est bloqué)
-  npm run go -- -NoWarmup  # ne pré-chauffe pas le bundle
+  npm run go -- -Clean        # vide le cache Metro
+  npm run go -- -Tunnel       # passe par un tunnel (si le LAN est bloqué)
+  npm run go -- -NoWarmup     # ne pré-chauffe pas le bundle
+  npm run go -- -WarmAndroid  # pré-chauffe Android au lieu d'iOS
 #>
 param(
   [switch]$Clean,
   [switch]$Tunnel,
-  [switch]$NoWarmup
+  [switch]$NoWarmup,
+  [switch]$WarmAndroid
 )
 
 $ErrorActionPreference = "Stop"
@@ -56,9 +64,13 @@ if ($ip) {
 
 # Pré-chauffage du bundle : job de fond qui attend que Metro réponde, lit l'URL
 # exacte du bundle dans le manifeste (params toujours corrects) et la requête
-# pour iOS + Android afin de remplir le cache avant la 1re ouverture.
+# pour UNE seule plateforme afin de remplir le cache avant la 1re ouverture.
+# On ne pré-chauffe pas les deux : un build Android (~66 s) en parallèle sature
+# Metro pile quand le téléphone télécharge les polices d'icônes → icônes KO.
 if (-not $NoWarmup -and -not $Tunnel) {
-  $warmup = Start-Job -ScriptBlock {
+  $warmPlatform = if ($WarmAndroid) { 'android' } else { 'ios' }
+  $warmup = Start-Job -ArgumentList $warmPlatform -ScriptBlock {
+    param($platform)
     $base = "http://localhost:8081"
     # 1) Attendre que le packager soit prêt (max ~60 s)
     for ($i = 0; $i -lt 60; $i++) {
@@ -67,20 +79,18 @@ if (-not $NoWarmup -and -not $Tunnel) {
       } catch {}
       Start-Sleep -Seconds 1
     }
-    foreach ($platform in @('ios', 'android')) {
-      try {
-        # 2) Récupérer l'URL du bundle depuis le manifeste pour cette plateforme
-        $manifest = Invoke-RestMethod -Uri "$base/" -Headers @{ 'expo-platform' = $platform; 'Accept' = 'application/expo+json,application/json' } -TimeoutSec 30
-        $url = $manifest.launchAsset.url
-        if ($url) {
-          $url = $url -replace 'https?://[^/]+', $base   # forcer localhost (build local rapide)
-          # 3) Construire le bundle (peut prendre ~45 s à froid)
-          Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 300 | Out-Null
-        }
-      } catch {}
-    }
+    try {
+      # 2) Récupérer l'URL du bundle depuis le manifeste pour cette plateforme
+      $manifest = Invoke-RestMethod -Uri "$base/" -Headers @{ 'expo-platform' = $platform; 'Accept' = 'application/expo+json,application/json' } -TimeoutSec 30
+      $url = $manifest.launchAsset.url
+      if ($url) {
+        $url = $url -replace 'https?://[^/]+', $base   # forcer localhost (build local rapide)
+        # 3) Construire le bundle (peut prendre ~45 s à froid)
+        Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 300 | Out-Null
+      }
+    } catch {}
   }
-  Write-Host "Pre-chauffage du bundle lance en arriere-plan (iOS + Android)..." -ForegroundColor Cyan
+  Write-Host "Pre-chauffage du bundle $warmPlatform lance en arriere-plan..." -ForegroundColor Cyan
 }
 
 $expoArgs = @("expo", "start", "--go")
