@@ -32,8 +32,11 @@ export function NotificationsSheet({ open, onClose }: { open: boolean; onClose: 
   const handleTap = (n: Notification) => {
     if (!n.isRead) read.mutate(n.id);
     onClose();
+    // `demandes` est un écran empilé du back-office (`/(admin)/demandes`) tandis que
+    // `pointage` vit dans le groupe d'onglets `(home)` → préfixe dédié pour l'admin.
     if (n.type.startsWith('LEAVE_')) router.push(`${group}/demandes` as never);
-    else if (n.type === 'ATTENDANCE_REMINDER') router.push(`${group}/pointage` as never);
+    else if (n.type === 'ATTENDANCE_REMINDER')
+      router.push((isAdmin ? '/(admin)/(home)/pointage' : '/(tabs)/pointage') as never);
   };
 
   const seeAll = () => {

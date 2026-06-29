@@ -14,9 +14,6 @@ import { useAdminTheme } from './useAdminTheme';
 /** Ordre d'affichage de la barre admin. `pointage` est le bouton central surélevé. */
 const ORDER = ['index', 'presence', 'pointage', 'valider', 'plus'];
 
-/** Routes accessibles hors barre (atteintes via le hub « Plus »). */
-const HIDDEN = new Set(['equipe', 'planning', 'reports', 'sites', 'roles']);
-
 const ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: 'grid-outline',
   presence: 'pulse-outline',
@@ -44,7 +41,7 @@ export function AdminTabBar({ state, descriptors, navigation }: BottomTabBarProp
   if (state.routes[state.index]?.name === 'pointage') return null;
 
   const routes = state.routes
-    .filter((r) => ORDER.includes(r.name) && !HIDDEN.has(r.name))
+    .filter((r) => ORDER.includes(r.name))
     .sort((a, b) => ORDER.indexOf(a.name) - ORDER.indexOf(b.name));
 
   return (

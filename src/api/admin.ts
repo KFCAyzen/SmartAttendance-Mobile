@@ -103,6 +103,12 @@ export async function getEmployees(
   return data;
 }
 
+/** Liste distincte des départements (filtres) — endpoint léger, évite de récupérer les employés. */
+export async function getDepartments(): Promise<string[]> {
+  const { data } = await api.get<string[]>('/admin/departments');
+  return data;
+}
+
 export interface CreateEmployeeInput {
   email: string;
   firstName: string;

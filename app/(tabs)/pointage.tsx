@@ -42,7 +42,7 @@ export default function PointageScreen() {
   // vers l'accueil du bon groupe pour éviter un rebond de redirection.
   const isAdmin = useAuthStore((s) => s.user?.role === 'ADMIN' || s.user?.role === 'HR');
   const siteName = useAuthStore((s) => s.user?.site?.name ?? null);
-  const homeRoute = isAdmin ? '/(admin)' : '/(tabs)';
+  const homeRoute = isAdmin ? '/(admin)/(home)' : '/(tabs)';
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
   const [cameraActive, setCameraActive] = useState(false);

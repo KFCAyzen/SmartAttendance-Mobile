@@ -6,7 +6,7 @@ import type { LivePresenceEntry, LivePresenceState } from "~/api/admin";
 import { initialsOf, shortTime } from "~/components/admin/format";
 import {
   AdminHeader,
-  AdminScrollBody,
+  AdminListBody,
   Card,
   DataRow,
   FilterChips,
@@ -95,66 +95,68 @@ export default function PresenceScreen() {
   ];
 
   return (
-    <AdminScrollBody gap={12}>
-      <AdminHeader
-        sub={t("admin.bo.presence.sub")}
-        title={t("admin.bo.presence.title")}
-        right={
-          <View
+    <AdminListBody
+      gap={10}
+      data={filtered}
+      keyExtractor={(e) => e.id}
+      renderItem={({ item: e }) => <PresenceRow e={e} />}
+      ListHeaderComponent={
+        <View style={{ gap: 12 }}>
+          <AdminHeader
+            sub={t("admin.bo.presence.sub")}
+            title={t("admin.bo.presence.title")}
+            right={
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 7,
+                  paddingHorizontal: 13,
+                  paddingVertical: 8,
+                  borderRadius: 999,
+                  backgroundColor: withAlpha(p.success, 0.14),
+                }}
+              >
+                <View style={{ width: 7, height: 7, borderRadius: 999, backgroundColor: p.success }} />
+                <Text style={{ fontFamily: FONT.bold, fontSize: 12.5, color: p.success }}>{shortTime()}</Text>
+              </View>
+            }
+          />
+
+          {/* Bande de stats (statut du jour réel) */}
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            {strip.map(([l, v, c]) => (
+              <Card key={l} pad={0} style={{ flex: 1, paddingVertical: 11, paddingHorizontal: 8, alignItems: "center" }}>
+                <Text style={{ fontFamily: FONT.display, fontSize: 21, color: c }}>{v}</Text>
+                <Text style={{ fontFamily: FONT.semibold, fontSize: 10.5, color: p.muted, marginTop: 4 }}>{l}</Text>
+              </Card>
+            ))}
+          </View>
+
+          <SearchBar placeholder={t("admin.bo.presence.search")} value={search} onChange={setSearch} />
+          <FilterChips options={chips} value={filter} onChange={(k) => setFilter(k as Filter)} />
+        </View>
+      }
+      ListEmptyComponent={
+        query.isLoading ? (
+          <View style={{ paddingTop: 40, alignItems: "center" }}>
+            <ActivityIndicator color={p.primary} />
+          </View>
+        ) : (
+          <Text
             style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 7,
-              paddingHorizontal: 13,
-              paddingVertical: 8,
-              borderRadius: 999,
-              backgroundColor: withAlpha(p.success, 0.14),
+              textAlign: "center",
+              paddingVertical: 30,
+              fontFamily: FONT.body,
+              fontSize: 13.5,
+              color: p.muted2,
             }}
           >
-            <View style={{ width: 7, height: 7, borderRadius: 999, backgroundColor: p.success }} />
-            <Text style={{ fontFamily: FONT.bold, fontSize: 12.5, color: p.success }}>{shortTime()}</Text>
-          </View>
-        }
-      />
-
-      {/* Bande de stats (statut du jour réel) */}
-      <View style={{ flexDirection: "row", gap: 8 }}>
-        {strip.map(([l, v, c]) => (
-          <Card key={l} pad={0} style={{ flex: 1, paddingVertical: 11, paddingHorizontal: 8, alignItems: "center" }}>
-            <Text style={{ fontFamily: FONT.display, fontSize: 21, color: c }}>{v}</Text>
-            <Text style={{ fontFamily: FONT.semibold, fontSize: 10.5, color: p.muted, marginTop: 4 }}>{l}</Text>
-          </Card>
-        ))}
-      </View>
-
-      <SearchBar placeholder={t("admin.bo.presence.search")} value={search} onChange={setSearch} />
-      <FilterChips options={chips} value={filter} onChange={(k) => setFilter(k as Filter)} />
-
-      {query.isLoading ? (
-        <View style={{ paddingTop: 40, alignItems: "center" }}>
-          <ActivityIndicator color={p.primary} />
-        </View>
-      ) : (
-        <View style={{ gap: 10 }}>
-          {filtered.map((e) => (
-            <PresenceRow key={e.id} e={e} />
-          ))}
-          {filtered.length === 0 ? (
-            <Text
-              style={{
-                textAlign: "center",
-                paddingVertical: 30,
-                fontFamily: FONT.body,
-                fontSize: 13.5,
-                color: p.muted2,
-              }}
-            >
-              {t("admin.bo.presence.emptyFilter")}
-            </Text>
-          ) : null}
-        </View>
-      )}
-    </AdminScrollBody>
+            {t("admin.bo.presence.emptyFilter")}
+          </Text>
+        )
+      }
+    />
   );
 }
 

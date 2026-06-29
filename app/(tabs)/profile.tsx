@@ -39,7 +39,7 @@ export default function ProfileScreen() {
     .filter(Boolean)
     .map((p) => (p as string).charAt(0).toUpperCase())
     .join('');
-  const adminRoute = segments[0] === '(admin)' ? '/(admin)' : '/(tabs)/admin';
+  const adminRoute = segments[0] === '(admin)' ? '/(admin)/(home)' : '/(tabs)/admin';
 
   const run = async (action: () => Promise<unknown>) => {
     try {

@@ -115,7 +115,7 @@ export default function DashboardScreen() {
 
       {/* Donut présence en direct */}
       <Card>
-        <SectionTitle action={t("admin.bo.dashboard.detail")} onAction={() => router.push("/(admin)/presence")}>
+        <SectionTitle action={t("admin.bo.dashboard.detail")} onAction={() => router.push("/(admin)/(home)/presence")}>
           {t("admin.bo.dashboard.livePresence")}
         </SectionTitle>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 18, marginTop: 8 }}>
@@ -181,7 +181,7 @@ export default function DashboardScreen() {
       </View>
 
       {/* Bannière de validation */}
-      <Card onPress={() => router.push("/(admin)/valider")} style={{ flexDirection: "row", alignItems: "center", gap: 13 }}>
+      <Card onPress={() => router.push("/(admin)/(home)/valider")} style={{ flexDirection: "row", alignItems: "center", gap: 13 }}>
         <View
           style={{
             width: 44,

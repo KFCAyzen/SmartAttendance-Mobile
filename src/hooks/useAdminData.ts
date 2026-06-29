@@ -1,4 +1,5 @@
 import {
+  keepPreviousData,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -30,6 +31,7 @@ import {
   getAdminPendingCounts,
   getAnalyticsDepartments,
   getAnalyticsPresence,
+  getDepartments,
   getDevices,
   getEmployees,
   getLivePresence,
@@ -255,6 +257,7 @@ export function useEmployees(
       getEmployees(pageParam, 20, search, department, siteId, assignment, role, status),
     initialPageParam: 1,
     enabled: isAdmin,
+    placeholderData: keepPreviousData,
     getNextPageParam: (last) => {
       const meta = last.meta ?? last.pagination;
       if (!meta) return undefined;
@@ -264,21 +267,11 @@ export function useEmployees(
   });
 }
 
-export function useEmployeeDepartments(search: string) {
+export function useEmployeeDepartments() {
   const isAdmin = useIsAdmin();
   return useQuery({
-    queryKey: [...root, "employee-departments", search],
-    queryFn: async () => {
-      const response = await getEmployees(1, 100, search);
-      const employees = response.data ?? response.items ?? [];
-      return Array.from(
-        new Set(
-          employees
-            .map((employee) => employee.department)
-            .filter((department): department is string => !!department),
-        ),
-      ).sort((a, b) => a.localeCompare(b));
-    },
+    queryKey: [...root, "departments-list"],
+    queryFn: getDepartments,
     enabled: isAdmin,
     initialData: [],
   });
@@ -291,6 +284,7 @@ export function usePendingLeaves() {
     queryFn: ({ pageParam = 1 }) => getPendingLeaves(pageParam, 20),
     initialPageParam: 1,
     enabled: isAdmin,
+    placeholderData: keepPreviousData,
     getNextPageParam: (last) => {
       const meta = last.meta ?? last.pagination;
       if (!meta) return undefined;
@@ -307,6 +301,7 @@ export function usePendingAbsences() {
     queryFn: ({ pageParam = 1 }) => getPendingAbsences(pageParam, 20),
     initialPageParam: 1,
     enabled: isAdmin,
+    placeholderData: keepPreviousData,
     getNextPageParam: (last) => {
       const meta = last.meta ?? last.pagination;
       if (!meta) return undefined;

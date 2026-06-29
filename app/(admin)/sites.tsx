@@ -503,7 +503,7 @@ function AssignStaffSheet({ site, onDone }: { site: AdminSite; onDone: () => voi
     siteId: site.id,
     assignment: assignment === "all" ? undefined : assignment,
   });
-  const departmentsQuery = useEmployeeDepartments(search);
+  const departmentsQuery = useEmployeeDepartments();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [seeded, setSeeded] = useState(false);
 

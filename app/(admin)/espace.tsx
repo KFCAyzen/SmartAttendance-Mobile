@@ -44,7 +44,7 @@ export default function AdminSpaceScreen() {
       <View className="flex-row items-center gap-3 pt-1">
         <Pressable
           accessibilityRole="button"
-          onPress={() => router.replace('/(admin)/plus')}
+          onPress={() => router.back()}
           className="h-[42px] w-[42px] items-center justify-center rounded-[13px] bg-surface-card shadow-sm dark:bg-surface-cardDark"
         >
           <Ionicons name="chevron-back" size={22} color="#2F5BFF" />

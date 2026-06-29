@@ -1,12 +1,14 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { useRouter } from 'expo-router';
 import {
+  FlatList,
   Pressable,
   RefreshControl,
   ScrollView,
   Text,
   TextInput,
   View,
+  type ListRenderItem,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -61,6 +63,62 @@ export function AdminScrollBody({
       >
         {children}
       </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+// ── Conteneur de liste virtualisée (FlatList) ───────────────────────────────
+// Même habillage que AdminScrollBody mais virtualisé : à utiliser pour les listes
+// longues et homogènes (employés, présence) au lieu d'un .map() dans un ScrollView.
+export function AdminListBody<T>({
+  data,
+  renderItem,
+  keyExtractor,
+  ListHeaderComponent,
+  ListEmptyComponent,
+  ListFooterComponent,
+  onEndReached,
+  gap = 13,
+  refreshing,
+  onRefresh,
+}: {
+  data: readonly T[];
+  renderItem: ListRenderItem<T>;
+  keyExtractor: (item: T, index: number) => string;
+  ListHeaderComponent?: ReactElement | null;
+  ListEmptyComponent?: ReactElement | null;
+  ListFooterComponent?: ReactElement | null;
+  onEndReached?: () => void;
+  gap?: number;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+}) {
+  const p = useAdminTheme();
+  return (
+    <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor: p.bg }}>
+      <FlatList
+        data={data as T[]}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        ListHeaderComponent={ListHeaderComponent}
+        ListEmptyComponent={ListEmptyComponent}
+        ListFooterComponent={ListFooterComponent}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.4}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ padding: 18, paddingTop: 12, paddingBottom: 28, gap }}
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={!!refreshing}
+              onRefresh={onRefresh}
+              tintColor={p.primary}
+              colors={[p.primary]}
+            />
+          ) : undefined
+        }
+      />
     </SafeAreaView>
   );
 }
@@ -185,7 +243,7 @@ export function AdminHeader({
     <View style={{ gap: backLabel ? 10 : 0 }}>
       {backLabel ? (
         <Pressable
-          onPress={() => (onBack ? onBack() : router.replace('/(admin)/plus' as never))}
+          onPress={() => (onBack ? onBack() : router.back())}
           android_ripple={{ color: withAlpha(p.primary, 0.08), borderless: false }}
           style={{
             alignSelf: 'flex-start',

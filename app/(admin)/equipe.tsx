@@ -9,7 +9,7 @@ import { AdminIcon } from "~/components/admin/AdminIcon";
 import { initialsOf } from "~/components/admin/format";
 import {
   AdminHeader,
-  AdminScrollBody,
+  AdminListBody,
   Card,
   DataRow,
   EmpAvatar,
@@ -47,7 +47,7 @@ export default function TeamScreen() {
     role: roleFilter === "all" ? undefined : roleFilter,
     status: statusFilter === "all" ? undefined : statusFilter,
   });
-  const departmentsQuery = useEmployeeDepartments(search);
+  const departmentsQuery = useEmployeeDepartments();
   const items = useMemo(
     () => (query.data?.pages ?? []).flatMap((pg) => pg.data ?? pg.items ?? []),
     [query.data],
@@ -78,75 +78,78 @@ export default function TeamScreen() {
 
   return (
     <>
-      <AdminScrollBody gap={12}>
-        <AdminHeader
-          backLabel={t("admin.bo.nav.more")}
-          sub={t("admin.bo.equipe.count", { count: query.data?.pages?.[0]?.meta?.total ?? items.length })}
-          title={t("admin.bo.equipe.title")}
-          right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}
-        />
-        <SearchBar placeholder={t("admin.bo.equipe.search")} value={search} onChange={setSearch} />
-        <FilterChips options={roleChips} value={roleFilter} onChange={setRoleFilter} />
-        <FilterChips options={statusChips} value={statusFilter} onChange={setStatusFilter} />
-        <FilterChips options={chips} value={dept} onChange={setDept} />
-
-        {query.isLoading ? (
-          <View style={{ paddingTop: 50, alignItems: "center" }}>
-            <ActivityIndicator color={p.primary} />
+      <AdminListBody
+        gap={10}
+        data={items}
+        keyExtractor={(e) => e.id}
+        ListHeaderComponent={
+          <View style={{ gap: 12 }}>
+            <AdminHeader
+              backLabel={t("admin.bo.nav.more")}
+              sub={t("admin.bo.equipe.count", { count: query.data?.pages?.[0]?.meta?.total ?? items.length })}
+              title={t("admin.bo.equipe.title")}
+              right={<IconBtn icon="plus" tone="primary" onPress={() => setAddOpen(true)} />}
+            />
+            <SearchBar placeholder={t("admin.bo.equipe.search")} value={search} onChange={setSearch} />
+            <FilterChips options={roleChips} value={roleFilter} onChange={setRoleFilter} />
+            <FilterChips options={statusChips} value={statusFilter} onChange={setStatusFilter} />
+            <FilterChips options={chips} value={dept} onChange={setDept} />
           </View>
-        ) : items.length === 0 ? (
-          <Card soft pad={20}>
-            <Text style={{ fontFamily: FONT.body, fontSize: 13, color: p.muted, textAlign: "center" }}>
-              {t("admin.bo.equipe.noResults")}
-            </Text>
-          </Card>
-        ) : (
-          <View style={{ gap: 10 }}>
-            {items.map((e) => (
-              <DataRow
-                key={e.id}
-                emp={{
-                  first: e.firstName,
-                  last: e.lastName,
-                  initials: initialsOf(e.firstName, e.lastName),
-                  role: e.position ?? t(`admin.bo.roleLabels.${e.role}`),
-                  dept: e.department ?? "—",
-                }}
-                onPress={() => setSelected(e)}
-                right={
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
-                    {e.isPending ? (
-                      <Pill tone="warning" dot>
-                        {t("admin.bo.equipe.pending")}
-                      </Pill>
-                    ) : e.isActive ? (
-                      <Pill tone="success" dot>
-                        {t("admin.bo.equipe.active")}
-                      </Pill>
-                    ) : (
-                      <Pill tone="neutral" dot>
-                        {t("admin.bo.equipe.inactive")}
-                      </Pill>
-                    )}
-                    <AdminIcon name="chevron" size={17} color={p.muted2} />
-                  </View>
-                }
-              />
-            ))}
-            {query.hasNextPage ? (
-              <Card soft pad={0} onPress={() => query.fetchNextPage()} style={{ paddingVertical: 13, alignItems: "center" }}>
-                {query.isFetchingNextPage ? (
-                  <ActivityIndicator color={p.primary} />
+        }
+        ListEmptyComponent={
+          query.isLoading ? (
+            <View style={{ paddingTop: 50, alignItems: "center" }}>
+              <ActivityIndicator color={p.primary} />
+            </View>
+          ) : (
+            <Card soft pad={20}>
+              <Text style={{ fontFamily: FONT.body, fontSize: 13, color: p.muted, textAlign: "center" }}>
+                {t("admin.bo.equipe.noResults")}
+              </Text>
+            </Card>
+          )
+        }
+        onEndReached={() => {
+          if (query.hasNextPage && !query.isFetchingNextPage) query.fetchNextPage();
+        }}
+        ListFooterComponent={
+          query.isFetchingNextPage ? (
+            <View style={{ paddingVertical: 14, alignItems: "center" }}>
+              <ActivityIndicator color={p.primary} />
+            </View>
+          ) : null
+        }
+        renderItem={({ item: e }) => (
+          <DataRow
+            emp={{
+              first: e.firstName,
+              last: e.lastName,
+              initials: initialsOf(e.firstName, e.lastName),
+              role: e.position ?? t(`admin.bo.roleLabels.${e.role}`),
+              dept: e.department ?? "—",
+            }}
+            onPress={() => setSelected(e)}
+            right={
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 9 }}>
+                {e.isPending ? (
+                  <Pill tone="warning" dot>
+                    {t("admin.bo.equipe.pending")}
+                  </Pill>
+                ) : e.isActive ? (
+                  <Pill tone="success" dot>
+                    {t("admin.bo.equipe.active")}
+                  </Pill>
                 ) : (
-                  <Text style={{ fontFamily: FONT.bold, fontSize: 13.5, color: p.primary }}>
-                    {t("admin.bo.equipe.loadMore")}
-                  </Text>
+                  <Pill tone="neutral" dot>
+                    {t("admin.bo.equipe.inactive")}
+                  </Pill>
                 )}
-              </Card>
-            ) : null}
-          </View>
+                <AdminIcon name="chevron" size={17} color={p.muted2} />
+              </View>
+            }
+          />
         )}
-      </AdminScrollBody>
+      />
 
       <Sheet open={!!selected} onClose={() => setSelected(null)}>
         {selected ? (
