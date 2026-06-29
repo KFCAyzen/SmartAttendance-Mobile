@@ -135,7 +135,33 @@
     "title": "Notifications",
     "markAllRead": "Tout lire",
     "seeAll": "Voir tout",
-    "empty": "Aucune notification pour l'instant."
+    "empty": "Aucune notification pour l'instant.",
+    "eyebrow": "SmartAttendance",
+    "filters": {
+      "all": "Tout",
+      "pointage": "Pointage",
+      "conges": "Congés",
+      "securite": "Sécurité"
+    },
+    "triage": "À traiter",
+    "pending": "{{count}} en attente",
+    "allClearTitle": "Tout est à jour",
+    "allClearBody": "Aucune action en attente. Profitez de votre journée.",
+    "groups": {
+      "today": "Aujourd'hui",
+      "week": "Cette semaine",
+      "earlier": "Plus tôt"
+    },
+    "emptyCategory": "Aucune notification dans cette catégorie.",
+    "ignore": "Ignorer",
+    "loadMore": "Voir plus",
+    "actions": {
+      "regulariser": "Régulariser"
+    },
+    "links": {
+      "request": "Voir la demande",
+      "history": "Voir l'historique"
+    }
   },
   "requests": {
     "title": "Demandes",

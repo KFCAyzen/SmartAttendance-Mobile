@@ -135,7 +135,33 @@
     "title": "Notifications",
     "markAllRead": "Mark all read",
     "seeAll": "See all",
-    "empty": "No notifications yet."
+    "empty": "No notifications yet.",
+    "eyebrow": "SmartAttendance",
+    "filters": {
+      "all": "All",
+      "pointage": "Attendance",
+      "conges": "Leave",
+      "securite": "Security"
+    },
+    "triage": "To handle",
+    "pending": "{{count}} pending",
+    "allClearTitle": "All caught up",
+    "allClearBody": "No actions pending. Enjoy your day.",
+    "groups": {
+      "today": "Today",
+      "week": "This week",
+      "earlier": "Earlier"
+    },
+    "emptyCategory": "No notifications in this category.",
+    "ignore": "Dismiss",
+    "loadMore": "Show more",
+    "actions": {
+      "regulariser": "Resolve"
+    },
+    "links": {
+      "request": "View request",
+      "history": "View history"
+    }
   },
   "requests": {
     "title": "Requests",
