@@ -29,6 +29,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { setUnauthorizedHandler } from "~/api/client";
+import { resolveRedirect } from "~/lib/nav-guard";
 import { AnimatedSplash } from "~/components/AnimatedSplash";
 import { Providers } from "~/components/Providers";
 import { FeedbackProvider } from "~/components/feedback";
@@ -82,38 +83,13 @@ function RootLayoutNav() {
   }, [router]);
 
   useEffect(() => {
-    if (
-      !navReady ||
-      status === "idle" ||
-      status === "loading" ||
-      status === "verifying_device"
-    )
-      return;
-    const inAuthGroup = segments[0] === "(auth)";
-    const inAdminGroup = segments[0] === "(admin)";
-    const inTabsGroup = segments[0] === "(tabs)";
-    const currentRoute = segments.join("/");
-    const home = isAdmin ? "/(admin)/(home)" : "/(tabs)";
-    // device-pending requires a live session, so a logout there must fall back to
-    // login (it lives in (auth), so the inAuthGroup guard alone would strand it).
-    const onDevicePending = currentRoute === "(auth)/device-pending";
-    if (status === "unauthenticated" && (!inAuthGroup || onDevicePending)) {
-      router.replace("/(auth)/login");
-    } else if (
-      (status === "device_pending" || status === "device_error") &&
-      currentRoute !== "(auth)/device-pending"
-    ) {
-      router.replace("/(auth)/device-pending");
-    } else if (status === "authenticated") {
-      // Aiguillage par rôle : admins/RH → back-office, employés → app.
-      if (inAuthGroup) {
-        router.replace(home);
-      } else if (isAdmin && inTabsGroup) {
-        router.replace("/(admin)/(home)");
-      } else if (!isAdmin && inAdminGroup) {
-        router.replace("/(tabs)");
-      }
-    }
+    const target = resolveRedirect({
+      navReady,
+      status,
+      effectiveAdmin: isAdmin,
+      segments,
+    });
+    if (target) router.replace(target as never);
   }, [navReady, status, isAdmin, segments, router]);
 
   if (!fontsLoaded) {
