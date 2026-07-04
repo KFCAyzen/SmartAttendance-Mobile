@@ -210,6 +210,7 @@
     "cameraSource": "Take a photo"
   },
   "profile": {
+    "switchToAdmin": "Back to admin console",
     "photoSaved": "Photo saved",
     "photoPending": "Waiting for administrator approval.",
     "photoReady": "You can now check in.",
@@ -349,8 +350,8 @@
         "soon": "Soon",
         "soonToast": "Coming soon.",
         "defaultName": "Administrator",
-        "espaceLabel": "My space",
-        "espaceDesc": "Profile, leave and check-ins",
+        "espaceLabel": "Switch to employee mode",
+        "espaceDesc": "Switch to your employee interface",
         "equipeLabel": "Employees",
         "equipeDesc": "Directory & employee records",
         "equipesLabel": "Teams",

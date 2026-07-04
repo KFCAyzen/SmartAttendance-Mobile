@@ -54,6 +54,7 @@ const MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
   key: 'key-outline',
   ban: 'ban-outline',
   trash: 'trash-outline',
+  swap: 'swap-horizontal-outline',
 };
 
 export type AdminIconName = keyof typeof MAP;

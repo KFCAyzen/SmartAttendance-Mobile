@@ -22,7 +22,11 @@ export function NotificationsSheet({ open, onClose }: { open: boolean; onClose: 
   const insets = useSafeAreaInsets();
   const query = useNotificationsList();
   const { read } = useNotificationActions();
-  const isAdmin = useAuthStore((s) => s.user?.role === 'ADMIN' || s.user?.role === 'HR');
+  // Vue effective : un admin basculé en mode employé doit être routé vers ses
+  // écrans employés (`(tabs)`), sinon le garde-fou du layout le renverrait.
+  const canAdmin = useAuthStore((s) => s.user?.role === 'ADMIN' || s.user?.role === 'HR');
+  const viewMode = useAuthStore((s) => s.viewMode);
+  const isAdmin = canAdmin && viewMode === 'admin';
   const group = isAdmin ? '/(admin)' : '/(tabs)';
   const locale = i18n.language?.startsWith('en') ? enUS : fr;
 

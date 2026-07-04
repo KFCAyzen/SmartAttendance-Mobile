@@ -210,6 +210,7 @@
     "cameraSource": "Prendre une photo"
   },
   "profile": {
+    "switchToAdmin": "Revenir à l'espace admin",
     "photoSaved": "Photo enregistrée",
     "photoPending": "En attente de validation par un administrateur.",
     "photoReady": "Vous pouvez désormais pointer.",
@@ -349,8 +350,8 @@
         "soon": "Bientôt",
         "soonToast": "Bientôt disponible.",
         "defaultName": "Administrateur",
-        "espaceLabel": "Mon espace",
-        "espaceDesc": "Profil, congés et pointages",
+        "espaceLabel": "Passer en mode employé",
+        "espaceDesc": "Basculer vers votre interface employé",
         "equipeLabel": "Employés",
         "equipeDesc": "Annuaire & fiches employés",
         "equipesLabel": "Équipes",

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter, useSegments } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,12 +18,13 @@ import { useIsAdmin } from '~/hooks/useAdminData';
 import { useUnreadCount } from '~/hooks/useNotifications';
 import { useReferencePhoto } from '~/hooks/useReferencePhoto';
 import { setLanguage } from '~/i18n';
+import { useAuthStore } from '~/stores/auth.store';
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const segments = useSegments();
   const isAdmin = useIsAdmin();
+  const setViewMode = useAuthStore((s) => s.setViewMode);
   const { user, logout } = useAuth();
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const { photo, isLoading, upload, pickAndUpload } = useReferencePhoto();
@@ -39,7 +40,11 @@ export default function ProfileScreen() {
     .filter(Boolean)
     .map((p) => (p as string).charAt(0).toUpperCase())
     .join('');
-  const adminRoute = segments[0] === '(admin)' ? '/(admin)/(home)' : '/(tabs)/admin';
+  // Admin/RH en mode employé : bascule l'interface entière vers le back-office.
+  const switchToAdmin = () => {
+    setViewMode('admin');
+    router.replace('/(admin)/(home)');
+  };
 
   const run = async (action: () => Promise<unknown>) => {
     try {
@@ -181,9 +186,9 @@ export default function ProfileScreen() {
       <Card pad={0} className="overflow-hidden">
         {isAdmin ? (
           <SettingRow
-            icon="grid-outline"
-            label={t('tabs.admin')}
-            onPress={() => router.push(adminRoute as never)}
+            icon="swap-horizontal-outline"
+            label={t('profile.switchToAdmin')}
+            onPress={switchToAdmin}
           />
         ) : null}
         <SettingRow

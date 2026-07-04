@@ -24,7 +24,7 @@ interface HubItem {
 }
 
 const ITEMS: HubItem[] = [
-  { key: "espace", icon: "user", route: "/(admin)/espace" },
+  { key: "espace", icon: "swap" },
   { key: "equipe", icon: "users", route: "/(admin)/equipe" },
   { key: "equipes", icon: "grid", route: "/(admin)/equipes" },
   { key: "planning", icon: "calendar", route: "/(admin)/planning" },
@@ -40,10 +40,18 @@ export default function MoreScreen() {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const clearSession = useAuthStore((s) => s.clearSession);
+  const setViewMode = useAuthStore((s) => s.setViewMode);
 
   const name = user ? `${user.firstName} ${user.lastName}` : t("admin.bo.plus.defaultName");
 
   const onItem = (it: HubItem) => {
+    // Bascule vers l'interface employé (le back-office redevient accessible via
+    // le même bouton dans l'espace employé) au lieu d'un espace admin parallèle.
+    if (it.key === "espace") {
+      setViewMode("employee");
+      router.replace("/(tabs)");
+      return;
+    }
     if (it.soon || !it.route) {
       feedback.info(t(`admin.bo.plus.${it.key}Label`), t("admin.bo.plus.soonToast"));
       return;

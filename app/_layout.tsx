@@ -46,7 +46,11 @@ function RootLayoutNav() {
   const router = useRouter();
   const segments = useSegments();
   const status = useAuthStore((s) => s.status);
-  const isAdmin = useAuthStore((s) => s.user?.role === "ADMIN" || s.user?.role === "HR");
+  const canAdmin = useAuthStore((s) => s.user?.role === "ADMIN" || s.user?.role === "HR");
+  const viewMode = useAuthStore((s) => s.viewMode);
+  // Vue effective : un admin qui a basculé en mode employé est routé comme un
+  // employé (interface `(tabs)`), sans perdre sa capacité admin sous-jacente.
+  const isAdmin = canAdmin && viewMode === "admin";
   const hydrate = useAuthStore((s) => s.hydrate);
   const navState = useRootNavigationState();
   const navReady = Boolean(navState?.key);

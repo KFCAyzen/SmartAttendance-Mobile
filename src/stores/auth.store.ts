@@ -16,16 +16,26 @@ export type AuthStatus =
   | 'authenticated'
   | 'unauthenticated';
 
+/**
+ * Point de vue actif de la session. Un admin/RH peut basculer son interface
+ * entière vers l'espace employé (`employee`) puis revenir (`admin`) sans se
+ * déconnecter. Purement en mémoire : réinitialisé à `admin` à chaque session.
+ */
+export type ViewMode = 'admin' | 'employee';
+
 interface AuthState {
   user: User | null;
   accessToken: string | null;
   status: AuthStatus;
   deviceStatus: DeviceStatus | null;
   deviceError: string | null;
+  viewMode: ViewMode;
   hydrate: () => Promise<void>;
   setSession: (token: string, user: User) => Promise<void>;
   clearSession: () => Promise<void>;
   verifyDevice: () => Promise<DeviceStatus | null>;
+  setViewMode: (mode: ViewMode) => void;
+  toggleViewMode: () => ViewMode;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -34,6 +44,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   status: 'idle',
   deviceStatus: null,
   deviceError: null,
+  viewMode: 'admin',
 
   async hydrate() {
     set({ status: 'loading' });
@@ -69,7 +80,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   async setSession(token, user) {
     await setItem(StorageKeys.AccessToken, token);
     await setItem(StorageKeys.CurrentUser, JSON.stringify(user));
-    set({ accessToken: token, user, status: 'verifying_device' });
+    set({ accessToken: token, user, status: 'verifying_device', viewMode: 'admin' });
     await get().verifyDevice();
   },
 
@@ -81,7 +92,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       deviceStatus: null,
       deviceError: null,
       status: 'unauthenticated',
+      viewMode: 'admin',
     });
+  },
+
+  setViewMode(mode) {
+    set({ viewMode: mode });
+  },
+
+  toggleViewMode() {
+    const next: ViewMode = get().viewMode === 'admin' ? 'employee' : 'admin';
+    set({ viewMode: next });
+    return next;
   },
 
   async verifyDevice() {
