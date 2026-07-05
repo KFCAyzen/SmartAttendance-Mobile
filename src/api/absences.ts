@@ -1,7 +1,8 @@
 import { api } from './client';
+import type { AbsenceStatus, AbsenceType } from './shared-types.generated';
 
-export type AbsenceType = 'LATE' | 'UNJUSTIFIED' | 'JUSTIFIED' | 'HALF_DAY' | 'NO_SHOW';
-export type AbsenceStatus = 'PENDING' | 'JUSTIFIED' | 'UNJUSTIFIED' | 'EXCUSED';
+// Enums Prisma synchronisés depuis le backend (npm run sync:types).
+export type { AbsenceStatus, AbsenceType } from './shared-types.generated';
 
 export interface Absence {
   id: string;

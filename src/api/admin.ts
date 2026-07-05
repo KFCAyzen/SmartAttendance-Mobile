@@ -1,6 +1,7 @@
 import type { Absence, AbsenceStatus } from './absences';
 import { api } from './client';
 import type { Leave, LeaveStatus, LeaveType } from './leaves';
+import type { UserRole } from './shared-types.generated';
 
 interface PagedResponse<T> {
   data?: T[];
@@ -49,7 +50,9 @@ export interface AdminAbsence extends Absence {
   user?: AdminUserSummary;
 }
 
-export type UserRole = 'ADMIN' | 'HR' | 'MANAGER' | 'EMPLOYEE';
+// Enum Prisma synchronisé depuis le backend (npm run sync:types).
+// NB : l'ancien alias local incluait un rôle MANAGER qui n'existe pas en base.
+export type { UserRole } from './shared-types.generated';
 
 export interface AdminEmployee {
   id: string;

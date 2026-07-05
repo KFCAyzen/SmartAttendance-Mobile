@@ -1,6 +1,8 @@
 import { api } from './client';
+import type { DeviceStatus } from './shared-types.generated';
 
-export type DeviceStatus = 'PENDING' | 'ACTIVE' | 'REVOKED';
+// Enum Prisma synchronisé depuis le backend (npm run sync:types).
+export type { DeviceStatus } from './shared-types.generated';
 
 export interface RegisterDevicePayload {
   deviceId: string;

@@ -1,8 +1,8 @@
 import { api } from './client';
+import type { LeaveStatus, LeaveType } from './shared-types.generated';
 
-// Doit refléter l'enum Prisma `LeaveType` (source de vérité : base PostgreSQL).
-export type LeaveType = 'PAID_LEAVE' | 'RTT' | 'SICK_LEAVE' | 'UNPAID_LEAVE' | 'OTHER';
-export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'INTERRUPTED';
+// Enums Prisma synchronisés depuis le backend (npm run sync:types).
+export type { LeaveStatus, LeaveType } from './shared-types.generated';
 
 export interface Leave {
   id: string;

@@ -1,26 +1,9 @@
 import { api } from './client';
+import type { ApiNotification } from './shared-types.generated';
 
-export type NotificationType =
-  | 'INFO'
-  | 'WARNING'
-  | 'ERROR'
-  | 'SUCCESS'
-  | 'LEAVE_APPROVED'
-  | 'LEAVE_REJECTED'
-  | 'LEAVE_INTERRUPTED'
-  | 'LEAVE_RESTORED'
-  | 'ATTENDANCE_REMINDER';
-
-export interface Notification {
-  id: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  isRead: boolean;
-  actionUrl?: string | null;
-  createdAt: string;
-  readAt?: string | null;
-}
+// Types synchronisés depuis le backend (npm run sync:types).
+export type { NotificationType } from './shared-types.generated';
+export type Notification = ApiNotification;
 
 export interface NotificationsResponse {
   data: Notification[];
