@@ -29,7 +29,9 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { setUnauthorizedHandler } from "~/api/client";
+import { usePushNotifications } from "~/hooks/usePushNotifications";
 import { resolveRedirect } from "~/lib/nav-guard";
+import { configureNotificationHandler } from "~/lib/push";
 import { AnimatedSplash } from "~/components/AnimatedSplash";
 import { Providers } from "~/components/Providers";
 import { FeedbackProvider } from "~/components/feedback";
@@ -40,6 +42,9 @@ export const unstable_settings = {
 };
 
 void SplashScreen.preventAutoHideAsync();
+
+// Comportement des notifications reçues app ouverte (bannière, pas de badge).
+configureNotificationHandler();
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
@@ -56,6 +61,9 @@ function RootLayoutNav() {
   const navState = useRootNavigationState();
   const navReady = Boolean(navState?.key);
   const [splashFinished, setSplashFinished] = useState(false);
+
+  // Jeton Expo Push (permission + envoi backend) et routage des taps.
+  usePushNotifications();
 
   const [fontsLoaded] = useFonts({
     BricolageGrotesque_700Bold,

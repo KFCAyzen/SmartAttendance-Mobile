@@ -29,3 +29,12 @@ export async function registerDevice(
   const { data } = await api.post<RegisterDeviceResponse>('/device/register', payload);
   return data;
 }
+
+/** Attache le jeton Expo Push à l'appareil (null pour le détacher). */
+export async function updateDevicePushToken(payload: {
+  deviceId: string;
+  expoPushToken: string | null;
+}): Promise<{ success: boolean }> {
+  const { data } = await api.post<{ success: boolean }>('/device/push-token', payload);
+  return data;
+}
