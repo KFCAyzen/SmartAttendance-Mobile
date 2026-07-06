@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
   Image,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -55,10 +54,8 @@ export function AuthScreen({ children }: { children: React.ReactNode }) {
     <View style={{ flex: 1, backgroundColor: '#070A14' }}>
       <StatusBar style="light" />
       <AuthAura />
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      {/* `padding` aussi sur Android : edge-to-edge désactive adjustResize. */}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <ScrollView
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}

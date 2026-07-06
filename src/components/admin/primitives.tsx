@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { useRouter } from 'expo-router';
 import {
   FlatList,
+  KeyboardAvoidingView,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -45,24 +46,27 @@ export function AdminScrollBody({
   const p = useAdminTheme();
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor: p.bg }}>
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 18, paddingTop: 12, paddingBottom: 28, gap }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          onRefresh ? (
-            <RefreshControl
-              refreshing={!!refreshing}
-              onRefresh={onRefresh}
-              tintColor={p.primary}
-              colors={[p.primary]}
-            />
-          ) : undefined
-        }
-      >
-        {children}
-      </ScrollView>
+      {/* `padding` sur les deux plateformes : edge-to-edge désactive adjustResize. */}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ padding: 18, paddingTop: 12, paddingBottom: 28, gap }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl
+                refreshing={!!refreshing}
+                onRefresh={onRefresh}
+                tintColor={p.primary}
+                colors={[p.primary]}
+              />
+            ) : undefined
+          }
+        >
+          {children}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -96,29 +100,32 @@ export function AdminListBody<T>({
   const p = useAdminTheme();
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor: p.bg }}>
-      <FlatList
-        data={data as T[]}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        ListHeaderComponent={ListHeaderComponent}
-        ListEmptyComponent={ListEmptyComponent}
-        ListFooterComponent={ListFooterComponent}
-        onEndReached={onEndReached}
-        onEndReachedThreshold={0.4}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 18, paddingTop: 12, paddingBottom: 28, gap }}
-        refreshControl={
-          onRefresh ? (
-            <RefreshControl
-              refreshing={!!refreshing}
-              onRefresh={onRefresh}
-              tintColor={p.primary}
-              colors={[p.primary]}
-            />
-          ) : undefined
-        }
-      />
+      {/* `padding` sur les deux plateformes : edge-to-edge désactive adjustResize. */}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+        <FlatList
+          data={data as T[]}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          ListHeaderComponent={ListHeaderComponent}
+          ListEmptyComponent={ListEmptyComponent}
+          ListFooterComponent={ListFooterComponent}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.4}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ padding: 18, paddingTop: 12, paddingBottom: 28, gap }}
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl
+                refreshing={!!refreshing}
+                onRefresh={onRefresh}
+                tintColor={p.primary}
+                colors={[p.primary]}
+              />
+            ) : undefined
+          }
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

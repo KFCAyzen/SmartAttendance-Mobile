@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ScreenContainerProps {
@@ -21,10 +21,10 @@ export function ScreenContainer({
       edges={['top', 'left', 'right']}
       className="flex-1 bg-surface-light dark:bg-surface-dark"
     >
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      {/* `padding` aussi sur Android : avec edge-to-edge la fenêtre n'est plus
+          redimensionnée par le clavier (adjustResize inopérant), il faut donc
+          compenser en JS sur les deux plateformes. */}
+      <KeyboardAvoidingView className="flex-1" behavior="padding">
         {scrollable ? (
           <ScrollView
             className="flex-1"
