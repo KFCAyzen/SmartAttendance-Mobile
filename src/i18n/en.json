@@ -736,6 +736,30 @@
   "errors": {
     "timeout": "Request timed out. Check your connection.",
     "network": "Network unavailable.",
-    "unknown": "Unknown error"
+    "unknown": "Unknown error",
+    "http401": "Your session has expired. Sign in again and retry.",
+    "http403": "You don't have permission to perform this action.",
+    "http404": "The requested resource was not found.",
+    "http5xx": "The server is having trouble. Try again in a moment.",
+    "codes": {
+      "REFERENCE_PHOTO_REQUIRED": "Add your reference photo before checking in.",
+      "REFERENCE_PHOTO_INVALID": "Your reference photo is unusable. Take a new one from your profile.",
+      "ATTENDANCE_PHOTO_REQUIRED": "Take a photo before confirming your check-in.",
+      "DEVICE_REQUIRED": "This device is not recognized yet. Retry or register it again.",
+      "DEVICE_NOT_REGISTERED": "This device is not registered. Register it from your profile.",
+      "DEVICE_NOT_APPROVED": "This device is awaiting approval by an administrator.",
+      "DEVICE_NOT_AUTHORIZED": "This device is not authorized for check-in.",
+      "LOCATION_OR_WIFI_REQUIRED": "Enable location or connect to the site's Wi-Fi to check in.",
+      "ATTENDANCE_CONTEXT_NOT_AUTHORIZED": "Your location or Wi-Fi network doesn't match any authorized site.",
+      "ATTENDANCE_ALREADY_CHECKED_IN": "You have already checked in today.",
+      "ATTENDANCE_ALREADY_CHECKED_OUT": "You have already checked out today.",
+      "ATTENDANCE_CHECKIN_NOT_FOUND": "No check-in found today: check in first.",
+      "FACE_MISMATCH": "The detected face doesn't match your reference photo.",
+      "FACE_NOT_RECOGNIZED": "Face not recognized. Move closer to the camera in a well-lit spot.",
+      "NO_USERS_WITH_PHOTOS": "No employee has a reference photo: identification is impossible.",
+      "FACE_VERIFICATION_UNAVAILABLE": "Face verification is temporarily unavailable. Try again in a moment.",
+      "FACE_IDENTIFICATION_UNAVAILABLE": "Face identification is temporarily unavailable. Try again in a moment.",
+      "SITE_DELETE_BLOCKED": "This site can't be deleted: users, attendance records or Wi-Fi networks are still linked to it."
+    }
   }
 }

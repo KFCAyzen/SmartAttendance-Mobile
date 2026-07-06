@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, Switch, Text, TextInput, View } from "react-native";
 
 import type { AdminSite, EmployeeAssignment } from "~/api/admin";
+import { humanizeApiError } from "~/api/client";
 import { feedback } from "~/components/feedback";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import {
@@ -316,7 +317,7 @@ function SiteForm({ site, onDone }: { site?: AdminSite; onDone: () => void }) {
           onError: (e: any) =>
             feedback.error(
               t("admin.bo.common.createFailed"),
-              e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+              humanizeApiError(e),
             ),
         },
       );
@@ -331,7 +332,7 @@ function SiteForm({ site, onDone }: { site?: AdminSite; onDone: () => void }) {
       onError: (e: any) =>
         feedback.error(
           t("admin.bo.common.createFailed"),
-          e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+          humanizeApiError(e),
         ),
     });
   };
@@ -559,7 +560,7 @@ function AssignStaffSheet({ site, onDone }: { site: AdminSite; onDone: () => voi
         onError: (e: any) =>
           feedback.error(
             t("admin.bo.common.createFailed"),
-            e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+            humanizeApiError(e),
           ),
       },
     );

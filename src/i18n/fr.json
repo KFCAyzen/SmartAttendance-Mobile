@@ -736,6 +736,30 @@
   "errors": {
     "timeout": "La requête a expiré. Vérifiez votre connexion.",
     "network": "Connexion réseau indisponible.",
-    "unknown": "Erreur inconnue"
+    "unknown": "Erreur inconnue",
+    "http401": "Votre session a expiré. Reconnectez-vous puis recommencez.",
+    "http403": "Vous n'avez pas l'autorisation nécessaire pour cette action.",
+    "http404": "La ressource demandée est introuvable.",
+    "http5xx": "Le serveur rencontre un problème. Réessayez dans quelques instants.",
+    "codes": {
+      "REFERENCE_PHOTO_REQUIRED": "Ajoutez d'abord votre photo de référence avant de pointer.",
+      "REFERENCE_PHOTO_INVALID": "Votre photo de référence n'est pas exploitable. Reprenez-en une nouvelle depuis votre profil.",
+      "ATTENDANCE_PHOTO_REQUIRED": "Prenez une photo avant de valider votre pointage.",
+      "DEVICE_REQUIRED": "Cet appareil n'est pas encore reconnu. Réessayez ou réenregistrez-le.",
+      "DEVICE_NOT_REGISTERED": "Cet appareil n'est pas enregistré. Enregistrez-le depuis votre profil.",
+      "DEVICE_NOT_APPROVED": "Cet appareil est en attente de validation par un administrateur.",
+      "DEVICE_NOT_AUTHORIZED": "Cet appareil n'est pas autorisé pour le pointage.",
+      "LOCATION_OR_WIFI_REQUIRED": "Activez la localisation ou connectez-vous au Wi-Fi du site pour pointer.",
+      "ATTENDANCE_CONTEXT_NOT_AUTHORIZED": "Votre position ou votre réseau Wi-Fi ne correspond à aucun site autorisé.",
+      "ATTENDANCE_ALREADY_CHECKED_IN": "Votre entrée a déjà été pointée aujourd'hui.",
+      "ATTENDANCE_ALREADY_CHECKED_OUT": "Votre sortie a déjà été pointée aujourd'hui.",
+      "ATTENDANCE_CHECKIN_NOT_FOUND": "Aucune entrée trouvée aujourd'hui : pointez d'abord votre arrivée.",
+      "FACE_MISMATCH": "Le visage détecté ne correspond pas à votre photo de référence.",
+      "FACE_NOT_RECOGNIZED": "Visage non reconnu. Rapprochez-vous de la caméra dans un endroit bien éclairé.",
+      "NO_USERS_WITH_PHOTOS": "Aucun employé n'a de photo de référence : l'identification est impossible.",
+      "FACE_VERIFICATION_UNAVAILABLE": "La vérification faciale est temporairement indisponible. Réessayez dans quelques instants.",
+      "FACE_IDENTIFICATION_UNAVAILABLE": "L'identification faciale est temporairement indisponible. Réessayez dans quelques instants.",
+      "SITE_DELETE_BLOCKED": "Ce site ne peut pas être supprimé : des utilisateurs, pointages ou réseaux Wi-Fi y sont encore liés."
+    }
   }
 }

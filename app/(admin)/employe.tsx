@@ -13,6 +13,7 @@ import {
 } from "react-native";
 
 import type { UpdateEmployeeProfileInput } from "~/api/admin";
+import { humanizeApiError } from "~/api/client";
 import { buildPhotoUrl } from "~/api/users";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import { initialsOf } from "~/components/admin/format";
@@ -92,7 +93,7 @@ export default function EmployeeProfileScreen() {
         onError: (e: any) =>
           feedback.error(
             t("admin.bo.common.createFailed"),
-            e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+            humanizeApiError(e),
           ),
       },
     );

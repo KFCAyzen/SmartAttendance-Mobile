@@ -52,14 +52,32 @@ api.interceptors.response.use(
   },
 );
 
+// Messages par défaut de NestJS ("Unauthorized", "Not Found"…) : trop vagues
+// pour l'utilisateur, on leur préfère le message générique par statut HTTP.
+const GENERIC_HTTP_MESSAGES = /^(unauthorized|forbidden|not found|bad request|internal server error)$/i;
+
 export function humanizeApiError(error: unknown): string {
   if (axios.isAxiosError<ApiError>(error)) {
     const data = error.response?.data;
+
+    // 1) Code métier du contrat partagé → message traduit et actionnable.
+    const codeKey = data?.code ? `errors.codes.${data.code}` : null;
+    if (codeKey && i18n.exists(codeKey)) return i18n.t(codeKey);
+
+    // 2) Message explicite du backend (hors défauts NestJS sans valeur ajoutée).
     if (data?.message) {
-      return Array.isArray(data.message) ? data.message.join(', ') : data.message;
+      const message = Array.isArray(data.message) ? data.message.join(', ') : data.message;
+      if (!GENERIC_HTTP_MESSAGES.test(message.trim())) return message;
     }
+
+    // 3) Repli par type d'échec réseau ou statut HTTP.
     if (error.code === 'ECONNABORTED') return i18n.t('errors.timeout');
     if (error.message === 'Network Error') return i18n.t('errors.network');
+    const status = error.response?.status;
+    if (status === 401) return i18n.t('errors.http401');
+    if (status === 403) return i18n.t('errors.http403');
+    if (status === 404) return i18n.t('errors.http404');
+    if (status && status >= 500) return i18n.t('errors.http5xx');
     return error.message;
   }
   if (error instanceof Error) return error.message;

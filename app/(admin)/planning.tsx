@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, Text, TextInput, View } from "react-nativ
 
 import type { AdminEmployee, PlanningEvent } from "~/api/admin";
 import type { LeaveType } from "~/api/leaves";
+import { humanizeApiError } from "~/api/client";
 import { feedback } from "~/components/feedback";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import { initialsOf } from "~/components/admin/format";
@@ -314,7 +315,7 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
         onError: (e: any) =>
           feedback.error(
             t("admin.bo.common.failed"),
-            e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+            humanizeApiError(e),
           ),
       },
     );

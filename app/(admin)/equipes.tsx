@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Alert, Pressable, Switch, Text, TextInput, View } from "react-native";
 
 import type { AdminTeam } from "~/api/admin";
+import { humanizeApiError } from "~/api/client";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import { initialsOf } from "~/components/admin/format";
 import {
@@ -136,7 +137,7 @@ function TeamForm({ team, onDone }: { team?: AdminTeam; onDone: () => void }) {
   const onError = (e: any) =>
     feedback.error(
       t("admin.bo.common.createFailed"),
-      e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+      humanizeApiError(e),
     );
 
   const submit = () => {

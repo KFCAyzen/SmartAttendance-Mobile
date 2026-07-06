@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Alert, Pressable, Text, TextInput, View } from "react-native";
 
 import type { AdminEmployee } from "~/api/admin";
+import { humanizeApiError } from "~/api/client";
 import { feedback } from "~/components/feedback";
 import { AdminIcon } from "~/components/admin/AdminIcon";
 import { initialsOf } from "~/components/admin/format";
@@ -199,7 +200,7 @@ function EmpDetail({
   const onError = (e: any) =>
     feedback.error(
       t("admin.bo.common.createFailed"),
-      e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+      humanizeApiError(e),
     );
 
   const toggleActive = () => {
@@ -542,7 +543,7 @@ function EmployeeForm({
   const onError = (e: any) =>
     feedback.error(
       t("admin.bo.common.createFailed"),
-      e?.response?.data?.message ?? t("admin.bo.common.tryAgain"),
+      humanizeApiError(e),
     );
 
   const submit = () => {
