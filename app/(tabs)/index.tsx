@@ -70,6 +70,18 @@ export default function HomeScreen() {
   }, [checkedIn, arrivalTs]);
   const elapsed = checkedIn && arrivalTs ? now - arrivalTs : 0;
 
+  // Temps travaillé aujourd'hui : chrono live tant qu'on est en service, sinon
+  // les heures du check-out — les puces du jour restent remplies après la sortie.
+  const lastCheckOut = [...today].reverse().find((i) => i.type === 'CHECK_OUT');
+  const todayWorkedMs =
+    checkedIn && arrivalTs
+      ? elapsed
+      : lastCheckOut?.hoursWorked != null
+        ? lastCheckOut.hoursWorked * 3_600_000
+        : lastCheckOut && arrivalTs
+          ? new Date(lastCheckOut.timestamp).getTime() - arrivalTs
+          : 0;
+
   // Stats de la semaine (graphe, total, ponctualité).
   const weekly = useQuery({ queryKey: ['attendance', 'weekly'], queryFn: getWeeklyStats });
   const localeKey = i18n.language?.startsWith('en') ? 'en' : 'fr';
@@ -180,13 +192,13 @@ export default function HomeScreen() {
         <StatChip
           icon="arrow-down-outline"
           label={t('home.chipArrival')}
-          value={checkedIn ? arrivalLabel : '—'}
+          value={arrivalLabel}
           tone="success"
         />
         <StatChip
           icon="time-outline"
           label={t('home.chipToday')}
-          value={checkedIn ? formatDuration(elapsed).slice(0, 5) : '—'}
+          value={todayWorkedMs > 0 ? formatDuration(todayWorkedMs).slice(0, 5) : '—'}
           tone="primary"
         />
         <StatChip

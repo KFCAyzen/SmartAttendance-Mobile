@@ -94,6 +94,7 @@
     "arrivalRecorded": "Arrival recorded",
     "departureRecorded": "Departure recorded",
     "gpsVerified": "GPS verified",
+    "workedToday": "Time worked today: {{duration}}",
     "locating": "Locating…",
     "done": "Done"
   },
@@ -314,9 +315,12 @@
         "livePresence": "Live presence",
         "detail": "Details",
         "atWork": "at work",
+        "checkedToday": "checked in",
         "legendAtWork": "At work",
         "legendLate": "Late",
         "legendAbsent": "Absent",
+        "legendOut": "Checked out",
+        "legendNotIn": "Not checked in",
         "arrivals": "Arrivals",
         "today": "today",
         "week": "Week",
@@ -330,7 +334,7 @@
         "alertPending": "{{count}} requests to review",
         "alertAbsent_one": "{{count}} employee not present",
         "alertAbsent_other": "{{count}} employees not present",
-        "alertAbsentBody": "Of total headcount",
+        "alertAbsentBody": "No check-in or leave today",
         "allClear": "No alerts. Everything is up to date."
       },
       "presence": {
