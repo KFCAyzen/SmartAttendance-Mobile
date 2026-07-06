@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
-import { faceCheckIn } from '../api/attendance';
+import { checkOut, faceCheckIn, type CheckOutResponse } from '../api/attendance';
 import { isNetworkError } from '../api/client';
 import type { FaceCheckInResponse } from '../api/types';
 import { getOrCreateDeviceId } from '../lib/device-id';
@@ -55,6 +55,32 @@ export function useFaceCheckIn() {
           message: t('checkin.queued'),
         };
       }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['attendance'] });
+    },
+  });
+}
+
+export function useFaceCheckOut() {
+  const queryClient = useQueryClient();
+
+  return useMutation<CheckOutResponse, unknown, CheckInArgs>({
+    mutationFn: async ({ photoUri, coords, wifiSSID, wifiBSSID }) => {
+      const [deviceId, photo] = await Promise.all([
+        getOrCreateDeviceId(),
+        compressForUpload(photoUri),
+      ]);
+      // Pas de file offline pour la sortie : rejouer un check-out plus tard
+      // fausserait les heures travaillées (horodatage côté serveur).
+      return checkOut({
+        photo,
+        deviceId,
+        latitude: coords?.latitude,
+        longitude: coords?.longitude,
+        wifiSSID,
+        wifiBSSID,
+      });
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['attendance'] });

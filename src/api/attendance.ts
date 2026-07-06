@@ -7,10 +7,29 @@ export async function faceCheckIn(payload: FaceCheckInPayload): Promise<FaceChec
 }
 
 export interface CheckOutPayload {
-  deviceId?: string;
+  photo: string;
+  deviceId: string;
   latitude?: number;
   longitude?: number;
   wifiSSID?: string;
+  wifiBSSID?: string;
+}
+
+export interface CheckOutResponse {
+  success: boolean;
+  message?: string;
+  hoursWorked?: number;
+  overtimeHours?: number;
+  attendance?: {
+    id: string;
+    type: 'CHECK_IN' | 'CHECK_OUT';
+    timestamp: string;
+    location?: string | null;
+    faceMatch?: boolean;
+    faceConfidence?: number | null;
+    hoursWorked?: number | null;
+    overtimeHours?: number | null;
+  };
 }
 
 export interface AttendanceHistoryItem {
@@ -40,8 +59,8 @@ export interface AttendanceHistoryResponse {
   };
 }
 
-export async function checkOut(payload: CheckOutPayload): Promise<{ success: boolean; message?: string }> {
-  const { data } = await api.post('/attendance/check-out', payload);
+export async function checkOut(payload: CheckOutPayload): Promise<CheckOutResponse> {
+  const { data } = await api.post<CheckOutResponse>('/attendance/check-out', payload);
   return data;
 }
 

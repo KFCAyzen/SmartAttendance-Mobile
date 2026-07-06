@@ -45,7 +45,8 @@ export function TopPill({
   useEffect(() => {
     ty.value = withSpring(0, { damping: 15, stiffness: 190, mass: 0.7 });
     op.value = withTiming(1, { duration: 160 });
-    const timer = setTimeout(() => close(), item.duration ?? 2800);
+    // Deux lignes à lire → on laisse le message affiché plus longtemps.
+    const timer = setTimeout(() => close(), item.duration ?? (item.message ? 5200 : 2800));
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -70,12 +71,23 @@ export function TopPill({
         <Animated.View style={aStyle}>
           <Pressable
             onPress={() => close()}
-            style={[styles.pill, { backgroundColor: t.surface, borderColor: t.line, shadowColor: t.shadowColor }]}
+            style={[
+              styles.pill,
+              item.message ? styles.pillWithMessage : null,
+              { backgroundColor: t.surface, borderColor: t.line, shadowColor: t.shadowColor },
+            ]}
           >
             <Ionicons name={cfg.icon} size={19} color={cfg.color} />
-            <Text numberOfLines={1} style={[styles.text, { color: t.ink }]}>
-              {item.title}
-            </Text>
+            <View style={styles.lines}>
+              <Text numberOfLines={1} style={[styles.text, { color: t.ink }]}>
+                {item.title}
+              </Text>
+              {item.message ? (
+                <Text numberOfLines={3} style={[styles.message, { color: t.muted }]}>
+                  {item.message}
+                </Text>
+              ) : null}
+            </View>
           </Pressable>
         </Animated.View>
       </GestureDetector>
@@ -101,5 +113,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     elevation: 8,
   },
+  pillWithMessage: { borderRadius: 22, paddingVertical: 11, alignItems: 'flex-start' },
+  lines: { flexShrink: 1, gap: 2 },
   text: { fontFamily: 'PlusJakartaSans_700Bold', fontSize: 13.5, letterSpacing: -0.1, flexShrink: 1 },
+  message: { fontFamily: 'PlusJakartaSans_400Regular', fontSize: 12.5, lineHeight: 17 },
 });

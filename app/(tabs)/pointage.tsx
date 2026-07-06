@@ -24,9 +24,9 @@ import { getHistory } from '~/api/attendance';
 import type { FaceCheckInResponse } from '~/api/types';
 import { feedback } from '~/components/feedback';
 import { Card } from '~/components/ui/Card';
-import { useFaceCheckIn } from '~/hooks/useFaceCheckIn';
+import { useFaceCheckIn, useFaceCheckOut } from '~/hooks/useFaceCheckIn';
 import { useLocation } from '~/hooks/useLocation';
-import { formatTime } from '~/lib/date';
+import { formatHoursShort, formatTime } from '~/lib/date';
 import { scanWifi } from '~/lib/wifi';
 import { useAuthStore } from '~/stores/auth.store';
 
@@ -41,6 +41,7 @@ export default function PointageScreen() {
   // L'écran est partagé par l'app employé et le back-office admin : on referme
   // vers l'accueil du bon groupe pour éviter un rebond de redirection.
   const isAdmin = useAuthStore((s) => s.user?.role === 'ADMIN' || s.user?.role === 'HR');
+  const sessionUser = useAuthStore((s) => s.user);
   const siteName = useAuthStore((s) => s.user?.site?.name ?? null);
   const homeRoute = isAdmin ? '/(admin)/(home)' : '/(tabs)';
   const [permission, requestPermission] = useCameraPermissions();
@@ -49,14 +50,16 @@ export default function PointageScreen() {
   const [capturing, setCapturing] = useState(false);
   const [phase, setPhase] = useState<Phase>('idle');
   const [lastResult, setLastResult] = useState<FaceCheckInResponse | null>(null);
+  const [hoursWorked, setHoursWorked] = useState<number | null>(null);
   const [statusText, setStatusText] = useState('');
 
   const checkIn = useFaceCheckIn();
+  const checkOutMutation = useFaceCheckOut();
   const { fetchCoords } = useLocation();
 
   // Loading must show the instant the user taps — takePictureAsync + GPS run
   // before the mutation, so relying on checkIn.isPending alone feels frozen.
-  const busy = capturing || checkIn.isPending;
+  const busy = capturing || checkIn.isPending || checkOutMutation.isPending;
 
   // Statut du jour → titre arrivée/sortie (le type réel vient du résultat).
   const todayQuery = useQuery({
@@ -81,6 +84,7 @@ export default function PointageScreen() {
         setCameraActive(false);
         setPhase('idle');
         setLastResult(null);
+        setHoursWorked(null);
       };
     }, []),
   );
@@ -162,14 +166,47 @@ export default function PointageScreen() {
       if (!photo?.uri) throw new Error(t('checkin.captureFailed'));
       const coords = await coordsPromise;
       const wifi = await wifiPromise;
-      const result = await checkIn.mutateAsync({
+      const args = {
         photoUri: photo.uri,
         coords,
         wifiSSID: wifi.ok ? wifi.wifi.ssid : undefined,
         wifiBSSID: wifi.ok ? wifi.wifi.bssid : undefined,
-      });
+      };
+      if (isOut) {
+        // Sortie : vérification 1:1 sur l'utilisateur connecté, l'identité
+        // vient de la session (le backend ne la renvoie pas).
+        const result = await checkOutMutation.mutateAsync(args);
+        setLastResult({
+          success: result.success,
+          message: result.message ?? '',
+          user: sessionUser
+            ? {
+                id: sessionUser.id,
+                name: `${sessionUser.firstName} ${sessionUser.lastName}`,
+                department: sessionUser.department,
+              }
+            : undefined,
+          attendance: result.attendance
+            ? {
+                id: result.attendance.id,
+                type: result.attendance.type,
+                timestamp: result.attendance.timestamp,
+                location: result.attendance.location,
+                faceConfidence: result.attendance.faceConfidence ?? undefined,
+              }
+            : undefined,
+        });
+        setHoursWorked(result.hoursWorked ?? null);
+        setPhase('success');
+        if (process.env.EXPO_OS === 'ios') {
+          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+        return;
+      }
+      const result = await checkIn.mutateAsync(args);
       if (result.user) {
         setLastResult(result);
+        setHoursWorked(null);
         setPhase('success');
         if (process.env.EXPO_OS === 'ios') {
           void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -191,6 +228,7 @@ export default function PointageScreen() {
   const handleDone = () => {
     setPhase('idle');
     setLastResult(null);
+    setHoursWorked(null);
     router.navigate(homeRoute);
   };
 
@@ -430,6 +468,14 @@ export default function PointageScreen() {
                       .join(' · ')}
                   </Text>
                 </View>
+                {recordedOut && hoursWorked != null ? (
+                  <View className="flex-row items-center gap-1.5">
+                    <Ionicons name="time-outline" size={14} color="#717A90" />
+                    <Text className="font-body text-[12.5px] text-muted dark:text-slate-400">
+                      {t('checkin.workedToday', { duration: formatHoursShort(hoursWorked) })}
+                    </Text>
+                  </View>
+                ) : null}
                 <Pressable
                   accessibilityRole="button"
                   onPress={handleDone}
