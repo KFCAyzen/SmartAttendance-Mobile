@@ -303,7 +303,8 @@
         "out": "Parti",
         "leave": "En congé",
         "absent": "Absent",
-        "pending": "Non pointé"
+        "pending": "Non pointé",
+        "remote": "Télétravail"
       },
       "dashboard": {
         "greeting": "Bonjour, {{name}}",

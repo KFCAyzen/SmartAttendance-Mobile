@@ -45,7 +45,8 @@
         "employee": "Étudiant"
       },
       "status": {
-        "leave": "Absence autorisée"
+        "leave": "Absence autorisée",
+        "remote": "Distanciel"
       },
       "dashboard": {
         "atWork": "présents",
@@ -102,7 +103,9 @@
         "employee": "Étudiant",
         "empRequired": "Étudiant requis",
         "empRequiredMsg": "Sélectionnez un étudiant.",
-        "scheduled": "Autorisation planifiée"
+        "scheduled": "Autorisation planifiée",
+        "legendRtt": "Distanciel",
+        "searchEmployee": "Nom ou niveau…"
       },
       "equipe": {
         "count_one": "{{count}} étudiant",
@@ -121,7 +124,9 @@
         "deleteSuccess": "Étudiant supprimé",
         "createdTitle": "Étudiant créé",
         "updatedTitle": "Étudiant mis à jour",
-        "reactivatedTitle": "Étudiant réactivé"
+        "reactivatedTitle": "Étudiant réactivé",
+        "search": "Nom ou niveau…",
+        "position": "Niveau"
       },
       "equipes": {
         "title": "Classes",
@@ -155,7 +160,8 @@
         "sub": "Fiche étudiant",
         "notFound": "Étudiant introuvable",
         "department": "Filière",
-        "hireDate": "Date d'inscription"
+        "hireDate": "Date d'inscription",
+        "position": "Niveau"
       },
       "roles": {
         "hrDesc": "Étudiants, autorisations, rapports",

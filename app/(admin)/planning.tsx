@@ -21,6 +21,7 @@ import { Sheet } from "~/components/admin/Sheet";
 import { FONT, RADIUS, toneColor, withAlpha, type Tone } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useAdminPlanning, useCreateLeave, useEmployees } from "~/hooks/useAdminData";
+import { useAppContextStore } from "~/stores/app-context.store";
 
 const LEAVE_TYPE_KEYS: LeaveType[] = ["PAID_LEAVE", "RTT", "SICK_LEAVE", "UNPAID_LEAVE", "OTHER"];
 
@@ -276,6 +277,8 @@ export default function PlanningScreen() {
 function AddLeaveForm({ onDone }: { onDone: () => void }) {
   const p = useAdminTheme();
   const { t } = useTranslation();
+  // Les RTT n'ont pas de sens pour des étudiants : masqués en mode école.
+  const isSchool = useAppContextStore((s) => s.context === "SCHOOL");
   const create = useCreateLeave();
   const [search, setSearch] = useState("");
   const [emp, setEmp] = useState<AdminEmployee | null>(null);
@@ -426,7 +429,7 @@ function AddLeaveForm({ onDone }: { onDone: () => void }) {
       <View>
         {label(t("admin.bo.planning.type"))}
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 9 }}>
-          {LEAVE_TYPE_KEYS.map((k) => {
+          {LEAVE_TYPE_KEYS.filter((k) => k !== "RTT" || !isSchool).map((k) => {
             const on = type === k;
             return (
               <Pressable

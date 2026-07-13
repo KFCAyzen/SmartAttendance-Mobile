@@ -303,7 +303,8 @@
         "out": "Left",
         "leave": "On leave",
         "absent": "Absent",
-        "pending": "Not checked in"
+        "pending": "Not checked in",
+        "remote": "Remote"
       },
       "dashboard": {
         "greeting": "Hello, {{name}}",

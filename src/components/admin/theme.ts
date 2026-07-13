@@ -5,6 +5,8 @@
  * Les seules variantes restantes sont clair / sombre.
  */
 
+import i18n from '../../i18n';
+
 export interface AdminPalette {
   bg: string;
   surface: string;
@@ -125,17 +127,19 @@ export function statusMeta(p: AdminPalette, status: PresenceStatus): {
   tone: Tone;
   color: string;
 } {
+  // Libellés via i18n : suivent la langue ET le contexte de l'instance
+  // (mode école : « En congé » devient « Absence autorisée »).
   switch (status) {
     case 'present':
-      return { label: 'Présent', tone: 'success', color: p.success };
+      return { label: i18n.t('admin.bo.status.present'), tone: 'success', color: p.success };
     case 'late':
-      return { label: 'En retard', tone: 'warning', color: p.warning };
+      return { label: i18n.t('admin.bo.status.late'), tone: 'warning', color: p.warning };
     case 'remote':
-      return { label: 'Télétravail', tone: 'primary', color: p.primary };
+      return { label: i18n.t('admin.bo.status.remote'), tone: 'primary', color: p.primary };
     case 'leave':
-      return { label: 'En congé', tone: 'accent', color: p.accent };
+      return { label: i18n.t('admin.bo.status.leave'), tone: 'accent', color: p.accent };
     default:
-      return { label: 'Absent', tone: 'neutral', color: p.muted2 };
+      return { label: i18n.t('admin.bo.status.absent'), tone: 'neutral', color: p.muted2 };
   }
 }
 

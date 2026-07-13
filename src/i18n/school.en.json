@@ -49,7 +49,8 @@
         "employee": "Student"
       },
       "status": {
-        "leave": "Authorized absence"
+        "leave": "Authorized absence",
+        "remote": "Remote learning"
       },
       "dashboard": {
         "breakdown": "{{leaves}} permissions · {{absences}} absences · {{devices}} devices · {{photos}} photos",
@@ -107,7 +108,9 @@
         "employee": "Student",
         "empRequired": "Student required",
         "empRequiredMsg": "Select a student.",
-        "scheduled": "Permission scheduled"
+        "scheduled": "Permission scheduled",
+        "legendRtt": "Remote learning",
+        "searchEmployee": "Name or level…"
       },
       "equipe": {
         "count_one": "{{count}} student",
@@ -126,7 +129,9 @@
         "deleteSuccess": "Student deleted",
         "createdTitle": "Student created",
         "updatedTitle": "Student updated",
-        "reactivatedTitle": "Student reactivated"
+        "reactivatedTitle": "Student reactivated",
+        "search": "Name or level…",
+        "position": "Level"
       },
       "equipes": {
         "title": "Classes",
@@ -160,7 +165,8 @@
         "sub": "Student record",
         "notFound": "Student not found",
         "department": "Program",
-        "hireDate": "Enrollment date"
+        "hireDate": "Enrollment date",
+        "position": "Level"
       },
       "roles": {
         "hrDesc": "Students, permissions, reports",
