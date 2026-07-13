@@ -729,7 +729,9 @@
     "UNJUSTIFIED": "Non justifiée",
     "JUSTIFIED": "Justifiée",
     "HALF_DAY": "Demi-journée",
-    "NO_SHOW": "Absence"
+    "NO_SHOW": "Absence",
+    "MISSING_CHECKOUT": "Sortie non pointée",
+    "EARLY_LEAVE": "Départ anticipé"
   },
   "absenceStatuses": {
     "PENDING": "En attente",

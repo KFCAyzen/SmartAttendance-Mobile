@@ -1,0 +1,18 @@
+{
+  "requests": {
+    "leaves": "Permissions",
+    "noLeaves": "No permission requests."
+  },
+  "leaveNew": {
+    "title": "Absence permission request",
+    "type": "Permission type",
+    "reasonPlaceholder": "Example: medical appointment",
+    "sentMessage": "A supervisor must approve the request."
+  },
+  "leaveTypes": {
+    "PAID_LEAVE": "Absence permission",
+    "SICK_LEAVE": "Sickness",
+    "UNPAID_LEAVE": "Exemption",
+    "OTHER": "Other"
+  }
+}

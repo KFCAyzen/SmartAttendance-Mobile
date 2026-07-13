@@ -14,6 +14,7 @@ import { DateField } from '~/components/ui/DateField';
 import { ScreenContainer } from '~/components/ui/ScreenContainer';
 import { Select } from '~/components/ui/Select';
 import { getLeaveTypeLabel } from '~/lib/leaves';
+import { useAppContextStore } from '~/stores/app-context.store';
 
 type FormValues = {
   type: LeaveType;
@@ -29,10 +30,15 @@ export default function LeaveNewScreen() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  const typeOptions = (['PAID_LEAVE', 'RTT', 'SICK_LEAVE', 'UNPAID_LEAVE', 'OTHER'] as LeaveType[]).map((type) => ({
-    value: type,
-    label: getLeaveTypeLabel(t, type),
-  }));
+  const isSchool = useAppContextStore((s) => s.context === 'SCHOOL');
+
+  // Les RTT n'ont pas de sens pour des étudiants : masqués en mode école.
+  const typeOptions = (['PAID_LEAVE', 'RTT', 'SICK_LEAVE', 'UNPAID_LEAVE', 'OTHER'] as LeaveType[])
+    .filter((type) => type !== 'RTT' || !isSchool)
+    .map((type) => ({
+      value: type,
+      label: getLeaveTypeLabel(t, type),
+    }));
 
   const schema = z
     .object({

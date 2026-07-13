@@ -729,7 +729,9 @@
     "UNJUSTIFIED": "Unjustified",
     "JUSTIFIED": "Justified",
     "HALF_DAY": "Half day",
-    "NO_SHOW": "Absence"
+    "NO_SHOW": "Absence",
+    "MISSING_CHECKOUT": "Missing check-out",
+    "EARLY_LEAVE": "Early leave"
   },
   "absenceStatuses": {
     "PENDING": "Pending",

@@ -1,0 +1,18 @@
+{
+  "requests": {
+    "leaves": "Autorisations",
+    "noLeaves": "Aucune demande d'autorisation."
+  },
+  "leaveNew": {
+    "title": "Demande d'autorisation d'absence",
+    "type": "Type d'autorisation",
+    "reasonPlaceholder": "Ex : rendez-vous médical",
+    "sentMessage": "Un responsable doit valider la demande."
+  },
+  "leaveTypes": {
+    "PAID_LEAVE": "Autorisation d'absence",
+    "SICK_LEAVE": "Maladie",
+    "UNPAID_LEAVE": "Dispense",
+    "OTHER": "Autre"
+  }
+}

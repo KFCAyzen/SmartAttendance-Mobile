@@ -29,7 +29,7 @@ export type LeaveType = 'PAID_LEAVE' | 'RTT' | 'SICK_LEAVE' | 'UNPAID_LEAVE' | '
 export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'INTERRUPTED';
 
 /** Enum Prisma `AbsenceType`. */
-export type AbsenceType = 'LATE' | 'UNJUSTIFIED' | 'JUSTIFIED' | 'HALF_DAY' | 'NO_SHOW';
+export type AbsenceType = 'LATE' | 'UNJUSTIFIED' | 'JUSTIFIED' | 'HALF_DAY' | 'NO_SHOW' | 'MISSING_CHECKOUT' | 'EARLY_LEAVE';
 
 /** Enum Prisma `AbsenceStatus`. */
 export type AbsenceStatus = 'PENDING' | 'JUSTIFIED' | 'UNJUSTIFIED' | 'EXCUSED';
