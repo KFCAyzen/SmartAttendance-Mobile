@@ -7,12 +7,171 @@
     "title": "Absence permission request",
     "type": "Permission type",
     "reasonPlaceholder": "Example: medical appointment",
-    "sentMessage": "A supervisor must approve the request."
+    "sentMessage": "A supervisor must approve the request.",
+    "subtitle": "Enter the period and reason. You will be notified when a supervisor responds."
   },
   "leaveTypes": {
     "PAID_LEAVE": "Absence permission",
     "SICK_LEAVE": "Sickness",
     "UNPAID_LEAVE": "Exemption",
     "OTHER": "Other"
+  },
+  "auth": {
+    "device": {
+      "revokedMessage": "This device was revoked by an administrator. Contact the administration to restore access."
+    }
+  },
+  "home": {
+    "requestLeave": "Request permission"
+  },
+  "notifications": {
+    "filters": {
+      "conges": "Permissions"
+    }
+  },
+  "justifyAbsence": {
+    "reasonPlaceholder": "Example: sickness, medical appointment"
+  },
+  "profile": {
+    "department": "Program"
+  },
+  "admin": {
+    "pendingLeaves": "Pending permissions",
+    "activeEmployees": "Active students",
+    "noPendingLeaves": "No pending permissions.",
+    "employee": "Student",
+    "unknownDepartment": "Program not set",
+    "leaveApproved": "Permission approved",
+    "leaveRejected": "Permission rejected",
+    "rejectLeaveTitle": "Reject permission",
+    "bo": {
+      "common": {
+        "employee": "Student"
+      },
+      "status": {
+        "leave": "Authorized absence"
+      },
+      "dashboard": {
+        "breakdown": "{{leaves}} permissions · {{absences}} absences · {{devices}} devices · {{photos}} photos",
+        "alertAbsent_one": "{{count}} student not present",
+        "alertAbsent_other": "{{count}} students not present",
+        "alertAbsentBody": "No check-in or permission today"
+      },
+      "presence": {
+        "leave": "Permission",
+        "search": "Search a student…",
+        "emptyFilter": "No student in this filter."
+      },
+      "plus": {
+        "espaceLabel": "Switch to student mode",
+        "espaceDesc": "Switch to your student interface",
+        "equipeLabel": "Students",
+        "equipeDesc": "Directory & student records",
+        "equipesLabel": "Classes",
+        "equipesDesc": "Groups & supervisors",
+        "planningLabel": "Permission schedule",
+        "planningDesc": "Class calendar",
+        "historiqueDesc": "Check-ins & permissions (all)",
+        "reportsDesc": "Attendance, hours, permissions"
+      },
+      "roleLabels": {
+        "MANAGER": "Supervisor",
+        "EMPLOYEE": "Student"
+      },
+      "espace": {
+        "leavesLabel": "Permissions and absences"
+      },
+      "sites": {
+        "staffBtn": "Students",
+        "assignTitle": "Assign students",
+        "assignSearch": "Search a student…",
+        "assignSaved": "Students updated",
+        "assignEmpty": "No student found."
+      },
+      "valider": {
+        "leaves": "Permissions",
+        "presetBalance": "Insufficient balance"
+      },
+      "reports": {
+        "byDept": "Presence by program",
+        "attendanceDesc": "Presence & punctuality per student",
+        "leavesName": "Permissions"
+      },
+      "planning": {
+        "sub": "Permissions & absences",
+        "legendLeave": "Permission",
+        "monthSummary": "{{count}} permissions & absences this month",
+        "noEvents": "No permission or absence this month.",
+        "scheduleLeave": "Schedule permission",
+        "changeEmployee": "Change student",
+        "employee": "Student",
+        "empRequired": "Student required",
+        "empRequiredMsg": "Select a student.",
+        "scheduled": "Permission scheduled"
+      },
+      "equipe": {
+        "count_one": "{{count}} student",
+        "count_other": "{{count}} students",
+        "title": "Class",
+        "noResults": "No student found.",
+        "team": "Class",
+        "noTeam": "No class",
+        "newEmployee": "New student",
+        "editEmployee": "Edit student",
+        "department": "Program",
+        "roleEmployee": "Student",
+        "roleHR": "Student affairs",
+        "validateSuccess": "Student validated",
+        "deleteConfirm": "Delete this student?",
+        "deleteSuccess": "Student deleted",
+        "createdTitle": "Student created",
+        "updatedTitle": "Student updated",
+        "reactivatedTitle": "Student reactivated"
+      },
+      "equipes": {
+        "title": "Classes",
+        "sub": "Groups & supervisors",
+        "none": "No class created yet.",
+        "newTeam": "New class",
+        "editTeam": "Edit class",
+        "name": "Class name",
+        "descriptionPlaceholder": "Class purpose (optional)",
+        "manager": "Supervisor",
+        "chooseManager": "Choose a supervisor",
+        "managerPickerTitle": "Choose a supervisor",
+        "managerSearch": "Search a student…",
+        "managedBy": "Supervisor: {{name}}",
+        "activeLabel": "Active class",
+        "activeHint": "An inactive class is hidden from assignments.",
+        "create": "Create class",
+        "requiredMsg": "Class name is required.",
+        "createdTitle": "Class created",
+        "updatedTitle": "Class updated",
+        "deleteConfirm": "Delete this class?",
+        "deleteMessage": "{{name}} will be deleted. Students are not deleted, just unlinked.",
+        "deleteSuccess": "Class deleted",
+        "noResults": "No student found."
+      },
+      "historique": {
+        "sub": "Check-ins & permissions (all students)",
+        "tabLeaves": "Permissions"
+      },
+      "profile": {
+        "sub": "Student record",
+        "notFound": "Student not found",
+        "department": "Program",
+        "hireDate": "Enrollment date"
+      },
+      "roles": {
+        "hrDesc": "Students, permissions, reports",
+        "permEmployees": "Students",
+        "permApproveLeave": "Approve permission"
+      }
+    }
+  },
+  "errors": {
+    "codes": {
+      "NO_USERS_WITH_PHOTOS": "No student has a reference photo: identification is impossible."
+    }
   }
 }

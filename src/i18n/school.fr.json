@@ -14,5 +14,159 @@
     "SICK_LEAVE": "Maladie",
     "UNPAID_LEAVE": "Dispense",
     "OTHER": "Autre"
+  },
+  "auth": {
+    "device": {
+      "revokedMessage": "Cet appareil a été révoqué par un administrateur. Contactez l'administration pour ré-activer l'accès."
+    }
+  },
+  "home": {
+    "requestLeave": "Demander une autorisation"
+  },
+  "notifications": {
+    "filters": {
+      "conges": "Autorisations"
+    }
+  },
+  "profile": {
+    "department": "Filière"
+  },
+  "admin": {
+    "pendingLeaves": "Autorisations en attente",
+    "activeEmployees": "Étudiants actifs",
+    "noPendingLeaves": "Aucune autorisation en attente.",
+    "employee": "Étudiant",
+    "unknownDepartment": "Filière non définie",
+    "leaveApproved": "Autorisation approuvée",
+    "leaveRejected": "Autorisation rejetée",
+    "rejectLeaveTitle": "Rejeter l'autorisation",
+    "bo": {
+      "common": {
+        "employee": "Étudiant"
+      },
+      "status": {
+        "leave": "Absence autorisée"
+      },
+      "dashboard": {
+        "atWork": "présents",
+        "legendAtWork": "Présents",
+        "breakdown": "{{leaves}} autorisations · {{absences}} absences · {{devices}} appareils · {{photos}} photos",
+        "alertAbsent_one": "{{count}} étudiant non présent",
+        "alertAbsent_other": "{{count}} étudiants non présents",
+        "alertAbsentBody": "Ni pointage ni autorisation aujourd'hui"
+      },
+      "presence": {
+        "leave": "Autorisation",
+        "search": "Rechercher un étudiant…",
+        "emptyFilter": "Aucun étudiant dans ce filtre."
+      },
+      "plus": {
+        "espaceLabel": "Passer en mode étudiant",
+        "espaceDesc": "Basculer vers votre interface étudiant",
+        "equipeLabel": "Étudiants",
+        "equipeDesc": "Annuaire & fiches étudiants",
+        "equipesLabel": "Classes",
+        "equipesDesc": "Groupes & responsables",
+        "planningLabel": "Planning des autorisations",
+        "planningDesc": "Calendrier de classe",
+        "historiqueDesc": "Pointages & autorisations (tous)",
+        "reportsDesc": "Assiduité, heures, autorisations"
+      },
+      "roleLabels": {
+        "MANAGER": "Responsable",
+        "EMPLOYEE": "Étudiant"
+      },
+      "espace": {
+        "leavesLabel": "Autorisations et absences"
+      },
+      "sites": {
+        "assignSearch": "Rechercher un étudiant…",
+        "assignEmpty": "Aucun étudiant trouvé."
+      },
+      "valider": {
+        "leaves": "Autorisations",
+        "presetBalance": "Solde insuffisant"
+      },
+      "reports": {
+        "byDept": "Présence par filière",
+        "attendanceDesc": "Présence & ponctualité par étudiant",
+        "leavesName": "Autorisations"
+      },
+      "planning": {
+        "sub": "Autorisations & absences",
+        "legendLeave": "Autorisations",
+        "monthSummary": "{{count}} autorisations & absences ce mois-ci",
+        "noEvents": "Aucune autorisation ni absence ce mois-ci.",
+        "scheduleLeave": "Planifier une autorisation",
+        "changeEmployee": "Changer d'étudiant",
+        "employee": "Étudiant",
+        "empRequired": "Étudiant requis",
+        "empRequiredMsg": "Sélectionnez un étudiant.",
+        "scheduled": "Autorisation planifiée"
+      },
+      "equipe": {
+        "count_one": "{{count}} étudiant",
+        "count_other": "{{count}} étudiants",
+        "title": "Classe",
+        "noResults": "Aucun étudiant trouvé.",
+        "team": "Classe",
+        "noTeam": "Aucune classe",
+        "newEmployee": "Nouvel étudiant",
+        "editEmployee": "Modifier l'étudiant",
+        "department": "Filière",
+        "roleEmployee": "Étudiant",
+        "roleHR": "Vie scolaire",
+        "validateSuccess": "Étudiant validé",
+        "deleteConfirm": "Supprimer cet étudiant ?",
+        "deleteSuccess": "Étudiant supprimé",
+        "createdTitle": "Étudiant créé",
+        "updatedTitle": "Étudiant mis à jour",
+        "reactivatedTitle": "Étudiant réactivé"
+      },
+      "equipes": {
+        "title": "Classes",
+        "sub": "Groupes & responsables",
+        "none": "Aucune classe créée.",
+        "newTeam": "Nouvelle classe",
+        "editTeam": "Modifier la classe",
+        "name": "Nom de la classe",
+        "descriptionPlaceholder": "Description de la classe (optionnel)",
+        "manager": "Responsable",
+        "chooseManager": "Choisir un responsable",
+        "managerPickerTitle": "Choisir un responsable",
+        "managerSearch": "Rechercher un étudiant…",
+        "managedBy": "Responsable : {{name}}",
+        "activeLabel": "Classe active",
+        "activeHint": "Une classe inactive est masquée des affectations.",
+        "create": "Créer la classe",
+        "requiredMsg": "Le nom de la classe est obligatoire.",
+        "createdTitle": "Classe créée",
+        "updatedTitle": "Classe mise à jour",
+        "deleteConfirm": "Supprimer cette classe ?",
+        "deleteMessage": "{{name}} sera supprimée. Les étudiants ne seront pas supprimés, juste désassociés.",
+        "deleteSuccess": "Classe supprimée",
+        "noResults": "Aucun étudiant trouvé."
+      },
+      "historique": {
+        "sub": "Pointages & autorisations (tous les étudiants)",
+        "tabLeaves": "Autorisations"
+      },
+      "profile": {
+        "sub": "Fiche étudiant",
+        "notFound": "Étudiant introuvable",
+        "department": "Filière",
+        "hireDate": "Date d'inscription"
+      },
+      "roles": {
+        "hrDesc": "Étudiants, autorisations, rapports",
+        "permEmployees": "Étudiants",
+        "permApproveLeave": "Valider les autorisations"
+      }
+    }
+  },
+  "errors": {
+    "codes": {
+      "NO_USERS_WITH_PHOTOS": "Aucun étudiant n'a de photo de référence : l'identification est impossible."
+    }
   }
 }
