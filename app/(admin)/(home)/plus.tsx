@@ -14,6 +14,7 @@ import {
 } from "~/components/admin/primitives";
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
+import { useAppContextStore } from "~/stores/app-context.store";
 import { useAuthStore } from "~/stores/auth.store";
 
 interface HubItem {
@@ -21,6 +22,8 @@ interface HubItem {
   icon: string;
   route?: string;
   soon?: boolean;
+  /** Réservé au mode école (horaire unique commun). */
+  schoolOnly?: boolean;
 }
 
 const ITEMS: HubItem[] = [
@@ -28,6 +31,7 @@ const ITEMS: HubItem[] = [
   { key: "equipe", icon: "users", route: "/(admin)/equipe" },
   { key: "equipes", icon: "grid", route: "/(admin)/equipes" },
   { key: "planning", icon: "calendar", route: "/(admin)/planning" },
+  { key: "horaire", icon: "clock", route: "/(admin)/horaire-defaut", schoolOnly: true },
   { key: "historique", icon: "clock", route: "/(admin)/historique" },
   { key: "reports", icon: "bars", route: "/(admin)/reports" },
   { key: "sites", icon: "building", route: "/(admin)/sites" },
@@ -41,7 +45,9 @@ export default function MoreScreen() {
   const user = useAuthStore((s) => s.user);
   const clearSession = useAuthStore((s) => s.clearSession);
   const setViewMode = useAuthStore((s) => s.setViewMode);
+  const isSchool = useAppContextStore((s) => s.context === "SCHOOL");
 
+  const items = ITEMS.filter((it) => !it.schoolOnly || isSchool);
   const name = user ? `${user.firstName} ${user.lastName}` : t("admin.bo.plus.defaultName");
 
   const onItem = (it: HubItem) => {
@@ -77,7 +83,7 @@ export default function MoreScreen() {
       </Card>
 
       <Card pad={0} style={{ overflow: "hidden" }}>
-        {ITEMS.map((it, i) => (
+        {items.map((it, i) => (
           <Pressable
             key={it.key}
             onPress={() => onItem(it)}
@@ -88,7 +94,7 @@ export default function MoreScreen() {
               gap: 13,
               paddingVertical: 15,
               paddingHorizontal: 16,
-              borderBottomWidth: i === ITEMS.length - 1 ? 0 : 1,
+              borderBottomWidth: i === items.length - 1 ? 0 : 1,
               borderBottomColor: p.line,
             }}
           >

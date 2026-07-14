@@ -370,7 +370,9 @@
         "sitesLabel": "Sites & pointeuses",
         "sitesDesc": "Lieux & appareils",
         "rolesLabel": "Rôles & permissions",
-        "rolesDesc": "Accès & paramètres"
+        "rolesDesc": "Accès & paramètres",
+        "horaireLabel": "Horaire par défaut",
+        "horaireDesc": "Heure de début, tolérance et fin de journée"
       },
       "roleLabels": {
         "ADMIN": "Administrateur",
@@ -708,6 +710,23 @@
         "thresholdRange": "Entrez un seuil entre 1 et 100.",
         "requiredField": "Champ requis",
         "settingSaved": "Paramètre enregistré"
+      },
+      "defaultSchedule": {
+        "title": "Horaire par défaut",
+        "sub": "S'applique à tout le monde",
+        "description": "Cet horaire s'applique à tout le monde. Il détermine la limite d'arrivée (début + tolérance) et l'heure de fin de journée.",
+        "startTime": "Heure de début",
+        "startTimeHint": "Heure d'arrivée attendue (HH:mm)",
+        "tolerance": "Tolérance (min)",
+        "toleranceHint": "Minutes de retard tolérées après l'heure de début",
+        "endTime": "Heure de fin",
+        "endTimeHint": "Fin de journée : départ anticipé, sortie manquante (HH:mm)",
+        "invalidTitle": "Saisie invalide",
+        "invalidTime": "Heures au format HH:mm attendues",
+        "endBeforeStart": "L'heure de fin doit être après l'heure de début",
+        "invalidTolerance": "Tolérance : entier entre 0 et 240 minutes",
+        "savedTitle": "Horaire enregistré",
+        "saveFailed": "Enregistrement impossible"
       }
     }
   },

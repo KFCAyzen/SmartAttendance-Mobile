@@ -60,12 +60,31 @@ import {
   type UpdateSiteInput,
   type UpdateTeamInput,
 } from "../api/admin";
+import { fetchDefaultSchedule, updateDefaultSchedule, type DefaultSchedule } from "../api/config";
 import { useAuthStore } from "../stores/auth.store";
 
 const root = ["admin"] as const;
 
 export function useIsAdmin() {
   return useAuthStore((s) => s.user?.role === "ADMIN" || s.user?.role === "HR");
+}
+
+// Horaire par défaut de l'instance (limite d'arrivée + fin de journée).
+export function useDefaultSchedule() {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "default-schedule"],
+    queryFn: fetchDefaultSchedule,
+    enabled: isAdmin,
+  });
+}
+
+export function useUpdateDefaultSchedule() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: DefaultSchedule) => updateDefaultSchedule(input),
+    onSuccess: (data) => queryClient.setQueryData([...root, "default-schedule"], data),
+  });
 }
 
 export function useAdminPendingCounts() {

@@ -370,7 +370,9 @@
         "sitesLabel": "Sites & terminals",
         "sitesDesc": "Locations & devices",
         "rolesLabel": "Roles & permissions",
-        "rolesDesc": "Access & settings"
+        "rolesDesc": "Access & settings",
+        "horaireLabel": "Default schedule",
+        "horaireDesc": "Start time, tolerance and end of day"
       },
       "roleLabels": {
         "ADMIN": "Administrator",
@@ -708,6 +710,23 @@
         "thresholdRange": "Enter a threshold between 1 and 100.",
         "requiredField": "Required field",
         "settingSaved": "Setting saved"
+      },
+      "defaultSchedule": {
+        "title": "Default schedule",
+        "sub": "Applies to everyone",
+        "description": "This schedule applies to everyone. It sets the arrival limit (start + tolerance) and the end of the day.",
+        "startTime": "Start time",
+        "startTimeHint": "Expected arrival time (HH:mm)",
+        "tolerance": "Tolerance (min)",
+        "toleranceHint": "Minutes of lateness tolerated after the start time",
+        "endTime": "End time",
+        "endTimeHint": "End of day: early leave, missing checkout (HH:mm)",
+        "invalidTitle": "Invalid input",
+        "invalidTime": "Times must use the HH:mm format",
+        "endBeforeStart": "End time must be after start time",
+        "invalidTolerance": "Tolerance: integer between 0 and 240 minutes",
+        "savedTitle": "Schedule saved",
+        "saveFailed": "Could not save"
       }
     }
   },

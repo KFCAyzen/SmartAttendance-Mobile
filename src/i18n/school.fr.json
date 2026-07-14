@@ -71,7 +71,8 @@
         "planningLabel": "Planning des autorisations",
         "planningDesc": "Calendrier de classe",
         "historiqueDesc": "Pointages & autorisations (tous)",
-        "reportsDesc": "Assiduité, heures, autorisations"
+        "reportsDesc": "Assiduité, heures, autorisations",
+        "horaireDesc": "Horaire commun à tous les étudiants"
       },
       "roleLabels": {
         "MANAGER": "Responsable",
@@ -167,6 +168,11 @@
         "hrDesc": "Étudiants, autorisations, rapports",
         "permEmployees": "Étudiants",
         "permApproveLeave": "Valider les autorisations"
+      },
+      "defaultSchedule": {
+        "sub": "S'applique à tous les étudiants",
+        "description": "Cet horaire s'applique à tous les étudiants. Il détermine la limite d'arrivée (début + tolérance) et l'heure de fin des cours.",
+        "endTimeHint": "Fin des cours : départ anticipé, sortie manquante (HH:mm)"
       }
     }
   },

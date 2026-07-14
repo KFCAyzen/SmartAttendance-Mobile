@@ -73,7 +73,8 @@
         "planningLabel": "Permission schedule",
         "planningDesc": "Class calendar",
         "historiqueDesc": "Check-ins & permissions (all)",
-        "reportsDesc": "Attendance, hours, permissions"
+        "reportsDesc": "Attendance, hours, permissions",
+        "horaireDesc": "Schedule shared by all students"
       },
       "roleLabels": {
         "MANAGER": "Supervisor",
@@ -172,6 +173,11 @@
         "hrDesc": "Students, permissions, reports",
         "permEmployees": "Students",
         "permApproveLeave": "Approve permission"
+      },
+      "defaultSchedule": {
+        "sub": "Applies to all students",
+        "description": "This schedule applies to all students. It sets the arrival limit (start + tolerance) and the end of classes.",
+        "endTimeHint": "End of classes: early leave, missing checkout (HH:mm)"
       }
     }
   },
