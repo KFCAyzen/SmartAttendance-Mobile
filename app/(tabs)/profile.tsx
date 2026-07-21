@@ -126,6 +126,7 @@ export default function ProfileScreen() {
           </Text>
           <View className="mt-2 flex-row flex-wrap gap-1.5">
             {user?.role ? <StatusPill tone="primary">{user.role}</StatusPill> : null}
+            {user?.structure?.name ? <StatusPill tone="accent">{user.structure.name}</StatusPill> : null}
             {user?.department ? <StatusPill tone="neutral">{user.department}</StatusPill> : null}
           </View>
         </View>

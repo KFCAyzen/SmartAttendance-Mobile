@@ -81,6 +81,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await setItem(StorageKeys.AccessToken, token);
     await setItem(StorageKeys.CurrentUser, JSON.stringify(user));
     set({ accessToken: token, user, status: 'verifying_device', viewMode: 'admin' });
+    // Multi-structures : le contexte (entreprise/école) dépend de la structure
+    // de l'utilisateur connecté — on le rafraîchit dès que le jeton est posé.
+    const { useAppContextStore } = await import('./app-context.store');
+    useAppContextStore.getState().refresh().catch(() => {});
     await get().verifyDevice();
   },
 
@@ -94,6 +98,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       status: 'unauthenticated',
       viewMode: 'admin',
     });
+    // Retour au vocabulaire neutre de l'écran de connexion.
+    const { useAppContextStore } = await import('./app-context.store');
+    useAppContextStore.getState().refresh().catch(() => {});
   },
 
   setViewMode(mode) {

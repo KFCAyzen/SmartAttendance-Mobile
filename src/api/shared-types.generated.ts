@@ -90,6 +90,16 @@ export interface ApiErrorPayload {
 /** Alias historique côté clients. */
 export type UserRole = Role;
 
+/** Type d'une structure (tenant) : entreprise ou école. */
+export type StructureType = 'ENTERPRISE' | 'SCHOOL';
+
+/** Structure d'appartenance jointe par le backend (login, /auth/me). */
+export interface ApiUserStructure {
+  id: string;
+  name: string;
+  type: StructureType;
+}
+
 export interface ApiUser {
   id: string;
   email: string;
@@ -101,6 +111,8 @@ export interface ApiUser {
   teamId?: string | null;
   siteId?: string | null;
   site?: { name: string } | null;
+  structureId?: string | null;
+  structure?: ApiUserStructure | null;
   isActive: boolean;
   isPending: boolean;
 }
