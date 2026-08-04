@@ -82,6 +82,9 @@
         "leavesLabel": "Autorisations et absences"
       },
       "sites": {
+        "staffBtn": "Étudiants",
+        "assignTitle": "Affecter les étudiants",
+        "assignSaved": "Étudiants mis à jour",
         "assignSearch": "Rechercher un étudiant…",
         "assignEmpty": "Aucun étudiant trouvé."
       },

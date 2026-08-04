@@ -53,6 +53,8 @@
         "remote": "Remote learning"
       },
       "dashboard": {
+        "atWork": "present",
+        "legendAtWork": "Present",
         "breakdown": "{{leaves}} permissions · {{absences}} absences · {{devices}} devices · {{photos}} photos",
         "alertAbsent_one": "{{count}} student not present",
         "alertAbsent_other": "{{count}} students not present",
