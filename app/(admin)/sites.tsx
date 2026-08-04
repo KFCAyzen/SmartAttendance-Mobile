@@ -409,12 +409,12 @@ function SiteForm({ site, onDone }: { site?: AdminSite; onDone: () => void }) {
       <Text style={{ fontFamily: FONT.display, fontSize: 21, color: p.ink }}>
         {editing ? t("admin.bo.sites.editSite") : t("admin.bo.sites.newSite")}
       </Text>
-      {field(t("admin.bo.sites.name"), name, setName, "Siège — Casablanca")}
-      {field(t("admin.bo.sites.address"), address, setAddress, "12 rue Hassan II")}
-      {field(t("admin.bo.sites.city"), city, setCity, "Casablanca")}
+      {field(t("admin.bo.sites.name"), name, setName, "Siège — Douala")}
+      {field(t("admin.bo.sites.address"), address, setAddress, "Avenue Charles de Gaulle, Bonanjo")}
+      {field(t("admin.bo.sites.city"), city, setCity, "Douala")}
       <View style={{ flexDirection: "row", gap: 10 }}>
-        {field(t("admin.bo.sites.latitude"), lat, setLat, "33.5731", true)}
-        {field(t("admin.bo.sites.longitude"), lng, setLng, "-7.5898", true)}
+        {field(t("admin.bo.sites.latitude"), lat, setLat, "4.0511", true)}
+        {field(t("admin.bo.sites.longitude"), lng, setLng, "9.7679", true)}
       </View>
       {detectBtn(t("admin.bo.sites.detectLocation"), "location", detectLocation, locating)}
       {field(t("admin.bo.sites.geofenceRadius"), radius, setRadius, "100", true)}

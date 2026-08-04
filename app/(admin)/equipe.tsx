@@ -613,6 +613,7 @@ function EmployeeForm({
     value: string,
     setter: (v: string) => void,
     placeholder: string,
+    keyboardType?: "default" | "phone-pad" | "email-address",
   ) => (
     <View style={{ flex: 1 }}>
       <Text
@@ -631,6 +632,7 @@ function EmployeeForm({
         onChangeText={setter}
         placeholder={placeholder}
         placeholderTextColor={p.muted2}
+        keyboardType={keyboardType}
         style={{
           marginTop: 8,
           paddingVertical: 13,
@@ -653,12 +655,12 @@ function EmployeeForm({
         {editing ? t("admin.bo.equipe.editEmployee") : t("admin.bo.equipe.newEmployee")}
       </Text>
       <View style={{ flexDirection: "row", gap: 10 }}>
-        {field(t("admin.bo.equipe.firstName"), first, setFirst, "Salim")}
-        {field(t("admin.bo.equipe.lastName"), last, setLast, "Mansouri")}
+        {field(t("admin.bo.equipe.firstName"), first, setFirst, t("admin.bo.equipe.firstNamePlaceholder"))}
+        {field(t("admin.bo.equipe.lastName"), last, setLast, t("admin.bo.equipe.lastNamePlaceholder"))}
       </View>
-      {field(t("admin.bo.equipe.email"), email, setEmail, "salim@exemple.com")}
+      {field(t("admin.bo.equipe.email"), email, setEmail, t("admin.bo.equipe.emailPlaceholder"), "email-address")}
       {field(t("admin.bo.equipe.position"), position, setPosition, t("admin.bo.equipe.positionPlaceholder"))}
-      {field(t("admin.bo.equipe.phone"), phone, setPhone, t("admin.bo.equipe.phonePlaceholder"))}
+      {field(t("admin.bo.equipe.phone"), phone, setPhone, t("admin.bo.equipe.phonePlaceholder"), "phone-pad")}
       {field(t("admin.bo.equipe.address"), address, setAddress, t("admin.bo.equipe.addressPlaceholder"))}
       {field(
         t("admin.bo.equipe.emergencyContact"),

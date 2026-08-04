@@ -229,7 +229,13 @@ export default function EmployeeProfileScreen() {
 
             {editing ? (
               <>
-                <EditField label={t("admin.bo.profile.phone")} value={form.phone ?? ""} onChange={(v) => set("phone", v)} />
+                <EditField
+                  label={t("admin.bo.profile.phone")}
+                  value={form.phone ?? ""}
+                  onChange={(v) => set("phone", v)}
+                  placeholder={t("admin.bo.equipe.phonePlaceholder")}
+                  keyboardType="phone-pad"
+                />
                 <EditField label={t("admin.bo.profile.position")} value={form.position ?? ""} onChange={(v) => set("position", v)} />
                 <EditField label={t("admin.bo.profile.department")} value={form.department ?? ""} onChange={(v) => set("department", v)} />
                 <DatePickerField
@@ -359,12 +365,14 @@ function EditField({
   onChange,
   placeholder,
   multiline,
+  keyboardType,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   multiline?: boolean;
+  keyboardType?: "default" | "phone-pad" | "email-address";
 }) {
   const p = useAdminTheme();
   return (
@@ -386,6 +394,7 @@ function EditField({
         placeholder={placeholder}
         placeholderTextColor={p.muted2}
         multiline={multiline}
+        keyboardType={keyboardType}
         style={{
           marginTop: 7,
           paddingVertical: multiline ? 11 : 12,
