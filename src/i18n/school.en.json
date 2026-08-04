@@ -132,7 +132,8 @@
         "updatedTitle": "Student updated",
         "reactivatedTitle": "Student reactivated",
         "search": "Name or level…",
-        "position": "Level"
+        "position": "Level",
+        "positionPlaceholder": "L1, L2, L3…"
       },
       "equipes": {
         "title": "Classes",

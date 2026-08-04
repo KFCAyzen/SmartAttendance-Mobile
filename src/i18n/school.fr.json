@@ -127,7 +127,8 @@
         "updatedTitle": "Étudiant mis à jour",
         "reactivatedTitle": "Étudiant réactivé",
         "search": "Nom ou niveau…",
-        "position": "Niveau"
+        "position": "Niveau",
+        "positionPlaceholder": "L1, L2, L3…"
       },
       "equipes": {
         "title": "Classes",
