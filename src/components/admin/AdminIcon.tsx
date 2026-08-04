@@ -44,6 +44,7 @@ const MAP: Record<string, keyof typeof Ionicons.glyphMap> = {
   mail: 'mail-outline',
   dots: 'ellipsis-horizontal',
   building: 'business-outline',
+  school: 'school-outline',
   cpu: 'hardware-chip-outline',
   bars: 'bar-chart-outline',
   sliders: 'options-outline',

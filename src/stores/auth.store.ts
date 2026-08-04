@@ -81,6 +81,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await setItem(StorageKeys.AccessToken, token);
     await setItem(StorageKeys.CurrentUser, JSON.stringify(user));
     set({ accessToken: token, user, status: 'verifying_device', viewMode: 'admin' });
+    // Une structure active choisie par un précédent compte admin sur cet
+    // appareil ne doit pas fuiter vers ce nouveau compte (403 sinon côté API
+    // dès qu'elle ne lui appartient plus) : on repart du repli par défaut.
+    const { useStructureStore } = await import('./structure.store');
+    useStructureStore.getState().setActive(null).catch(() => {});
     // Multi-structures : le contexte (entreprise/école) dépend de la structure
     // de l'utilisateur connecté — on le rafraîchit dès que le jeton est posé.
     const { useAppContextStore } = await import('./app-context.store');
@@ -98,6 +103,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       status: 'unauthenticated',
       viewMode: 'admin',
     });
+    const { useStructureStore } = await import('./structure.store');
+    useStructureStore.getState().setActive(null).catch(() => {});
     // Retour au vocabulaire neutre de l'écran de connexion.
     const { useAppContextStore } = await import('./app-context.store');
     useAppContextStore.getState().refresh().catch(() => {});

@@ -17,13 +17,20 @@ api.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.set('Authorization', `Bearer ${token}`);
   }
-  
+
   // Récupérer le token CSRF du cookie si disponible
   const csrfToken = await getItem(StorageKeys.CsrfToken);
   if (csrfToken) {
     config.headers.set('x-csrf-token', csrfToken);
   }
-  
+
+  // Structure active choisie par un ADMIN multi-structures : sans cet
+  // en-tête, le backend retombe sur la première structure créée (resolveActive).
+  const structureId = await getItem(StorageKeys.ActiveStructureId);
+  if (structureId) {
+    config.headers.set('X-Structure-Id', structureId);
+  }
+
   return config;
 });
 

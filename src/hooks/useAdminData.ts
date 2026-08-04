@@ -65,6 +65,7 @@ import {
   type UpdateTeamInput,
 } from "../api/admin";
 import { fetchDefaultSchedule, updateDefaultSchedule, type DefaultSchedule } from "../api/config";
+import { getStructures } from "../api/structures";
 import { useAuthStore } from "../stores/auth.store";
 
 const root = ["admin"] as const;
@@ -88,6 +89,16 @@ export function useUpdateDefaultSchedule() {
   return useMutation({
     mutationFn: (input: DefaultSchedule) => updateDefaultSchedule(input),
     onSuccess: (data) => queryClient.setQueryData([...root, "default-schedule"], data),
+  });
+}
+
+// Structures possédées par l'admin connecté (pour le sélecteur de structure).
+export function useStructures() {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "structures"],
+    queryFn: getStructures,
+    enabled: isAdmin,
   });
 }
 

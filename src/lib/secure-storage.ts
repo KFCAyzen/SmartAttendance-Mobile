@@ -9,6 +9,10 @@ export const StorageKeys = {
   // user can re-authenticate by Face ID / fingerprint after an explicit logout.
   BioToken: 'sa.bioToken',
   BioUser: 'sa.bioUser',
+  // Structure choisie par un ADMIN multi-structures (envoyée en en-tête
+  // X-Structure-Id) — lue directement par le client API, donc rangée ici
+  // plutôt que dans AsyncStorage pour éviter tout import circulaire.
+  ActiveStructureId: 'sa.activeStructureId',
 } as const;
 
 export type StorageKey = (typeof StorageKeys)[keyof typeof StorageKeys];
@@ -30,5 +34,6 @@ export async function clearAuth(): Promise<void> {
     removeItem(StorageKeys.AccessToken),
     removeItem(StorageKeys.CurrentUser),
     removeItem(StorageKeys.CsrfToken),
+    removeItem(StorageKeys.ActiveStructureId),
   ]);
 }

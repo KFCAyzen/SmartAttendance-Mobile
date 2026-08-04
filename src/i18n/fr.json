@@ -405,6 +405,10 @@
         "schoolDashboardLabel": "Tableau de bord école",
         "schoolDashboardDesc": "Assiduité, absentéisme et répartition par classe"
       },
+      "structureSwitcher": {
+        "active": "Structure active",
+        "title": "Choisir une structure"
+      },
       "roleLabels": {
         "ADMIN": "Administrateur",
         "HR": "Ressources humaines",

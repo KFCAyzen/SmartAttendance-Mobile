@@ -37,6 +37,7 @@ import { Providers } from "~/components/Providers";
 import { FeedbackProvider } from "~/components/feedback";
 import { useAppContextStore } from "~/stores/app-context.store";
 import { useAuthStore } from "~/stores/auth.store";
+import { useStructureStore } from "~/stores/structure.store";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -85,6 +86,8 @@ function RootLayoutNav() {
     // Contexte de l'instance (entreprise/école) : dernière valeur connue puis
     // rafraîchissement réseau — adapte le vocabulaire (étudiants, classes…).
     void useAppContextStore.getState().hydrate();
+    // Structure choisie par un admin multi-structures (en-tête X-Structure-Id).
+    void useStructureStore.getState().hydrate();
   }, [hydrate]);
 
   useEffect(() => {

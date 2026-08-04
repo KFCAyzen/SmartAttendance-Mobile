@@ -405,6 +405,10 @@
         "schoolDashboardLabel": "School dashboard",
         "schoolDashboardDesc": "Attendance, absenteeism and class breakdown"
       },
+      "structureSwitcher": {
+        "active": "Active structure",
+        "title": "Choose a structure"
+      },
       "roleLabels": {
         "ADMIN": "Administrator",
         "HR": "Human resources",
