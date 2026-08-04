@@ -407,7 +407,9 @@
       },
       "structureSwitcher": {
         "active": "Active structure",
-        "title": "Choose a structure"
+        "title": "Choose a structure",
+        "chooseTitle": "Which structure?",
+        "chooseSubtitle": "You manage several structures. Choose the one to connect to now — you can switch later from More."
       },
       "roleLabels": {
         "ADMIN": "Administrator",

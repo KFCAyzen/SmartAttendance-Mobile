@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -18,6 +17,7 @@ import {
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { useStructures } from "~/hooks/useAdminData";
+import { useSwitchStructure } from "~/hooks/useStructureSwitch";
 import { useAppContextStore } from "~/stores/app-context.store";
 import { useAuthStore } from "~/stores/auth.store";
 import { useStructureStore } from "~/stores/structure.store";
@@ -47,7 +47,6 @@ const ITEMS: HubItem[] = [
 export default function MoreScreen() {
   const p = useAdminTheme();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const clearSession = useAuthStore((s) => s.clearSession);
@@ -55,9 +54,8 @@ export default function MoreScreen() {
   const isSchool = useAppContextStore((s) => s.context === "SCHOOL");
   const structures = useStructures();
   const activeStructureId = useStructureStore((s) => s.activeId);
-  const setActiveStructureId = useStructureStore((s) => s.setActive);
+  const { switchTo, switching } = useSwitchStructure();
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [switching, setSwitching] = useState(false);
 
   const items = ITEMS.filter((it) => !it.schoolOnly || isSchool);
   const name = user ? `${user.firstName} ${user.lastName}` : t("admin.bo.plus.defaultName");
@@ -68,22 +66,10 @@ export default function MoreScreen() {
     structureList.find((s) => s.id === activeStructureId) ?? structureList[0];
 
   const switchStructure = async (structure: Structure) => {
-    if (structure.id === activeStructure?.id) {
-      setPickerOpen(false);
-      return;
+    if (structure.id !== activeStructure?.id) {
+      await switchTo(structure);
     }
-    setSwitching(true);
-    try {
-      await setActiveStructureId(structure.id);
-      // Tout l'écran back-office dépend de la structure active : on vide le
-      // cache pour forcer un rechargement complet, et on rafraîchit le
-      // vocabulaire (entreprise/école) qui peut changer avec la structure.
-      queryClient.clear();
-      await useAppContextStore.getState().refresh();
-      setPickerOpen(false);
-    } finally {
-      setSwitching(false);
-    }
+    setPickerOpen(false);
   };
 
   const onItem = (it: HubItem) => {
