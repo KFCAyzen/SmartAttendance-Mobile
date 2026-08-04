@@ -10,7 +10,11 @@ import '../i18n';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 
-const queryClient = new QueryClient({
+// Exporté pour être vidé hors composant (login/logout) : la persistance sur
+// disque (ci-dessous) survit aux redémarrages, donc sans ce clear explicite
+// un nouveau compte ou des données changées ailleurs (web) resteraient
+// masqués par le cache de la session précédente jusqu'à expiration du staleTime.
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 60_000,

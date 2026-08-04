@@ -409,7 +409,8 @@
         "active": "Active structure",
         "title": "Choose a structure",
         "chooseTitle": "Which structure?",
-        "chooseSubtitle": "You manage several structures. Choose the one to connect to now — you can switch later from More."
+        "chooseSubtitle": "You manage several structures. Choose the one to connect to now — you can switch later from More.",
+        "loadError": "Couldn't load your structures. Check your connection and try again."
       },
       "roleLabels": {
         "ADMIN": "Administrator",

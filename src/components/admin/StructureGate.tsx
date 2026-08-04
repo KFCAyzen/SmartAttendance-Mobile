@@ -39,6 +39,26 @@ export function StructureGate({ children }: { children: ReactNode }) {
     );
   }
 
+  // Une erreur réseau/serveur ne doit jamais se lire comme "aucune structure"
+  // (silencieusement masquée derrière `.data ?? []`) : sans admin déjà choisie,
+  // on bloque avec un message explicite plutôt que de laisser deviner.
+  if (structures.isError && !activeStructureId) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14, padding: 24, backgroundColor: p.bg }}>
+        <AdminIcon name="ban" size={32} color={p.danger} />
+        <Text style={{ fontFamily: FONT.bold, fontSize: 16, color: p.ink, textAlign: 'center' }}>
+          {t('admin.bo.structureSwitcher.loadError')}
+        </Text>
+        <Pressable
+          onPress={() => void structures.refetch()}
+          style={{ paddingHorizontal: 18, paddingVertical: 11, borderRadius: RADIUS.base, backgroundColor: p.primary }}
+        >
+          <Text style={{ fontFamily: FONT.bold, fontSize: 14, color: '#fff' }}>{t('common.retry')}</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   const needsChoice = list.length > 1 && !activeStructureId;
   if (!needsChoice) return <>{children}</>;
 

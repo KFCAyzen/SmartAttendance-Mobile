@@ -81,6 +81,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await setItem(StorageKeys.AccessToken, token);
     await setItem(StorageKeys.CurrentUser, JSON.stringify(user));
     set({ accessToken: token, user, status: 'verifying_device', viewMode: 'admin' });
+    // Le cache React Query est persisté sur disque (24h) pour un démarrage
+    // hors-ligne instantané — mais sans ce clear, une nouvelle connexion (autre
+    // compte, ou même compte avec des structures créées depuis le web) resterait
+    // masquée par les données de la session précédente jusqu'à expiration du
+    // staleTime (60s) ET un refetch réseau réussi, ce qui peut ne jamais arriver
+    // silencieusement si ce refetch échoue en tâche de fond.
+    const { queryClient } = await import('../components/Providers');
+    queryClient.clear();
     // Une structure active choisie par un précédent compte admin sur cet
     // appareil ne doit pas fuiter vers ce nouveau compte (403 sinon côté API
     // dès qu'elle ne lui appartient plus) : on repart du repli par défaut.
@@ -103,6 +111,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       status: 'unauthenticated',
       viewMode: 'admin',
     });
+    const { queryClient } = await import('../components/Providers');
+    queryClient.clear();
     const { useStructureStore } = await import('./structure.store');
     useStructureStore.getState().setActive(null).catch(() => {});
     // Retour au vocabulaire neutre de l'écran de connexion.

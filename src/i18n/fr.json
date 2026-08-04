@@ -409,7 +409,8 @@
         "active": "Structure active",
         "title": "Choisir une structure",
         "chooseTitle": "Quelle structure ?",
-        "chooseSubtitle": "Vous gérez plusieurs structures. Choisissez celle à laquelle vous connecter maintenant — vous pourrez en changer ensuite depuis Plus."
+        "chooseSubtitle": "Vous gérez plusieurs structures. Choisissez celle à laquelle vous connecter maintenant — vous pourrez en changer ensuite depuis Plus.",
+        "loadError": "Impossible de récupérer vos structures. Vérifiez votre connexion et réessayez."
       },
       "roleLabels": {
         "ADMIN": "Administrateur",
