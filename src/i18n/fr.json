@@ -169,6 +169,11 @@
     "leaves": "Congés",
     "absences": "Absences",
     "balances": "Mes soldes",
+    "overview": {
+      "total": "Total",
+      "pending": "En attente",
+      "approved": "Approuvées"
+    },
     "noLeaves": "Aucune demande de congé.",
     "noAbsences": "Aucune absence enregistrée.",
     "rejectionReason": "Motif : {{reason}}",
@@ -237,7 +242,31 @@
     "darkMode": "Mode sombre",
     "security": "Sécurité & appareil",
     "thisDevice": "Cet appareil",
+    "mySchedule": "Mon horaire",
     "exportData": "Exporter mes données (RGPD)"
+  },
+  "schedule": {
+    "title": "Mon Horaire",
+    "subtitle": "Consultez votre horaire de travail.",
+    "info": {
+      "hoursPerDay": "Heures/jour",
+      "start": "Début",
+      "end": "Fin",
+      "workDays": "Jours travaillés"
+    },
+    "noSchedule": {
+      "title": "Aucun horaire assigné",
+      "description": "Contactez votre administrateur pour obtenir un horaire de travail."
+    },
+    "days": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mer",
+      "thu": "Jeu",
+      "fri": "Ven",
+      "sat": "Sam",
+      "sun": "Dim"
+    }
   },
   "changePassword": {
     "title": "Mot de passe",
@@ -372,7 +401,9 @@
         "rolesLabel": "Rôles & permissions",
         "rolesDesc": "Accès & paramètres",
         "horaireLabel": "Horaire par défaut",
-        "horaireDesc": "Heure de début, tolérance et fin de journée"
+        "horaireDesc": "Heure de début, tolérance et fin de journée",
+        "schoolDashboardLabel": "Tableau de bord école",
+        "schoolDashboardDesc": "Assiduité, absentéisme et répartition par classe"
       },
       "roleLabels": {
         "ADMIN": "Administrateur",
@@ -514,6 +545,22 @@
         "exportFailedMsg": "Réessayez plus tard.",
         "noData": "Aucune donnée sur la période.",
         "htmlSubtitle": "{{n}} lignes · export SmartAttendance"
+      },
+      "schoolDashboard": {
+        "sub": "Assiduité élèves",
+        "title": "Tableau de bord école",
+        "presentToday": "Présents aujourd'hui",
+        "absentToday": "Absents aujourd'hui",
+        "absenceRate": "Taux d'absence",
+        "chronicAbsentees": "Absentéisme répété",
+        "chronicThreshold": "≥ {{n}} absences",
+        "presenceTrend": "Tendance de présence",
+        "byClass": "Répartition par classe",
+        "unassigned": "Sans classe",
+        "absenteeism": "Élèves en absentéisme répété",
+        "absenteeismEmpty": "Aucun élève en absentéisme répété sur la période.",
+        "lastAbsence": "dernière le {{date}}",
+        "absenceCount": "{{n}} absences"
       },
       "planning": {
         "sub": "Congés & absences",

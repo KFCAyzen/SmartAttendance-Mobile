@@ -279,6 +279,81 @@ export async function getAdminOverview(days = 30): Promise<AdminOverview> {
   return data;
 }
 
+// ── Analytics dédiées structure SCHOOL (assiduité élèves) ────────────────────
+export interface SchoolOverview {
+  totalStudents: number;
+  activeStudents: number;
+  presentToday: number;
+  absentToday: number;
+  presentRate: number;
+  absenceRate: number;
+  absencesPeriod: number;
+  chronicAbsenteesCount: number;
+  chronicThreshold: number;
+}
+
+export interface SchoolPresencePoint {
+  date: string;
+  present: number;
+  absent: number;
+}
+
+export interface SchoolClassBreakdown {
+  teamId: string | null;
+  team: string | null;
+  studentCount: number;
+  presentToday: number;
+  absentToday: number;
+  absenceRate: number;
+}
+
+export interface SchoolAbsenteeStudent {
+  userId: string;
+  name: string;
+  team: string | null;
+  photoUrl?: string | null;
+  absenceCount: number;
+  lastAbsenceDate: string | null;
+}
+
+export interface SchoolAbsenteeismList {
+  threshold: number;
+  days: number;
+  students: SchoolAbsenteeStudent[];
+}
+
+export async function getSchoolOverview(days = 30): Promise<SchoolOverview> {
+  const { data } = await api.get<SchoolOverview>('/admin/analytics/school-overview', {
+    params: { days },
+  });
+  return data;
+}
+
+export async function getSchoolPresenceTrend(days = 30): Promise<SchoolPresencePoint[]> {
+  const { data } = await api.get<SchoolPresencePoint[]>('/admin/analytics/school-presence', {
+    params: { days },
+  });
+  return data;
+}
+
+export async function getSchoolClassBreakdown(days = 30): Promise<SchoolClassBreakdown[]> {
+  const { data } = await api.get<SchoolClassBreakdown[]>('/admin/analytics/school-classes', {
+    params: { days },
+  });
+  return data;
+}
+
+export async function getSchoolAbsenteeismList(
+  days = 30,
+  threshold = 3,
+  limit = 20,
+): Promise<SchoolAbsenteeismList> {
+  const { data } = await api.get<SchoolAbsenteeismList>('/admin/analytics/school-absenteeism', {
+    params: { days, threshold, limit },
+  });
+  return data;
+}
+
 export async function getPendingLeaves(page = 1, limit = 20): Promise<PagedResponse<AdminLeave>> {
   const { data } = await api.get<PagedResponse<AdminLeave>>('/admin/leave-requests', {
     params: { status: 'PENDING', page, limit },

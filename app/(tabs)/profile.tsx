@@ -223,6 +223,11 @@ export default function ProfileScreen() {
           onPress={() => router.push('/change-password')}
         />
         <SettingRow
+          icon="calendar-outline"
+          label={t('profile.mySchedule')}
+          onPress={() => router.push('/mon-horaire')}
+        />
+        <SettingRow
           icon="download-outline"
           label={t('profile.exportData')}
           onPress={exportData}

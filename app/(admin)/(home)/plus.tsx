@@ -32,6 +32,7 @@ const ITEMS: HubItem[] = [
   { key: "equipes", icon: "grid", route: "/(admin)/equipes" },
   { key: "planning", icon: "calendar", route: "/(admin)/planning" },
   { key: "horaire", icon: "clock", route: "/(admin)/horaire-defaut", schoolOnly: true },
+  { key: "schoolDashboard", icon: "bars", route: "/(admin)/school-dashboard", schoolOnly: true },
   { key: "historique", icon: "clock", route: "/(admin)/historique" },
   { key: "reports", icon: "bars", route: "/(admin)/reports" },
   { key: "sites", icon: "building", route: "/(admin)/sites" },

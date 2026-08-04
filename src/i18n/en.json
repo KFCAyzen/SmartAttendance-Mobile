@@ -169,6 +169,11 @@
     "leaves": "Leaves",
     "absences": "Absences",
     "balances": "My balances",
+    "overview": {
+      "total": "Total",
+      "pending": "Pending",
+      "approved": "Approved"
+    },
     "noLeaves": "No leave requests.",
     "noAbsences": "No absences recorded.",
     "rejectionReason": "Reason: {{reason}}",
@@ -237,7 +242,31 @@
     "darkMode": "Dark mode",
     "security": "Security & device",
     "thisDevice": "This device",
+    "mySchedule": "My schedule",
     "exportData": "Export my data (GDPR)"
+  },
+  "schedule": {
+    "title": "My Schedule",
+    "subtitle": "View your work schedule.",
+    "info": {
+      "hoursPerDay": "Hours/day",
+      "start": "Start",
+      "end": "End",
+      "workDays": "Work days"
+    },
+    "noSchedule": {
+      "title": "No schedule assigned",
+      "description": "Contact your administrator to get a work schedule."
+    },
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    }
   },
   "changePassword": {
     "title": "Password",
@@ -372,7 +401,9 @@
         "rolesLabel": "Roles & permissions",
         "rolesDesc": "Access & settings",
         "horaireLabel": "Default schedule",
-        "horaireDesc": "Start time, tolerance and end of day"
+        "horaireDesc": "Start time, tolerance and end of day",
+        "schoolDashboardLabel": "School dashboard",
+        "schoolDashboardDesc": "Attendance, absenteeism and class breakdown"
       },
       "roleLabels": {
         "ADMIN": "Administrator",
@@ -514,6 +545,22 @@
         "exportFailedMsg": "Try again later.",
         "noData": "No data for the period.",
         "htmlSubtitle": "{{n}} rows · SmartAttendance export"
+      },
+      "schoolDashboard": {
+        "sub": "Student attendance",
+        "title": "School dashboard",
+        "presentToday": "Present today",
+        "absentToday": "Absent today",
+        "absenceRate": "Absence rate",
+        "chronicAbsentees": "Chronic absenteeism",
+        "chronicThreshold": "≥ {{n}} absences",
+        "presenceTrend": "Presence trend",
+        "byClass": "Breakdown by class",
+        "unassigned": "Unassigned",
+        "absenteeism": "Students with repeated absences",
+        "absenteeismEmpty": "No student with repeated absences over this period.",
+        "lastAbsence": "last on {{date}}",
+        "absenceCount": "{{n}} absences"
       },
       "planning": {
         "sub": "Leave & absences",

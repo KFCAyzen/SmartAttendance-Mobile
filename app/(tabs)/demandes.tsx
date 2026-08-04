@@ -16,6 +16,7 @@ import { SegmentControl } from '~/components/ui/SegmentControl';
 import { StatusPill, type PillTone } from '~/components/ui/StatusPill';
 import { canJustify, getAbsenceStatusLabel, getAbsenceTypeLabel } from '~/lib/absences';
 import { getLeaveStatusLabel, getLeaveTypeLabel } from '~/lib/leaves';
+import { useAppContextStore } from '~/stores/app-context.store';
 
 type Tab = 'leaves' | 'absences';
 
@@ -103,6 +104,9 @@ export default function DemandesScreen() {
 
 function LeavesList() {
   const { t } = useTranslation();
+  // Les soldes de congés (payés/RTT…) n'ont pas de sens pour un élève : en
+  // mode école on affiche un aperçu du nombre de demandes à la place.
+  const isSchool = useAppContextStore((s) => s.context === 'SCHOOL');
   const query = useInfiniteQuery({
     queryKey: ['leaves'],
     queryFn: ({ pageParam = 1 }) => listLeaves(pageParam, 20),
@@ -114,13 +118,20 @@ function LeavesList() {
     },
   });
 
-  const balance = useQuery({ queryKey: ['leaves', 'balance'], queryFn: getBalance });
+  const balance = useQuery({
+    queryKey: ['leaves', 'balance'],
+    queryFn: getBalance,
+    enabled: !isSchool,
+  });
 
   const items = useMemo<Leave[]>(() => {
     const out: Leave[] = [];
     for (const p of query.data?.pages ?? []) out.push(...(p.data ?? p.items ?? []));
     return out;
   }, [query.data]);
+
+  const pendingCount = useMemo(() => items.filter((l) => l.status === 'PENDING').length, [items]);
+  const approvedCount = useMemo(() => items.filter((l) => l.status === 'APPROVED').length, [items]);
 
   if (query.isLoading) {
     return (
@@ -136,7 +147,13 @@ function LeavesList() {
       keyExtractor={(it) => it.id}
       contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120, gap: 10 }}
       ListHeaderComponent={
-        balance.data && balance.data.length > 0 ? (
+        isSchool ? (
+          <Card className="mb-1 flex-row gap-2.5">
+            <OverviewTile label={t('requests.overview.total')} value={items.length} />
+            <OverviewTile label={t('requests.overview.pending')} value={pendingCount} />
+            <OverviewTile label={t('requests.overview.approved')} value={approvedCount} />
+          </Card>
+        ) : balance.data && balance.data.length > 0 ? (
           <Card className="mb-1 gap-3.5">
             <Text className="font-bodyBold text-[12px] uppercase tracking-wide text-muted dark:text-slate-400">
               {t('requests.balances')}
@@ -187,6 +204,15 @@ function LeavesList() {
         />
       }
     />
+  );
+}
+
+function OverviewTile({ label, value }: { label: string; value: number }) {
+  return (
+    <View className="flex-1 items-center gap-1 rounded-[16px] bg-surface-soft py-3 dark:bg-surface-softDark">
+      <Text className="font-display text-[20px] text-ink dark:text-white">{value}</Text>
+      <Text className="font-body text-[11px] text-muted dark:text-slate-400">{label}</Text>
+    </View>
   );
 }
 

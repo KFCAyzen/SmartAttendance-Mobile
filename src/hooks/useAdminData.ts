@@ -43,6 +43,10 @@ import {
   getSettings,
   getSiteMembers,
   getSites,
+  getSchoolOverview,
+  getSchoolPresenceTrend,
+  getSchoolClassBreakdown,
+  getSchoolAbsenteeismList,
   rejectLeave,
   setSiteMembers,
   updateAbsenceStatus,
@@ -111,6 +115,43 @@ export function useAdminPresence(days = 7) {
   return useQuery({
     queryKey: [...root, "presence", days],
     queryFn: () => getAnalyticsPresence(days),
+    enabled: isAdmin,
+  });
+}
+
+// ── Analytics dédiées structure SCHOOL (assiduité élèves) ────────────────────
+export function useSchoolOverview(days = 30) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "school-overview", days],
+    queryFn: () => getSchoolOverview(days),
+    enabled: isAdmin,
+  });
+}
+
+export function useSchoolPresenceTrend(days = 30) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "school-presence", days],
+    queryFn: () => getSchoolPresenceTrend(days),
+    enabled: isAdmin,
+  });
+}
+
+export function useSchoolClassBreakdown(days = 30) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "school-classes", days],
+    queryFn: () => getSchoolClassBreakdown(days),
+    enabled: isAdmin,
+  });
+}
+
+export function useSchoolAbsenteeismList(days = 30, threshold = 3, limit = 20) {
+  const isAdmin = useIsAdmin();
+  return useQuery({
+    queryKey: [...root, "school-absenteeism", days, threshold, limit],
+    queryFn: () => getSchoolAbsenteeismList(days, threshold, limit),
     enabled: isAdmin,
   });
 }
