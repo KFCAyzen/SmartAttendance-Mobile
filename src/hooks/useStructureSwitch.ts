@@ -16,8 +16,12 @@ export function useSwitchStructure() {
     setSwitching(true);
     try {
       await setActiveStructureId(structure.id);
+      // Le type de la structure choisie est déjà connu (elle vient de la liste
+      // /structures) : on l'applique directement plutôt que de le re-déduire
+      // via un aller-retour réseau vers /config/app-context, dont l'échec
+      // serait silencieusement ignoré et laisserait l'ancien vocabulaire affiché.
+      await useAppContextStore.getState().setContext(structure.type);
       queryClient.clear();
-      await useAppContextStore.getState().refresh();
     } finally {
       setSwitching(false);
     }

@@ -11,6 +11,13 @@ interface AppContextState {
   /** Applique la dernière valeur connue (hors-ligne) puis rafraîchit depuis l'API. */
   hydrate: () => Promise<void>;
   refresh: () => Promise<void>;
+  /**
+   * Applique directement un contexte déjà connu (ex. le `type` de la structure
+   * qu'on vient de choisir dans le sélecteur) — synchrone, sans dépendre d'un
+   * aller-retour réseau vers /config/app-context dont l'échec serait avalé
+   * silencieusement par `refresh()` (repli "on garde la dernière valeur connue").
+   */
+  setContext: (context: AppContext) => Promise<void>;
 }
 
 export const useAppContextStore = create<AppContextState>((set, get) => ({
@@ -36,5 +43,11 @@ export const useAppContextStore = create<AppContextState>((set, get) => ({
     } catch {
       // Hors-ligne ou backend indisponible : on garde la dernière valeur connue.
     }
+  },
+
+  async setContext(context) {
+    set({ context });
+    applyAppContext(context);
+    await AsyncStorage.setItem(STORAGE_KEY, context);
   },
 }));
