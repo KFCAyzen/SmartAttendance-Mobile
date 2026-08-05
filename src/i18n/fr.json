@@ -733,7 +733,15 @@
         "educationLevel": "Niveau d'étude",
         "emergencyContact": "Contact d'urgence",
         "bio": "Bio",
-        "datePlaceholder": "Choisir une date"
+        "datePlaceholder": "Choisir une date",
+        "devices": "Appareils",
+        "deviceActive": "Actif",
+        "devicePending": "En attente de validation",
+        "deviceRevoked": "Révoqué",
+        "dissociate": "Dissocier",
+        "dissociateConfirmTitle": "Dissocier cet appareil ?",
+        "dissociateConfirmMessage": "{{name}} ne sera plus associé à ce compte. Il pourra être enregistré sous un autre compte.",
+        "dissociateSuccess": "Appareil dissocié"
       },
       "roles": {
         "sub": "Accès & configuration",
@@ -832,6 +840,7 @@
       "DEVICE_NOT_REGISTERED": "Cet appareil n'est pas enregistré. Enregistrez-le depuis votre profil.",
       "DEVICE_NOT_APPROVED": "Cet appareil est en attente de validation par un administrateur.",
       "DEVICE_NOT_AUTHORIZED": "Cet appareil n'est pas autorisé pour le pointage.",
+      "DEVICE_ALREADY_LINKED": "Cet appareil est déjà associé à un autre compte. Demandez à un administrateur de le dissocier.",
       "LOCATION_OR_WIFI_REQUIRED": "Activez la localisation ou connectez-vous au Wi-Fi du site pour pointer.",
       "ATTENDANCE_CONTEXT_NOT_AUTHORIZED": "Votre position ou votre réseau Wi-Fi ne correspond à aucun site autorisé.",
       "ATTENDANCE_ALREADY_CHECKED_IN": "Votre entrée a déjà été pointée aujourd'hui.",

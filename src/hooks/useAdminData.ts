@@ -16,6 +16,7 @@ import {
   createTeam,
   deleteEmployee,
   deleteTeam,
+  dissociateDevice,
   getAdminAttendances,
   getAdminLeaves,
   getEmployeeProfile,
@@ -455,6 +456,14 @@ export function useRevokeDevice() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => revokeDevice(id),
+    onSuccess: () => invalidateDevices(queryClient),
+  });
+}
+
+export function useDissociateDevice() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => dissociateDevice(id),
     onSuccess: () => invalidateDevices(queryClient),
   });
 }

@@ -568,6 +568,13 @@ export async function revokeDevice(id: string): Promise<AdminDevice> {
   return data;
 }
 
+/** Libère l'identifiant d'appareil pour qu'un autre compte puisse
+ * l'enregistrer (supprime l'association, pas juste une révocation). Réservé ADMIN. */
+export async function dissociateDevice(id: string): Promise<{ success: boolean }> {
+  const { data } = await api.post<{ success: boolean }>(`/admin/devices/${id}/dissociate`);
+  return data;
+}
+
 // ── Demandes de changement de photo de référence ────────────────────────────
 export interface PhotoRequest {
   /** id = userId du demandeur. */

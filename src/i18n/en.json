@@ -733,7 +733,15 @@
         "educationLevel": "Education level",
         "emergencyContact": "Emergency contact",
         "bio": "Bio",
-        "datePlaceholder": "Pick a date"
+        "datePlaceholder": "Pick a date",
+        "devices": "Devices",
+        "deviceActive": "Active",
+        "devicePending": "Pending approval",
+        "deviceRevoked": "Revoked",
+        "dissociate": "Dissociate",
+        "dissociateConfirmTitle": "Dissociate this device?",
+        "dissociateConfirmMessage": "{{name}} will no longer be linked to this account. It can then be registered under another account.",
+        "dissociateSuccess": "Device dissociated"
       },
       "roles": {
         "sub": "Access & configuration",
@@ -832,6 +840,7 @@
       "DEVICE_NOT_REGISTERED": "This device is not registered. Register it from your profile.",
       "DEVICE_NOT_APPROVED": "This device is awaiting approval by an administrator.",
       "DEVICE_NOT_AUTHORIZED": "This device is not authorized for check-in.",
+      "DEVICE_ALREADY_LINKED": "This device is already linked to another account. Ask an administrator to unlink it.",
       "LOCATION_OR_WIFI_REQUIRED": "Enable location or connect to the site's Wi-Fi to check in.",
       "ATTENDANCE_CONTEXT_NOT_AUTHORIZED": "Your location or Wi-Fi network doesn't match any authorized site.",
       "ATTENDANCE_ALREADY_CHECKED_IN": "You have already checked in today.",

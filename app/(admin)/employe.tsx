@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Platform,
   Pressable,
@@ -12,7 +13,7 @@ import {
   View,
 } from "react-native";
 
-import type { UpdateEmployeeProfileInput } from "~/api/admin";
+import type { AdminDevice, UpdateEmployeeProfileInput } from "~/api/admin";
 import { humanizeApiError } from "~/api/client";
 import { buildPhotoUrl } from "~/api/users";
 import { AdminIcon } from "~/components/admin/AdminIcon";
@@ -28,7 +29,12 @@ import {
 import { FONT, RADIUS, withAlpha } from "~/components/admin/theme";
 import { useAdminTheme } from "~/components/admin/useAdminTheme";
 import { feedback } from "~/components/feedback";
-import { useEmployeeProfile, useUpdateEmployeeProfile } from "~/hooks/useAdminData";
+import {
+  useAdminDevices,
+  useDissociateDevice,
+  useEmployeeProfile,
+  useUpdateEmployeeProfile,
+} from "~/hooks/useAdminData";
 
 const GENDERS = ["M", "F", "Other"] as const;
 const EDUCATION = ["BAC", "BAC+2", "BAC+3", "BAC+5", "BAC+8"] as const;
@@ -42,6 +48,8 @@ export default function EmployeeProfileScreen() {
   const { t, i18n } = useTranslation();
   const profileQuery = useEmployeeProfile(id);
   const update = useUpdateEmployeeProfile(id ?? "");
+  const devicesQuery = useAdminDevices();
+  const employeeDevices = (devicesQuery.data ?? []).filter((d) => d.user?.id === id);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<UpdateEmployeeProfileInput>({});
 
@@ -289,9 +297,100 @@ export default function EmployeeProfileScreen() {
               </>
             )}
           </Card>
+
+          {employeeDevices.length > 0 ? (
+            <>
+              <SectionTitle>{t("admin.bo.profile.devices")}</SectionTitle>
+              <Card style={{ gap: 12 }}>
+                {employeeDevices.map((device) => (
+                  <DeviceRow key={device.id} device={device} />
+                ))}
+              </Card>
+            </>
+          ) : null}
         </>
       )}
     </AdminScrollBody>
+  );
+}
+
+function DeviceRow({ device }: { device: AdminDevice }) {
+  const p = useAdminTheme();
+  const { t } = useTranslation();
+  const dissociate = useDissociateDevice();
+
+  const statusTone =
+    device.status === "ACTIVE" ? p.success : device.status === "PENDING" ? p.warning : p.danger;
+  const statusLabel =
+    device.status === "ACTIVE"
+      ? t("admin.bo.profile.deviceActive")
+      : device.status === "PENDING"
+        ? t("admin.bo.profile.devicePending")
+        : t("admin.bo.profile.deviceRevoked");
+
+  const onDissociate = () => {
+    Alert.alert(
+      t("admin.bo.profile.dissociateConfirmTitle"),
+      t("admin.bo.profile.dissociateConfirmMessage", { name: device.deviceName }),
+      [
+        { text: t("admin.bo.common.cancel"), style: "cancel" },
+        {
+          text: t("admin.bo.profile.dissociate"),
+          style: "destructive",
+          onPress: () =>
+            dissociate.mutate(device.id, {
+              onSuccess: () => feedback.success(t("admin.bo.profile.dissociateSuccess")),
+              onError: () => feedback.error(t("admin.bo.common.failed")),
+            }),
+        },
+      ],
+    );
+  };
+
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 11,
+          backgroundColor: withAlpha(p.primary, 0.1),
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <AdminIcon name="cpu" size={17} color={p.primary} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text numberOfLines={1} style={{ fontFamily: FONT.bold, fontSize: 13.5, color: p.ink }}>
+          {device.deviceName}
+        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 5, marginTop: 2 }}>
+          <View style={{ width: 6, height: 6, borderRadius: 999, backgroundColor: statusTone }} />
+          <Text style={{ fontFamily: FONT.body, fontSize: 11.5, color: p.muted }}>{statusLabel}</Text>
+        </View>
+      </View>
+      <Pressable
+        onPress={onDissociate}
+        disabled={dissociate.isPending}
+        style={{
+          paddingHorizontal: 12,
+          paddingVertical: 7,
+          borderRadius: RADIUS.base,
+          borderWidth: 1,
+          borderColor: withAlpha(p.danger, 0.35),
+          opacity: dissociate.isPending ? 0.6 : 1,
+        }}
+      >
+        {dissociate.isPending ? (
+          <ActivityIndicator size="small" color={p.danger} />
+        ) : (
+          <Text style={{ fontFamily: FONT.bold, fontSize: 12, color: p.danger }}>
+            {t("admin.bo.profile.dissociate")}
+          </Text>
+        )}
+      </Pressable>
+    </View>
   );
 }
 
